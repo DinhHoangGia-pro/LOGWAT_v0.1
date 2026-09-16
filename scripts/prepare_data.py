@@ -10,7 +10,7 @@ It re-uses logic consolidated in `src.preprocessing.normalization`.
 import argparse
 import os
 import pandas as pd
-from src.preprocessing.normalization import label_dataframe, clean_dataframe
+from src.preprocessing.normalization import label_dataset, balance_dataset
 from src.utils.config import load_all
 
 
@@ -80,25 +80,15 @@ def main():
     if not os.path.exists(csic_raw):
         raise FileNotFoundError(f'CSIC raw file not found: {csic_raw}')
 
-    df_raw = pd.read_csv(csic_raw)
-    df_labeled = label_dataframe(df_raw)
-    df_labeled.to_csv(labeled_out, index=False)
+    # Step 1: label raw CSIC -> writes cleaned+labeled file
+    df_labeled = label_dataset(csic_raw, labeled_out)
     print(f'Wrote labeled CSIC to: {labeled_out}')
 
-    # Step 2: clean labeled CSIC
-    df_labeled = pd.read_csv(labeled_out)
-    df_clean = clean_dataframe(df_labeled, content_col='content')
-    # overwrite labeled_out with cleaned+labeled to keep downstream scripts compatible
-    df_clean.to_csv(labeled_out, index=False)
-    print(f'Wrote cleaned labeled CSIC to: {labeled_out}')
-
-    # Step 3: rebuild/augment
+    # Step 2/3: build balanced/augmented dataset using XSS source
     if not os.path.exists(xss_source):
         raise FileNotFoundError(f'XSS source not found: {xss_source}')
 
-    df_xss_src = pd.read_csv(xss_source)
-    final = rebuild_and_augment(df_clean, df_xss_src, target_size=args.target)
-    final.to_csv(augmented_out, index=False)
+    final = balance_dataset(labeled_out, xss_source, augmented_out)
     print(f'Wrote augmented balanced dataset to: {augmented_out}')
 
 
