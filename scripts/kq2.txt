@@ -1,0 +1,136 @@
+(web_venv) dxthanh@dxthanh-Alienware-m15-R7:~/hin_web_vulne/scripts$ python build_web_graphs.py
+--- [1/2] BUILD GRAPH: SEMANTIC DEPENDENCY EDGES ---
+Deep Building: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 30000/30000 [00:17<00:00, 1691.76it/s]
+
+[V] Đã tạo xong đồ thị nâng cấp.
+(web_venv) dxthanh@dxthanh-Alienware-m15-R7:~/hin_web_vulne/scripts$ python train_web_gnn.py
+Epoch 001 | Loss: 0.3856 | Acc: 0.8418 | LR: 0.000500 | Time: 4.1s
+   [V] Saved Best: 0.8418
+Epoch 002 | Loss: 0.3197 | Acc: 0.8576 | LR: 0.000500 | Time: 3.8s
+   [V] Saved Best: 0.8576
+Epoch 003 | Loss: 0.3058 | Acc: 0.8596 | LR: 0.000500 | Time: 3.7s
+   [V] Saved Best: 0.8596
+Epoch 004 | Loss: 0.2912 | Acc: 0.8713 | LR: 0.000500 | Time: 3.7s
+   [V] Saved Best: 0.8713
+Epoch 005 | Loss: 0.2788 | Acc: 0.8269 | LR: 0.000500 | Time: 3.7s
+Epoch 006 | Loss: 0.2670 | Acc: 0.8742 | LR: 0.000500 | Time: 3.7s
+   [V] Saved Best: 0.8742
+Epoch 007 | Loss: 0.2554 | Acc: 0.8784 | LR: 0.000500 | Time: 3.7s
+   [V] Saved Best: 0.8784
+Epoch 008 | Loss: 0.2456 | Acc: 0.8973 | LR: 0.000500 | Time: 3.7s
+   [V] Saved Best: 0.8973
+Epoch 009 | Loss: 0.2448 | Acc: 0.8940 | LR: 0.000500 | Time: 3.7s
+Epoch 010 | Loss: 0.2385 | Acc: 0.9076 | LR: 0.000500 | Time: 3.7s
+   [V] Saved Best: 0.9076
+Epoch 011 | Loss: 0.2308 | Acc: 0.8816 | LR: 0.000500 | Time: 3.7s
+Epoch 012 | Loss: 0.2251 | Acc: 0.9033 | LR: 0.000500 | Time: 3.7s
+Epoch 013 | Loss: 0.2106 | Acc: 0.8960 | LR: 0.000500 | Time: 3.7s
+Epoch 014 | Loss: 0.1993 | Acc: 0.9264 | LR: 0.000500 | Time: 3.7s
+   [V] Saved Best: 0.9264
+Epoch 015 | Loss: 0.2023 | Acc: 0.9127 | LR: 0.000500 | Time: 3.7s
+Epoch 016 | Loss: 0.1841 | Acc: 0.9040 | LR: 0.000500 | Time: 3.6s
+Epoch 017 | Loss: 0.1821 | Acc: 0.9271 | LR: 0.000500 | Time: 3.6s
+   [V] Saved Best: 0.9271
+Epoch 018 | Loss: 0.1739 | Acc: 0.9200 | LR: 0.000500 | Time: 3.6s
+Epoch 019 | Loss: 0.1724 | Acc: 0.9278 | LR: 0.000500 | Time: 3.6s
+   [V] Saved Best: 0.9278
+Epoch 020 | Loss: 0.1635 | Acc: 0.9409 | LR: 0.000500 | Time: 3.9s
+   [V] Saved Best: 0.9409
+Epoch 021 | Loss: 0.1586 | Acc: 0.9309 | LR: 0.000500 | Time: 3.9s
+Epoch 022 | Loss: 0.1751 | Acc: 0.9387 | LR: 0.000500 | Time: 3.9s
+Epoch 023 | Loss: 0.1683 | Acc: 0.9358 | LR: 0.000500 | Time: 3.9s
+Epoch 024 | Loss: 0.1630 | Acc: 0.9329 | LR: 0.000500 | Time: 3.7s
+Epoch 025 | Loss: 0.1540 | Acc: 0.9369 | LR: 0.000500 | Time: 3.7s
+Epoch 026 | Loss: 0.1560 | Acc: 0.9420 | LR: 0.000500 | Time: 3.7s
+   [V] Saved Best: 0.9420
+Epoch 027 | Loss: 0.1543 | Acc: 0.9338 | LR: 0.000500 | Time: 3.7s
+Epoch 028 | Loss: 0.1619 | Acc: 0.9422 | LR: 0.000500 | Time: 3.7s
+   [V] Saved Best: 0.9422
+Epoch 029 | Loss: 0.1567 | Acc: 0.9442 | LR: 0.000500 | Time: 3.7s
+   [V] Saved Best: 0.9442
+Epoch 030 | Loss: 0.1461 | Acc: 0.9351 | LR: 0.000500 | Time: 3.7s
+Epoch 031 | Loss: 0.1518 | Acc: 0.9433 | LR: 0.000500 | Time: 3.7s
+Epoch 032 | Loss: 0.1470 | Acc: 0.9184 | LR: 0.000500 | Time: 3.7s
+Epoch 033 | Loss: 0.1454 | Acc: 0.9407 | LR: 0.000500 | Time: 3.7s
+Epoch 034 | Loss: 0.1492 | Acc: 0.9380 | LR: 0.000500 | Time: 3.7s
+Epoch 035 | Loss: 0.1438 | Acc: 0.9318 | LR: 0.000250 | Time: 3.7s
+Epoch 036 | Loss: 0.1292 | Acc: 0.9544 | LR: 0.000250 | Time: 3.7s
+   [V] Saved Best: 0.9544
+Epoch 037 | Loss: 0.1229 | Acc: 0.9527 | LR: 0.000250 | Time: 3.7s
+Epoch 038 | Loss: 0.1242 | Acc: 0.9487 | LR: 0.000250 | Time: 3.7s
+Epoch 039 | Loss: 0.1210 | Acc: 0.9464 | LR: 0.000250 | Time: 3.7s
+Epoch 040 | Loss: 0.1187 | Acc: 0.9549 | LR: 0.000250 | Time: 3.7s
+   [V] Saved Best: 0.9549
+Epoch 041 | Loss: 0.1165 | Acc: 0.9609 | LR: 0.000250 | Time: 3.7s
+   [V] Saved Best: 0.9609
+Epoch 042 | Loss: 0.1170 | Acc: 0.9524 | LR: 0.000250 | Time: 3.7s
+Epoch 043 | Loss: 0.1155 | Acc: 0.9567 | LR: 0.000250 | Time: 3.7s
+Epoch 044 | Loss: 0.1148 | Acc: 0.9551 | LR: 0.000250 | Time: 3.7s
+Epoch 045 | Loss: 0.1136 | Acc: 0.9542 | LR: 0.000250 | Time: 3.7s
+Epoch 046 | Loss: 0.1140 | Acc: 0.9642 | LR: 0.000250 | Time: 3.7s
+   [V] Saved Best: 0.9642
+Epoch 047 | Loss: 0.1129 | Acc: 0.9602 | LR: 0.000250 | Time: 3.7s
+Epoch 048 | Loss: 0.1097 | Acc: 0.9438 | LR: 0.000250 | Time: 3.7s
+Epoch 049 | Loss: 0.1080 | Acc: 0.9658 | LR: 0.000250 | Time: 3.7s
+   [V] Saved Best: 0.9658
+Epoch 050 | Loss: 0.1102 | Acc: 0.9542 | LR: 0.000250 | Time: 3.7s
+Epoch 051 | Loss: 0.1071 | Acc: 0.9431 | LR: 0.000250 | Time: 3.7s
+Epoch 052 | Loss: 0.1105 | Acc: 0.9613 | LR: 0.000250 | Time: 3.7s
+Epoch 053 | Loss: 0.1077 | Acc: 0.9653 | LR: 0.000250 | Time: 3.7s
+Epoch 054 | Loss: 0.1049 | Acc: 0.9658 | LR: 0.000250 | Time: 3.7s
+Epoch 055 | Loss: 0.1030 | Acc: 0.9653 | LR: 0.000125 | Time: 3.7s
+Epoch 056 | Loss: 0.0885 | Acc: 0.9720 | LR: 0.000125 | Time: 3.7s
+   [V] Saved Best: 0.9720
+Epoch 057 | Loss: 0.0892 | Acc: 0.9696 | LR: 0.000125 | Time: 3.7s
+Epoch 058 | Loss: 0.0882 | Acc: 0.9678 | LR: 0.000125 | Time: 3.7s
+Epoch 059 | Loss: 0.0869 | Acc: 0.9713 | LR: 0.000125 | Time: 3.7s
+Epoch 060 | Loss: 0.0836 | Acc: 0.9656 | LR: 0.000125 | Time: 3.7s
+Epoch 061 | Loss: 0.0879 | Acc: 0.9720 | LR: 0.000125 | Time: 3.7s
+Epoch 062 | Loss: 0.0838 | Acc: 0.9684 | LR: 0.000063 | Time: 3.7s
+Epoch 063 | Loss: 0.0746 | Acc: 0.9727 | LR: 0.000063 | Time: 3.7s
+   [V] Saved Best: 0.9727
+Epoch 064 | Loss: 0.0745 | Acc: 0.9693 | LR: 0.000063 | Time: 3.7s
+Epoch 065 | Loss: 0.0718 | Acc: 0.9729 | LR: 0.000063 | Time: 3.7s
+   [V] Saved Best: 0.9729
+Epoch 066 | Loss: 0.0738 | Acc: 0.9738 | LR: 0.000063 | Time: 3.7s
+   [V] Saved Best: 0.9738
+Epoch 067 | Loss: 0.0705 | Acc: 0.9731 | LR: 0.000063 | Time: 3.7s
+Epoch 068 | Loss: 0.0708 | Acc: 0.9758 | LR: 0.000063 | Time: 3.7s
+   [V] Saved Best: 0.9758
+Epoch 069 | Loss: 0.0694 | Acc: 0.9747 | LR: 0.000063 | Time: 3.7s
+Epoch 070 | Loss: 0.0702 | Acc: 0.9733 | LR: 0.000063 | Time: 3.7s
+Epoch 071 | Loss: 0.0687 | Acc: 0.9733 | LR: 0.000063 | Time: 3.7s
+Epoch 072 | Loss: 0.0698 | Acc: 0.9713 | LR: 0.000063 | Time: 3.7s
+Epoch 073 | Loss: 0.0696 | Acc: 0.9751 | LR: 0.000063 | Time: 3.7s
+Epoch 074 | Loss: 0.0667 | Acc: 0.9756 | LR: 0.000031 | Time: 3.7s
+Epoch 075 | Loss: 0.0616 | Acc: 0.9747 | LR: 0.000031 | Time: 3.7s
+Epoch 076 | Loss: 0.0624 | Acc: 0.9780 | LR: 0.000031 | Time: 3.6s
+   [V] Saved Best: 0.9780
+Epoch 077 | Loss: 0.0632 | Acc: 0.9756 | LR: 0.000031 | Time: 3.6s
+Epoch 078 | Loss: 0.0625 | Acc: 0.9778 | LR: 0.000031 | Time: 3.9s
+Epoch 079 | Loss: 0.0617 | Acc: 0.9758 | LR: 0.000031 | Time: 3.9s
+Epoch 080 | Loss: 0.0617 | Acc: 0.9749 | LR: 0.000031 | Time: 3.9s
+Epoch 081 | Loss: 0.0620 | Acc: 0.9753 | LR: 0.000031 | Time: 3.8s
+Epoch 082 | Loss: 0.0601 | Acc: 0.9773 | LR: 0.000016 | Time: 3.8s
+Epoch 083 | Loss: 0.0591 | Acc: 0.9780 | LR: 0.000016 | Time: 3.7s
+Epoch 084 | Loss: 0.0599 | Acc: 0.9776 | LR: 0.000016 | Time: 3.7s
+Epoch 085 | Loss: 0.0576 | Acc: 0.9769 | LR: 0.000016 | Time: 3.7s
+Epoch 086 | Loss: 0.0590 | Acc: 0.9747 | LR: 0.000016 | Time: 3.5s
+Epoch 087 | Loss: 0.0567 | Acc: 0.9771 | LR: 0.000016 | Time: 3.5s
+Epoch 088 | Loss: 0.0570 | Acc: 0.9778 | LR: 0.000008 | Time: 3.7s
+Epoch 089 | Loss: 0.0560 | Acc: 0.9780 | LR: 0.000008 | Time: 3.7s
+Epoch 090 | Loss: 0.0562 | Acc: 0.9776 | LR: 0.000008 | Time: 3.7s
+Epoch 091 | Loss: 0.0561 | Acc: 0.9771 | LR: 0.000008 | Time: 3.7s
+Epoch 092 | Loss: 0.0562 | Acc: 0.9782 | LR: 0.000008 | Time: 3.7s
+   [V] Saved Best: 0.9782
+Epoch 093 | Loss: 0.0559 | Acc: 0.9773 | LR: 0.000008 | Time: 3.7s
+Epoch 094 | Loss: 0.0563 | Acc: 0.9749 | LR: 0.000008 | Time: 3.7s
+Epoch 095 | Loss: 0.0553 | Acc: 0.9767 | LR: 0.000008 | Time: 3.7s
+Epoch 096 | Loss: 0.0567 | Acc: 0.9767 | LR: 0.000008 | Time: 3.7s
+Epoch 097 | Loss: 0.0560 | Acc: 0.9773 | LR: 0.000008 | Time: 3.7s
+Epoch 098 | Loss: 0.0562 | Acc: 0.9771 | LR: 0.000004 | Time: 3.7s
+Epoch 099 | Loss: 0.0547 | Acc: 0.9776 | LR: 0.000004 | Time: 3.7s
+Epoch 100 | Loss: 0.0551 | Acc: 0.9784 | LR: 0.000004 | Time: 3.7s
+   [V] Saved Best: 0.9784
+(web_venv) dxthanh@dxthanh-Alienware-m15-R7:~/hin_web_vulne/scripts$ 
+

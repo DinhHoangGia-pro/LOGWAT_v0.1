@@ -1,0 +1,5 @@
+1.Semantic-Aware HIN: Đồ thị thông tin không đồng nhất có nhận biết ngữ nghĩa (nhờ các cạnh tự định nghĩa).
+
+2.GATv2 with Jumping Knowledge: Sử dụng cơ chế Attention thế hệ 2 kết hợp với khả năng tổng hợp thông tin đa tầng (giúp model không bị mất dấu đặc trưng ở các tầng sâu).
+
+3.Attention-based Max Aggregation: Thay vì lấy trung bình, ta sử dụng trọng số attention để lọc ra các node nguy hiểm nhất qua Max-pooling.

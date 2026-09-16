@@ -1,0 +1,146 @@
+(web_venv) dxthanh@dxthanh-Alienware-m15-R7:~/hin_web_vulne/scripts$ python build_web_graphs.py
+--- [1/2] BUILD GRAPH: 64-FEATURES (STABLE VERSION) ---
+Processing: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 30000/30000 [00:15<00:00, 1934.57it/s]
+
+[V] Đồ thị sẵn sàng. Nodes: 30000
+(web_venv) dxthanh@dxthanh-Alienware-m15-R7:~/hin_web_vulne/scripts$ python train_web_gnn.py
+Traceback (most recent call last):
+  File "/home/dxthanh/hin_web_vulne/scripts/train_web_gnn.py", line 88, in <module>
+    if __name__ == "__main__": train()
+  File "/home/dxthanh/hin_web_vulne/scripts/train_web_gnn.py", line 55, in train
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=5, verbose=True)
+TypeError: ReduceLROnPlateau.__init__() got an unexpected keyword argument 'verbose'
+(web_venv) dxthanh@dxthanh-Alienware-m15-R7:~/hin_web_vulne/scripts$ python train_web_gnn.py
+Epoch 001 | Loss: 0.1194 | Acc: 0.8433 | LR: 0.000500
+   [V] New Best Saved: 0.8433
+Epoch 002 | Loss: 0.0853 | Acc: 0.8427 | LR: 0.000500
+Epoch 003 | Loss: 0.0802 | Acc: 0.8578 | LR: 0.000500
+   [V] New Best Saved: 0.8578
+Epoch 004 | Loss: 0.0778 | Acc: 0.8629 | LR: 0.000500
+   [V] New Best Saved: 0.8629
+Epoch 005 | Loss: 0.0763 | Acc: 0.8649 | LR: 0.000500
+   [V] New Best Saved: 0.8649
+Epoch 006 | Loss: 0.0749 | Acc: 0.8640 | LR: 0.000500
+Epoch 007 | Loss: 0.0734 | Acc: 0.8698 | LR: 0.000500
+   [V] New Best Saved: 0.8698
+Epoch 008 | Loss: 0.0700 | Acc: 0.8764 | LR: 0.000500
+   [V] New Best Saved: 0.8764
+Epoch 009 | Loss: 0.0689 | Acc: 0.8824 | LR: 0.000500
+   [V] New Best Saved: 0.8824
+Epoch 010 | Loss: 0.0660 | Acc: 0.8878 | LR: 0.000500
+   [V] New Best Saved: 0.8878
+Epoch 011 | Loss: 0.0646 | Acc: 0.8882 | LR: 0.000500
+   [V] New Best Saved: 0.8882
+Epoch 012 | Loss: 0.0600 | Acc: 0.8820 | LR: 0.000500
+Epoch 013 | Loss: 0.0633 | Acc: 0.8842 | LR: 0.000500
+Epoch 014 | Loss: 0.0620 | Acc: 0.8869 | LR: 0.000500
+Epoch 015 | Loss: 0.0620 | Acc: 0.8969 | LR: 0.000500
+   [V] New Best Saved: 0.8969
+Epoch 016 | Loss: 0.0590 | Acc: 0.8847 | LR: 0.000500
+Epoch 017 | Loss: 0.0605 | Acc: 0.9078 | LR: 0.000500
+   [V] New Best Saved: 0.9078
+Epoch 018 | Loss: 0.0565 | Acc: 0.9002 | LR: 0.000500
+Epoch 019 | Loss: 0.0546 | Acc: 0.9133 | LR: 0.000500
+   [V] New Best Saved: 0.9133
+Epoch 020 | Loss: 0.0529 | Acc: 0.9231 | LR: 0.000500
+   [V] New Best Saved: 0.9231
+Epoch 021 | Loss: 0.0526 | Acc: 0.9136 | LR: 0.000500
+Epoch 022 | Loss: 0.0546 | Acc: 0.9136 | LR: 0.000500
+Epoch 023 | Loss: 0.0517 | Acc: 0.8844 | LR: 0.000500
+Epoch 024 | Loss: 0.0523 | Acc: 0.9176 | LR: 0.000500
+Epoch 025 | Loss: 0.0543 | Acc: 0.9056 | LR: 0.000500
+Epoch 026 | Loss: 0.0510 | Acc: 0.9253 | LR: 0.000500
+   [V] New Best Saved: 0.9253
+Epoch 027 | Loss: 0.0469 | Acc: 0.9349 | LR: 0.000500
+   [V] New Best Saved: 0.9349
+Epoch 028 | Loss: 0.0458 | Acc: 0.9111 | LR: 0.000500
+Epoch 029 | Loss: 0.0452 | Acc: 0.9338 | LR: 0.000500
+Epoch 030 | Loss: 0.0467 | Acc: 0.9360 | LR: 0.000500
+   [V] New Best Saved: 0.9360
+Epoch 031 | Loss: 0.0509 | Acc: 0.9211 | LR: 0.000500
+Epoch 032 | Loss: 0.0468 | Acc: 0.9273 | LR: 0.000500
+Epoch 033 | Loss: 0.0454 | Acc: 0.9162 | LR: 0.000500
+Epoch 034 | Loss: 0.0481 | Acc: 0.9340 | LR: 0.000500
+Epoch 035 | Loss: 0.0426 | Acc: 0.9269 | LR: 0.000500
+Epoch 036 | Loss: 0.0442 | Acc: 0.9262 | LR: 0.000250
+Epoch 037 | Loss: 0.0400 | Acc: 0.9460 | LR: 0.000250
+   [V] New Best Saved: 0.9460
+Epoch 038 | Loss: 0.0385 | Acc: 0.9498 | LR: 0.000250
+   [V] New Best Saved: 0.9498
+Epoch 039 | Loss: 0.0379 | Acc: 0.9458 | LR: 0.000250
+Epoch 040 | Loss: 0.0372 | Acc: 0.9293 | LR: 0.000250
+Epoch 041 | Loss: 0.0379 | Acc: 0.9438 | LR: 0.000250
+Epoch 042 | Loss: 0.0368 | Acc: 0.9453 | LR: 0.000250
+Epoch 043 | Loss: 0.0365 | Acc: 0.9522 | LR: 0.000250
+   [V] New Best Saved: 0.9522
+Epoch 044 | Loss: 0.0347 | Acc: 0.9551 | LR: 0.000250
+   [V] New Best Saved: 0.9551
+Epoch 045 | Loss: 0.0375 | Acc: 0.9529 | LR: 0.000250
+Epoch 046 | Loss: 0.0353 | Acc: 0.9520 | LR: 0.000250
+Epoch 047 | Loss: 0.0351 | Acc: 0.9440 | LR: 0.000250
+Epoch 048 | Loss: 0.0338 | Acc: 0.9442 | LR: 0.000250
+Epoch 049 | Loss: 0.0351 | Acc: 0.9538 | LR: 0.000250
+Epoch 050 | Loss: 0.0344 | Acc: 0.9467 | LR: 0.000125
+Epoch 051 | Loss: 0.0306 | Acc: 0.9596 | LR: 0.000125
+   [V] New Best Saved: 0.9596
+Epoch 052 | Loss: 0.0299 | Acc: 0.9578 | LR: 0.000125
+Epoch 053 | Loss: 0.0300 | Acc: 0.9653 | LR: 0.000125
+   [V] New Best Saved: 0.9653
+Epoch 054 | Loss: 0.0293 | Acc: 0.9624 | LR: 0.000125
+Epoch 055 | Loss: 0.0297 | Acc: 0.9547 | LR: 0.000125
+Epoch 056 | Loss: 0.0313 | Acc: 0.9611 | LR: 0.000125
+Epoch 057 | Loss: 0.0286 | Acc: 0.9596 | LR: 0.000125
+Epoch 058 | Loss: 0.0279 | Acc: 0.9649 | LR: 0.000125
+Epoch 059 | Loss: 0.0287 | Acc: 0.9629 | LR: 0.000063
+Epoch 060 | Loss: 0.0260 | Acc: 0.9667 | LR: 0.000063
+   [V] New Best Saved: 0.9667
+Epoch 061 | Loss: 0.0259 | Acc: 0.9662 | LR: 0.000063
+Epoch 062 | Loss: 0.0257 | Acc: 0.9680 | LR: 0.000063
+   [V] New Best Saved: 0.9680
+Epoch 063 | Loss: 0.0252 | Acc: 0.9620 | LR: 0.000063
+Epoch 064 | Loss: 0.0263 | Acc: 0.9693 | LR: 0.000063
+   [V] New Best Saved: 0.9693
+Epoch 065 | Loss: 0.0251 | Acc: 0.9653 | LR: 0.000063
+Epoch 066 | Loss: 0.0244 | Acc: 0.9664 | LR: 0.000063
+Epoch 067 | Loss: 0.0249 | Acc: 0.9700 | LR: 0.000063
+   [V] New Best Saved: 0.9700
+Epoch 068 | Loss: 0.0240 | Acc: 0.9651 | LR: 0.000063
+Epoch 069 | Loss: 0.0237 | Acc: 0.9691 | LR: 0.000063
+Epoch 070 | Loss: 0.0241 | Acc: 0.9622 | LR: 0.000063
+Epoch 071 | Loss: 0.0245 | Acc: 0.9707 | LR: 0.000063
+   [V] New Best Saved: 0.9707
+Epoch 072 | Loss: 0.0235 | Acc: 0.9627 | LR: 0.000063
+Epoch 073 | Loss: 0.0231 | Acc: 0.9638 | LR: 0.000063
+Epoch 074 | Loss: 0.0235 | Acc: 0.9707 | LR: 0.000063
+Epoch 075 | Loss: 0.0227 | Acc: 0.9711 | LR: 0.000063
+   [V] New Best Saved: 0.9711
+Epoch 076 | Loss: 0.0231 | Acc: 0.9718 | LR: 0.000063
+   [V] New Best Saved: 0.9718
+Epoch 077 | Loss: 0.0226 | Acc: 0.9564 | LR: 0.000063
+Epoch 078 | Loss: 0.0228 | Acc: 0.9716 | LR: 0.000063
+Epoch 079 | Loss: 0.0229 | Acc: 0.9671 | LR: 0.000063
+Epoch 080 | Loss: 0.0227 | Acc: 0.9689 | LR: 0.000063
+Epoch 081 | Loss: 0.0221 | Acc: 0.9716 | LR: 0.000063
+Epoch 082 | Loss: 0.0220 | Acc: 0.9647 | LR: 0.000031
+Epoch 083 | Loss: 0.0212 | Acc: 0.9733 | LR: 0.000031
+   [V] New Best Saved: 0.9733
+Epoch 084 | Loss: 0.0205 | Acc: 0.9749 | LR: 0.000031
+   [V] New Best Saved: 0.9749
+Epoch 085 | Loss: 0.0212 | Acc: 0.9733 | LR: 0.000031
+Epoch 086 | Loss: 0.0208 | Acc: 0.9731 | LR: 0.000031
+Epoch 087 | Loss: 0.0207 | Acc: 0.9753 | LR: 0.000031
+   [V] New Best Saved: 0.9753
+Epoch 088 | Loss: 0.0202 | Acc: 0.9729 | LR: 0.000031
+Epoch 089 | Loss: 0.0206 | Acc: 0.9722 | LR: 0.000031
+Epoch 090 | Loss: 0.0200 | Acc: 0.9678 | LR: 0.000031
+Epoch 091 | Loss: 0.0204 | Acc: 0.9724 | LR: 0.000031
+Epoch 092 | Loss: 0.0202 | Acc: 0.9711 | LR: 0.000031
+Epoch 093 | Loss: 0.0203 | Acc: 0.9718 | LR: 0.000016
+Epoch 094 | Loss: 0.0196 | Acc: 0.9698 | LR: 0.000016
+Epoch 095 | Loss: 0.0191 | Acc: 0.9740 | LR: 0.000016
+Epoch 096 | Loss: 0.0195 | Acc: 0.9742 | LR: 0.000016
+Epoch 097 | Loss: 0.0191 | Acc: 0.9733 | LR: 0.000016
+Epoch 098 | Loss: 0.0189 | Acc: 0.9740 | LR: 0.000016
+Epoch 099 | Loss: 0.0192 | Acc: 0.9771 | LR: 0.000016
+   [V] New Best Saved: 0.9771
+Epoch 100 | Loss: 0.0195 | Acc: 0.9760 | LR: 0.000016
