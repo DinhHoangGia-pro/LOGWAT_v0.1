@@ -1,0 +1,11 @@
+# Global configuration for LOGWAT
+project: LOGWAT
+version: 0.1
+
+# Training/default runtime parameters
+training:
+    epochs: 100
+    batch_size: 64
+    lr: 0.0005
+    weight_decay: 0.1
+

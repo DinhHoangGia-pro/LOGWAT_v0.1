@@ -1,0 +1,9 @@
+# Ignore dataset artifacts and generated data
+data/*.csv
+data/*.zip
+data/*.pkl
+data/models_pretrained/
+data/data/
+__pycache__/
+*.pyc
+logs/
