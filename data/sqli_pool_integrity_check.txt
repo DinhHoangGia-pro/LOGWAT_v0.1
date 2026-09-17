@@ -1,0 +1,52 @@
+Payload pool rows: 25; unique payload texts: 25
+Family counts:
+ - Stacked/other: 7
+ - Boolean-based: 5
+ - UNION-based: 5
+ - Time-based: 5
+ - Error-based: 3
+
+Total synthetic SQLi rows (source='sqli_pool' or source_uid prefix): 10000
+
+Sample integrity check (payload present verbatim after URL-decode):
+ source_uid=sqli_pool_2 | payload='' OR '1'='1'/*' | preserved=True
+ source_uid=sqli_pool_21 | payload=''; SELECT * FROM users WHERE 'a'='a' | preserved=True
+ source_uid=sqli_pool_24 | payload='' ; UPDATE users SET password='x' --' | preserved=True
+ source_uid=sqli_pool_21 | payload=''; SELECT * FROM users WHERE 'a'='a' | preserved=True
+ source_uid=sqli_pool_2 | payload='' OR '1'='1'/*' | preserved=True
+ source_uid=sqli_pool_13 | payload='; SELECT pg_sleep(5);--' | preserved=True
+ source_uid=sqli_pool_13 | payload='; SELECT pg_sleep(5);--' | preserved=True
+ source_uid=sqli_pool_19 | payload=''; DROP TABLE usuarios; SELECT * FROM datos WHERE nombre LIKE '%' | preserved=True
+ source_uid=sqli_pool_13 | payload='; SELECT pg_sleep(5);--' | preserved=True
+ source_uid=sqli_pool_14 | payload='' OR SLEEP(5)--' | preserved=True
+
+Preserved payloads in sample: 10/10
+
+Distribution of synthetic rows per payload (source_uid -> count):
+ - sqli_pool_19: 400
+ - sqli_pool_21: 400
+ - sqli_pool_17: 400
+ - sqli_pool_23: 400
+ - sqli_pool_24: 400
+ - sqli_pool_16: 400
+ - sqli_pool_3: 400
+ - sqli_pool_20: 400
+ - sqli_pool_8: 400
+ - sqli_pool_11: 400
+ - sqli_pool_1: 400
+ - sqli_pool_0: 400
+ - sqli_pool_13: 400
+ - sqli_pool_2: 400
+ - sqli_pool_14: 400
+ - sqli_pool_7: 400
+ - sqli_pool_12: 400
+ - sqli_pool_15: 400
+ - sqli_pool_4: 400
+ - sqli_pool_9: 400
+ - sqli_pool_10: 400
+ - sqli_pool_5: 400
+ - sqli_pool_18: 400
+ - sqli_pool_6: 400
+ - sqli_pool_22: 400
+
+No payload exceeds 50% of synthetic rows (OK)

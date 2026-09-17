@@ -1,0 +1,19 @@
+Split verification v2 - 2026-09-16T15:43:16.123117Z
+Augmented file: /home/dhgia/Work/iot_mailware/LOGWAT_v0.1/LOGWAT_v0.1/data/augmented_web_attack.csv
+Total unique source_uid in augmented CSV: 4921
+ Class 0: unique source_uid = 2406
+ Class 1: unique source_uid = 109
+ Class 2: unique source_uid = 2406
+Total unique source_uid in graphs: 4921
+ Graphs Class 0: unique source_uid = 2406
+ Graphs Class 1: unique source_uid = 109
+ Graphs Class 2: unique source_uid = 2406
+
+Train unique source_uid: 4182
+Test unique source_uid: 739
+Intersection empty: True
+
+Unique source_uid in TEST, per class:
+ Class 0: 375
+ Class 1: 17
+ Class 2: 347

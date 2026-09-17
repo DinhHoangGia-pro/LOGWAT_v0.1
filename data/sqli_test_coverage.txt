@@ -1,0 +1,28 @@
+SQLi test coverage - 2026-09-16T15:45:51.136936+00:00Z
+Total SQLi source_uids in TEST: 17
+ - csic_original: 14
+ - sqli_pool: 3
+ - other/unknown: 0
+
+sqli_pool family coverage in TEST:
+ - Error-based: 1
+ - UNION-based: 2
+
+Detailed list (uid, source, family):
+10357	csic_original	None
+10363	csic_original	None
+10843	csic_original	None
+10943	csic_original	None
+11771	csic_original	None
+11881	csic_original	None
+4995	csic_original	None
+5771	csic_original	None
+6384	csic_original	None
+7184	csic_original	None
+7365	csic_original	None
+7484	csic_original	None
+9457	csic_original	None
+9955	csic_original	None
+sqli_pool_16	sqli_pool	Error-based
+sqli_pool_6	sqli_pool	UNION-based
+sqli_pool_7	sqli_pool	UNION-based

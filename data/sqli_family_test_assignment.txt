@@ -1,0 +1,6 @@
+SQLi family test assignment
+family=Boolean-based | total_payloads=8 | test_payloads=2 | test_uids=['sqli_pool_0', 'sqli_pool_1']
+family=UNION-based | total_payloads=8 | test_payloads=2 | test_uids=['sqli_pool_8', 'sqli_pool_9']
+family=Time-based | total_payloads=8 | test_payloads=2 | test_uids=['sqli_pool_16', 'sqli_pool_17']
+family=Error-based | total_payloads=8 | test_payloads=2 | test_uids=['sqli_pool_24', 'sqli_pool_25']
+family=Stacked/other | total_payloads=9 | test_payloads=2 | test_uids=['sqli_pool_32', 'sqli_pool_33']

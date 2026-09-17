@@ -1,0 +1,18 @@
+SQLi test coverage - fixed family-aware split
+Total SQLi source_uids in TEST: 7
+ - sqli_pool: 7
+
+sqli_pool family coverage in TEST:
+ - Boolean-based: 800
+ - UNION-based: 800
+ - Time-based: 800
+ - Error-based: 400
+ - Stacked/other: 0
+
+sqli_pool_0	sqli_pool	Boolean-based
+sqli_pool_1	sqli_pool	Boolean-based
+sqli_pool_16	sqli_pool	Time-based
+sqli_pool_17	sqli_pool	Time-based
+sqli_pool_24	sqli_pool	Error-based
+sqli_pool_8	sqli_pool	UNION-based
+sqli_pool_9	sqli_pool	UNION-based

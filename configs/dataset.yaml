@@ -7,6 +7,6 @@ paths:
     xss_source: data/XSS_dataset.csv
     augmented: data/augmented_web_attack.csv
     graphs_pkl: data/web_graphs.pkl
-    model_save: data/models_pretrained/best_web_gnn.pth
+    model_save: data/models_pretrained/best_web_gnn_seed42.pth
     logs_dir: logs
 

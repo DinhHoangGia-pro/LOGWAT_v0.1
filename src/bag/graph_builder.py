@@ -47,7 +47,9 @@ def build_web_graphs(input_csv=None, output_file=None):
             edges.extend([[i, j]])
 
         edge_index = torch.tensor(edges if edges else [[0,0]], dtype=torch.long).t().contiguous()
-        processed_graphs.append(Data(x=x, edge_index=edge_index, y=torch.tensor([row.get('attack_type', 0)], dtype=torch.long)))
+        # preserve original `source_uid` so duplicated samples can be grouped
+        source_uid = row.get('source_uid', None)
+        processed_graphs.append(Data(x=x, edge_index=edge_index, y=torch.tensor([row.get('attack_type', 0)], dtype=torch.long), source_uid=source_uid))
 
     with open(output_file, 'wb') as f:
         pickle.dump({'graphs': processed_graphs}, f)

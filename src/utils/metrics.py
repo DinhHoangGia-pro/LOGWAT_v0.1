@@ -30,7 +30,15 @@ def precision_recall_f1(y_true, y_pred, average='macro'):
 
 
 def pair_overlap_count(cm, i, j):
-    """Return symmetric count of confusions between classes i and j."""
+    """Return symmetric count of confusions between classes i and j.
+
+    Some evaluation slices may not contain all classes in the current subset,
+    so a missing row/column should behave like zero instead of throwing an
+    IndexError during reporting.
+    """
     cm = np.asarray(cm)
+    rows, cols = cm.shape
+    if i < 0 or j < 0 or i >= rows or j >= cols:
+        return 0
     return int(cm[i, j] + cm[j, i])
 

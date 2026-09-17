@@ -1,0 +1,20 @@
+subset,source,family,label,precision,recall,f1_score,support
+SQLi tổng hợp,all,,1,1.0,0.44644339883753115,0.6172981247608114,3613
+SQLi tổng hợp,all,,2,0.0,0.0,0.0,0
+SQLi tổng hợp,all,,macro avg,0.5,0.22322169941876557,0.3086490623804057,3613
+SQLi tổng hợp,all,,weighted avg,1.0,0.44644339883753115,0.6172981247608114,3613
+SQLi chỉ sqli_pool,sqli_pool,,1,1.0,0.4444444444444444,0.6153846153846154,3600
+SQLi chỉ sqli_pool,sqli_pool,,2,0.0,0.0,0.0,0
+SQLi chỉ sqli_pool,sqli_pool,,macro avg,0.5,0.2222222222222222,0.3076923076923077,3600
+SQLi chỉ sqli_pool,sqli_pool,,weighted avg,1.0,0.4444444444444444,0.6153846153846154,3600
+family_breakdown,sqli_pool,Boolean-based,1,1.0,1.0,1.0,1600
+family_breakdown,sqli_pool,Boolean-based,macro avg,1.0,1.0,1.0,1600
+family_breakdown,sqli_pool,Boolean-based,weighted avg,1.0,1.0,1.0,1600
+family_breakdown,sqli_pool,Time-based,1,0.0,0.0,0.0,800
+family_breakdown,sqli_pool,Time-based,2,N/A (insufficient samples),N/A (insufficient samples),N/A (insufficient samples),0
+family_breakdown,sqli_pool,Time-based,macro avg,0.0,0.0,0.0,800
+family_breakdown,sqli_pool,Time-based,weighted avg,0.0,0.0,0.0,800
+family_breakdown,sqli_pool,UNION-based,1,0.0,0.0,0.0,1200
+family_breakdown,sqli_pool,UNION-based,2,N/A (insufficient samples),N/A (insufficient samples),N/A (insufficient samples),0
+family_breakdown,sqli_pool,UNION-based,macro avg,0.0,0.0,0.0,1200
+family_breakdown,sqli_pool,UNION-based,weighted avg,0.0,0.0,0.0,1200

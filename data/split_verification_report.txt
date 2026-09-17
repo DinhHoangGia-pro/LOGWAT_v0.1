@@ -1,0 +1,38 @@
+Split verification report - 2026-09-16T15:21:08.451378Z
+Total graphs: 30000
+Total unique source_uid in dataset: 4896
+Train unique source_uid: 4161
+Test unique source_uid: 735
+Intersection empty: True
+
+Per-class row counts and train/test ratio:
+ Class 0: train_rows=8450, test_rows=1550, train_ratio=0.8450
+ Class 2: train_rows=8551, test_rows=1449, train_ratio=0.8551
+ Class 1: train_rows=8452, test_rows=1548, train_ratio=0.8452
+
+Total source_uid with >1 copy (overall): 4896
+Per-class source_uid with >1 copies:
+ Class 0: source_uids_with_dup=2406
+ Class 1: source_uids_with_dup=84
+ Class 2: source_uids_with_dup=2406
+
+--- End of split report ---
+
+Split supplementary analysis - 2026-09-16T15:25:17.789199Z
+1) Unique source_uid in TEST, per class (unique source_uid counts):
+ Class 0: 375
+ Class 1: 13
+ Class 2: 347
+
+2) Wrote representative content for 84 unique SQLi source_uid to: /home/dhgia/Work/iot_mailware/LOGWAT_v0.1/LOGWAT_v0.1/data/sqli_unique_samples.txt
+
+3) Where 2406 comes from:
+ Original labeled benign rows (after cleaning/unknown removal): 4812
+ n_benign used in balance_dataset = max(1, len(df_normal)//2) = 2406
+ Percentage of original benign used as base: 0.5000 (≈ 50.0%)
+
+Additional notes:
+ Total unique SQLi source_uid in augmented dataset: 84
+
+--- End of supplementary analysis ---
+

@@ -10,7 +10,7 @@ It re-uses logic consolidated in `src.preprocessing.normalization`.
 import argparse
 import os
 import pandas as pd
-from src.preprocessing.normalization import label_dataset, balance_dataset
+from src.preprocessing.normalization import label_dataset, balance_dataset, report_duplication_stats
 from src.utils.config import load_all
 
 
@@ -83,6 +83,15 @@ def main():
     # Step 1: label raw CSIC -> writes cleaned+labeled file
     df_labeled = label_dataset(csic_raw, labeled_out)
     print(f'Wrote labeled CSIC to: {labeled_out}')
+
+    # report duplication/unknown stats on the labeled file
+    try:
+        unknown_count = int((df_labeled['attack_type'] == -1).sum()) if 'attack_type' in df_labeled.columns else 0
+        if unknown_count > 0:
+            print(f"[!] Labeled dataset contains {unknown_count} Unknown (-1) rows; these will be removed before augmentation")
+        report_duplication_stats(df_labeled, out_path=None, unknown_removed=unknown_count)
+    except Exception:
+        pass
 
     # Step 2/3: build balanced/augmented dataset using XSS source
     if not os.path.exists(xss_source):

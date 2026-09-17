@@ -1,0 +1,52 @@
+Duplication report - 2026-09-16T15:07:37.330877Z
+Total rows (after augmentation): 12087
+Unique content values: 12087
+Duplicate rows: 0 (rate: 0.0000)
+Unknown rows removed prior to augmentation: 6687
+
+Class -1: rows=6687, unique_content=6687, duplicates=0, dup_rate=0.0000
+Class 0: rows=4812, unique_content=4812, duplicates=0, dup_rate=0.0000
+Class 1: rows=84, unique_content=84, duplicates=0, dup_rate=0.0000
+Class 2: rows=243, unique_content=243, duplicates=0, dup_rate=0.0000
+Class 3: rows=261, unique_content=261, duplicates=0, dup_rate=0.0000
+
+--- End of report ---
+
+Duplication report - 2026-09-16T15:07:38.440029Z
+Total rows (after augmentation): 30000
+Unique content values: 9807
+Duplicate rows: 20193 (rate: 0.6731)
+Unknown rows removed prior to augmentation: 6650
+
+Class 0: rows=10000, unique_content=2406, duplicates=7594, dup_rate=0.7594
+Class 1: rows=10000, unique_content=84, duplicates=9916, dup_rate=0.9916
+Class 2: rows=10000, unique_content=7317, duplicates=2683, dup_rate=0.2683
+
+--- End of report ---
+
+Duplication report - 2026-09-16T15:33:36.464183Z
+Total rows (after augmentation): 12087
+Unique content values: 12087
+Duplicate rows: 0 (rate: 0.0000)
+Unknown rows removed prior to augmentation: 6687
+
+Class -1: rows=6687, unique_content=6687, duplicates=0, dup_rate=0.0000
+Class 0: rows=4812, unique_content=4812, duplicates=0, dup_rate=0.0000
+Class 1: rows=84, unique_content=84, duplicates=0, dup_rate=0.0000
+Class 2: rows=243, unique_content=243, duplicates=0, dup_rate=0.0000
+Class 3: rows=261, unique_content=261, duplicates=0, dup_rate=0.0000
+
+--- End of report ---
+
+Duplication report - 2026-09-16T15:33:38.250750Z
+Total rows (after augmentation): 30084
+Unique content values: 9832
+Duplicate rows: 20252 (rate: 0.6732)
+Unknown rows removed prior to augmentation: 6650
+
+Class 0: rows=10000, unique_content=2406, duplicates=7594, dup_rate=0.7594
+Class 1: rows=10084, unique_content=109, duplicates=9975, dup_rate=0.9892
+Class 2: rows=10000, unique_content=7317, duplicates=2683, dup_rate=0.2683
+
+--- End of report ---
+

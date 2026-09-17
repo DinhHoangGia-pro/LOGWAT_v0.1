@@ -1,0 +1,24 @@
+Total input rows: 25
+Unique kernels: 10
+
+COUNT=16	KERNEL=<NO_CORE_FOUND>
+UIDs: sqli_pool_0,sqli_pool_1,sqli_pool_10,sqli_pool_12,sqli_pool_14,sqli_pool_15,sqli_pool_16,sqli_pool_17,sqli_pool_2,sqli_pool_3,sqli_pool_4,sqli_pool_5,sqli_pool_6,sqli_pool_7,sqli_pool_8,sqli_pool_9
+COUNT=1	KERNEL=waitfor delay '<STR>'--
+UIDs: sqli_pool_11
+COUNT=1	KERNEL=; select pg_sleep(<NUM>);--
+UIDs: sqli_pool_13
+COUNT=1	KERNEL=; drop table users; --
+UIDs: sqli_pool_18
+COUNT=1	KERNEL=drop table <ID>; select * from <ID> where <ID> like '%
+UIDs: sqli_pool_19
+COUNT=1	KERNEL=drop table users; select * from customers where name like '%
+UIDs: sqli_pool_20
+COUNT=1	KERNEL=select * from users where '<STR>'='a
+UIDs: sqli_pool_21
+COUNT=1	KERNEL=exec xp_cmdshell('<STR>');--
+UIDs: sqli_pool_22
+COUNT=1	KERNEL=drop table sessions; --
+UIDs: sqli_pool_23
+COUNT=1	KERNEL=update users set <ID>='<STR>' --
+UIDs: sqli_pool_24
+

