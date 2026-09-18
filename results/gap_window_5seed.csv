@@ -1,0 +1,11 @@
+seed,group,accuracy,n_correct,n_total,mean_logit_gap
+42,attribute_spacing_in_range,1.0,10,10,0.9999999961310413
+42,attribute_spacing_out_of_range,1.0,10,10,0.999999996266508
+43,attribute_spacing_in_range,1.0,10,10,0.9999999995327699
+43,attribute_spacing_out_of_range,1.0,10,10,0.9999999985836683
+44,attribute_spacing_in_range,1.0,10,10,0.9999999513954659
+44,attribute_spacing_out_of_range,1.0,10,10,0.9999998294615257
+45,attribute_spacing_in_range,1.0,10,10,0.9999999999999496
+45,attribute_spacing_out_of_range,1.0,10,10,0.9999999999999465
+46,attribute_spacing_in_range,1.0,10,10,0.9999999999999838
+46,attribute_spacing_out_of_range,1.0,10,10,0.9999999999999559

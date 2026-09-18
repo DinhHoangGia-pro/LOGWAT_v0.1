@@ -154,7 +154,12 @@ Augmentation" for the full feasibility analysis and result.
   control cell were already 10/10 on the checkpoint *before* this
   augmentation/retrain, and remain 10/10 after. See EXPERIMENT_LOG for why
   this revises (rather than confirms) the original hard-limit hypothesis for
-  the out-of-range case.
+  the out-of-range case. **Verified across 5 seeds (2026-09-18):** both
+  cells stay 50/50 (10/10 × 5 seeds, seeds 42-46, reusing the
+  `final_stats_5seed.csv` checkpoints) with near-unity softmax margin on
+  every row — stable, unlike the seed-fragile `data_uri_base64` cell (4/5)
+  found in the same 5-seed round. See EXPERIMENT_LOG's "XSS Context-Distance
+  Augmentation" section.
 
 ## Checksums
 

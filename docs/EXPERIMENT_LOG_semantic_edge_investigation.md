@@ -565,6 +565,23 @@ still 1.0, including the 3 existing XSS cells
 (`data_uri_base64`/`event_handler_focus`/`svg_script_variant`, all still
 10/10). **No regression** from adding the 64 XSS context-distance rows.
 
+**5-seed stability check (2026-09-18, `scripts/eval_gap_window_5seed.py`),
+reusing the 5 checkpoints behind `results/final_stats_5seed.csv` (seeds
+42-46, no retraining):** both cells are **perfectly stable — 50/50 (10/10
+per seed × 5 seeds) for both `attribute_spacing_in_range` and
+`attribute_spacing_out_of_range`**, with softmax margin (true-class prob
+minus next-highest class prob) ≈ 1.0 on every single row (min 0.9999998
+across all 100 row×seed evaluations) — i.e. not a borderline result that
+happens to round to 10/10, the model is maximally confident on every one.
+This is a materially different reliability profile from the *other*
+XSS held-out cell found seed-fragile in that same 5-seed round,
+`XSS/data_uri_base64` (4/5 seeds, `results/heldout_percell_5seed.csv`):
+mean accuracy 1.0/std 0.0 here vs. mean 0.8/std 0.447 there. Full per-seed
+detail: `results/gap_window_5seed.csv` (aggregate),
+`results/gap_window_5seed_raw.csv` (per-row logits). **The single-seed
+10/10 result below is now seed-verified, not seed-42-specific** — read the
+PRE/POST table and Step 2's reasoning below with that confirmation in mind.
+
 ### Step 2 — the actual finding (revises, does not confirm, the pre-registered hypothesis)
 
 **The pre-registered hypothesis for this step — "E_sem has a hard
