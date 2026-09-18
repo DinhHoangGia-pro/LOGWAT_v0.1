@@ -98,6 +98,12 @@ def main():
     df = pd.read_csv(AUGMENTED_CSV)
     n_before = len(df)
 
+    if df['source'].eq('benign_short_synthetic').any():
+        raise RuntimeError(
+            "Dữ liệu nguồn 'benign_short_synthetic' đã tồn tại trong augmented_web_attack.csv "
+            "— dừng để tránh append trùng. Xoá thủ công nếu thực sự muốn chạy lại."
+        )
+
     benign_frames = df[df['attack_type'] == 0].reset_index(drop=True)
     if len(benign_frames) == 0:
         raise RuntimeError('No benign frames available as row templates')

@@ -88,6 +88,12 @@ def main():
     df = pd.read_csv(AUGMENTED_CSV)
     n_before = len(df)
 
+    if df['source'].eq('sqli_pool_noise').any():
+        raise RuntimeError(
+            "Dữ liệu nguồn 'sqli_pool_noise' đã tồn tại trong augmented_web_attack.csv "
+            "— dừng để tránh append trùng. Xoá thủ công nếu thực sự muốn chạy lại."
+        )
+
     with open(TEST_SPLIT_PATH, 'rb') as f:
         split = pickle.load(f)
     train_idx = set(split['train_idx'])

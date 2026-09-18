@@ -39,6 +39,12 @@ def main():
     df = pd.read_csv(AUGMENTED_CSV)
     n_before = len(df)
 
+    if df['source'].eq('sqli_pool_extra').any():
+        raise RuntimeError(
+            "Dữ liệu nguồn 'sqli_pool_extra' đã tồn tại trong augmented_web_attack.csv "
+            "— dừng để tránh append trùng. Xoá thủ công nếu thực sự muốn chạy lại."
+        )
+
     pool = pd.read_csv(POOL_CSV)
     present_uids = set(df[df['source'] == 'sqli_pool']['source_uid'].dropna().astype(str))
     present_indices = {int(u.split('_')[-1]) for u in present_uids}
