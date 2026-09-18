@@ -878,3 +878,82 @@ change any of §11's ablation conclusions (already caveated at line 182 not
 to read `case_mixing` as an obfuscation-robustness signal there) — it
 confirms that caveat was correct, from an independent angle, rather than
 introducing a new one.
+
+## Held-out 9-cell matrix: 3-method comparison (GATv2 / RoBERTa / string-matching) (2026-09-18)
+
+The single most reviewer-relevant table produced by the Reviewer #3
+baseline work: **no method, including the modern Transformer baseline,
+solves the held-out matrix 9/9.**
+
+| technique | GATv2 | RoBERTa | string-matching |
+|---|---|---|---|
+| Benign/field_query | 1.0 | 1.0 | 1.0 |
+| Benign/header_field | 1.0 | 1.0 | 1.0 |
+| Benign/json_field | 1.0 | 1.0 | 1.0 |
+| SQLi/sql_new_commands | 1.0 | 1.0 | 0.0 |
+| SQLi/comment_splitting | 0.0 | 0.0 | 0.0 |
+| SQLi/case_mixing | 1.0 | 0.0 | 0.0 |
+| XSS/data_uri_base64 | 1.0 | 0.0 | 0.0 |
+| XSS/event_handler_focus | 1.0 | 1.0 | 0.0 |
+| XSS/svg_script_variant | 1.0 | 1.0 | 0.0 |
+| **total** | **8/9** | **6/9** | **3/9** |
+
+Sources: `results/heldout_matrix_full.csv` (GATv2, string-matching),
+`results/transformer_baselines.csv` (RoBERTa).
+
+**Every failure has a distinct, verified cause — none of these three
+numbers should be read as one undifferentiated "robustness score":**
+
+- **`comment_splitting` (all three fail):** GATv2's is the established
+  architectural limit (§§3-9 above — character-level keyword fragmentation
+  destroys both the lexical signal and the `E_sem` edge simultaneously,
+  with no compensating pathway). RoBERTa fails the same cell but for a
+  presumably different, unverified reason (subword tokenization of
+  `UNI/**/ON`-style fragments — not root-caused here, out of scope for this
+  baseline pass). string-matching fails because its regexes
+  (`r"union.*select"` etc., `src/preprocessing/normalization.py:118-120`)
+  require the literal substring, which the `/**/`-fragmentation breaks
+  regardless of case.
+- **`case_mixing` (GATv2 passes, both others fail):** see the section above
+  — GATv2's pass is an artifact of upstream `.lower()`, not real
+  case-robustness. **string-matching also lowercases before matching
+  (`normalization.py:109`, `s = str(content).lower()`) yet still fails** —
+  its failure is NOT about case at all, it's the same `/**/`-fragmentation
+  cause as `comment_splitting` (this cell's content combines mixed-case
+  *and* comment-fragmentation: `f"uN/**/ioN aLl sEl/**/eCt"`). RoBERTa is
+  the only one of the three actually being tested on case *and* failing
+  because of it, not despite passing through unrelated to case (see
+  previous section).
+- **`sql_new_commands` (GATv2/RoBERTa pass, string-matching fails):**
+  string-matching's SQLi regex list has no `TRUNCATE` pattern at all
+  (`normalization.py:118-120` lists `union`, `select`, `insert`, `drop`,
+  `or \d+=\d+`, `sleep`, `benchmark`, `information_schema`, `admin'--`,
+  `order by` — `TRUNCATE TABLE` matches none of them). A vocabulary gap in
+  a fixed rule list, not an obfuscation-defeat — the clearest illustration
+  in this table of why a hand-maintained keyword list doesn't scale the
+  same way a learned representation does.
+- **`data_uri_base64` (GATv2 passes\*, RoBERTa/string-matching fail):**
+  RoBERTa never sees the underlying `<svg>` payload as plaintext (it's
+  base64-encoded inside a `data:` URI) and has no decoding step, so this is
+  an expected, structural failure for a text classifier without a
+  base64-aware preprocessing step. string-matching fails for the same
+  reason (no decode step, literal regex against encoded text).
+  \*Caveat already on record for GATv2 here too: this cell is
+  seed-fragile, 4/5 not a stable 1.0 (5-seed statistics section above) —
+  the "GATv2 passes" in this row is the deployed seed=42 checkpoint's
+  single-seed result, consistent with how it's reported elsewhere in this
+  document, not a re-assertion that it's unconditionally stable.
+- **`event_handler_focus`/`svg_script_variant` (GATv2/RoBERTa pass,
+  string-matching fails):** both contain literal `<svg`/event-handler-like
+  tokens RoBERTa's tokenizer and GATv2's node features both see directly;
+  string-matching's XSS regex list does cover `onerror=`/`onload=`-style
+  patterns but not the specific attribute names used here
+  (`onfocus=`, `onclick=` via `<a href='data:...'>` wrapping) — another
+  vocabulary gap, not a structural failure.
+
+**Takeaway for the paper:** framing this as "GATv2: 8/9, best-in-class" is
+accurate but incomplete — the more defensible claim is that **each
+method's failures are individually explainable and none is a
+strictly-dominant approach across all nine adversarial techniques**, which
+is a stronger, more honest basis for a Limitations/Discussion section than
+a single leaderboard number.
