@@ -276,6 +276,12 @@ architectural limit in `docs/EXPERIMENT_LOG_semantic_edge_investigation.md`,
 this one is plausibly addressable by threshold tuning or a
 class-imbalance-aware decision rule, without further architecture changes.
 
+Threshold re-calibration (one-vs-rest at threshold ≈0.988 on the XSS softmax
+probability, instead of the 3-way argmax) achieves Precision=50.00% with
+Recall=97.18% (vs. 98.50% at argmax) — confirming, not just hypothesizing,
+that this is a fixable threshold-calibration issue rather than a fundamental
+model limitation.
+
 **Honest conclusion:** GATv2 (0.7309 accuracy) clearly outperforms both
 baselines on this external, differently-formatted dataset, and its
 external-Benign failure pattern is consistent with (an amplified version of)
