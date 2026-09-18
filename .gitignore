@@ -20,3 +20,15 @@ logs/
 !data/heldout_keyword_test.csv
 !data/test_split_indices.pkl
 !data/sqli_family_test_indices.pkl
+
+# External evaluation dataset (Reviewer #1: independent public dataset,
+# evaluation-only, MIT-licensed -- see docs/DATASET.md "External Evaluation
+# Dataset"). Explicit even though `data/*.csv`/`data/*.pkl` above are
+# single-level globs that don't currently reach data/external/ -- this
+# future-proofs against the blanket rule ever becoming recursive.
+!data/external/*.csv
+# external_dataset_graphs.pkl (155MB, regenerable via
+# scripts/build_external_graphs.py from external_dataset_clean.csv) stays
+# ignored -- exceeds GitHub's 100MB hard file-size limit, same reasoning as
+# the top-level web_graphs.pkl exclusion above.
+data/external/*.pkl

@@ -35,20 +35,27 @@ pip install torch_scatter==2.1.2+pt26cu124 torch_sparse==0.6.18+pt26cu124 \
 ## Running
 
 The dataset (`data/augmented_web_attack.csv`) and the train/test split
-(`data/test_split_indices.pkl`) are **frozen** (`dataset-v1-frozen` tag) — do not
+(`data/test_split_indices.pkl`) are **frozen** (tagged `dataset-v1-frozen` at
+the documentation freeze, `dataset-v2-frozen-in-git` once the files
+themselves were actually committed — see `docs/DATASET.md`) — do not
 regenerate them. To evaluate the already-trained checkpoint:
 
 ```bash
-python scripts/evaluate.py
+python -m scripts.evaluate
 ```
 
 To retrain from the frozen, already-augmented dataset:
 
 ```bash
-python scripts/build_graphs.py
-python scripts/train_logwat.py
-python scripts/evaluate.py
+python -m scripts.build_graphs
+python -m scripts.train_logwat
+python -m scripts.evaluate
 ```
+
+Note: scripts that import from `src/` must be run as `python -m scripts.<name>`
+(no `.py`) from the repo root, not `python scripts/<name>.py` — the latter
+fails with `ModuleNotFoundError: No module named 'src'` since Python only adds
+the script's own directory to `sys.path`, not the repo root.
 
 Full from-scratch sequence (including the append-only augmentation steps already
 baked into the frozen dataset) and the ablation-study commands are in

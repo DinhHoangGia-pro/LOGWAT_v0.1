@@ -111,37 +111,51 @@ This sequence documents how it was produced and is meant for building an equival
 dataset from scratch (e.g. a fresh clone before the freeze, or a deliberate
 new frozen version decided with the user):
 
+All scripts below must be run as `python -m scripts.<name>` (no `.py`) from the
+repo root — several import from `src/`, and `python scripts/<name>.py` fails
+with `ModuleNotFoundError: No module named 'src'` (Python only puts the
+script's own directory on `sys.path`, not the repo root). Verified: running
+`python scripts/evaluate.py` directly does fail this way; `python -m
+scripts.evaluate` does not.
+
 ```bash
 source .venv/bin/activate
 
 # 1. Label + balance/augment raw CSIC -> data/augmented_web_attack.csv (30,084 rows)
-python scripts/prepare_data.py
+python -m scripts.prepare_data
 
 # 2. Append-only train augmentation, in this order (each checked byte-identical on
 #    the rows it doesn't touch, never touching test_split_indices.pkl):
-python scripts/add_train_noise_augmentation.py       # +2111 rows (comment-split noise)
-python scripts/add_missing_sqli_payloads_train.py     # +6400 rows (16 missing SQLi payloads)
-python scripts/add_benign_syntax_diversity_train.py   # +5000 rows (benign header/JSON syntax)
+python -m scripts.add_train_noise_augmentation       # +2111 rows (comment-split noise)
+python -m scripts.add_missing_sqli_payloads_train     # +6400 rows (16 missing SQLi payloads)
+python -m scripts.add_benign_syntax_diversity_train   # +5000 rows (benign header/JSON syntax)
 
 # 3. Build the BAG graphs (sequential + skip + semantic edges; semantic_edges()
 #    already includes the comment-split-survival fix)
-python scripts/build_graphs.py
+python -m scripts.build_graphs
 
 # 4. Train (seed=42 from configs/config.yaml, class-weighted loss)
-python scripts/train_logwat.py
+python -m scripts.train_logwat
 
 # 5. Evaluate on the frozen test split
-python scripts/evaluate.py
+python -m scripts.evaluate
 
 # 6. Evaluate on the 90-sample held-out matrix (unseen evasion techniques)
-python scripts/build_heldout_matrix_eval.py
+python -m scripts.build_heldout_matrix_eval
 
 # 7. 6-configuration ablation (edge types x edge_attr)
-python scripts/run_ablation_edge_attr_seq_skip_sem.py   # configs 1-4
-python scripts/run_ablation_extra_no_edge_attr.py       # configs 5-6
+python -m scripts.run_ablation_edge_attr_seq_skip_sem   # configs 1-4
+python -m scripts.run_ablation_extra_no_edge_attr       # configs 5-6
 
 # Optional: graph-size-only shortcut baseline (Decision Tree on [num_nodes, num_edges])
-python scripts/decision_tree_size_baseline.py
+python -m scripts.decision_tree_size_baseline
+
+# Optional: external evaluation dataset (Reviewer #1, evaluation-only, see
+# docs/DATASET.md "External Evaluation Dataset")
+python -m scripts.download_external_dataset
+python -m scripts.prepare_external_dataset
+python -m scripts.build_external_graphs
+python -m scripts.evaluate_external_dataset
 ```
 
 To only re-evaluate the currently deployed checkpoint (no retraining, no dataset

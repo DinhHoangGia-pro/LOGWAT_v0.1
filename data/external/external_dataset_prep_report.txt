@@ -1,0 +1,18 @@
+=== External dataset (HttpParamsDataset) prep report ===
+Raw rows: 31067
+Dropped (attack_type not in norm/sqli/xss, i.e. cmdi/path-traversal): 379
+After label filter: 30688
+After clean_content() (URL-unquote, drop len<2/NaN): 30677
+Rows written to external_dataset_clean.csv: 30677
+
+Class counts (0=Benign, 1=SQLi, 2=XSS):
+  Benign (0): 19293
+  SQLi (1): 10852
+  XSS (2): 532
+
+=== Avg `content` length (chars), per class: external vs train (augmented_web_attack.csv) ===
+  Benign: train avg=106.7 chars, external avg=11.9 chars, diff=-88.9%  <<< >50% DIFFERENCE -- FORMAT DOMAIN SHIFT
+  SQLi: train avg=32.8 chars, external avg=90.5 chars, diff=+175.4%  <<< >50% DIFFERENCE -- FORMAT DOMAIN SHIFT
+  XSS: train avg=62.4 chars, external avg=63.2 chars, diff=+1.2%
+
+CONCLUSION: at least one class has a >50% average-length difference between external and train `content`. The external set is made of short, isolated HTTP parameter VALUES (single form fields / payload fragments), not full HTTP request strings like augmented_web_attack.csv's `content` column. Step 4 results must be read as testing generalization to a different INPUT FORMAT, not just different attack content -- this is a confound, not a clean apples-to-apples generalization test.
