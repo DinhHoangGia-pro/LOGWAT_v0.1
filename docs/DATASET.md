@@ -246,6 +246,36 @@ Benign and 764 SQLi external rows are wrongly predicted XSS, a
 disproportionate false-positive rate given XSS is only 532/30677 (1.7%) of
 this set.
 
+**XSS precision deep-dive: base-rate artifact vs. genuine over-prediction.**
+At the current argmax threshold: P=0.1730, R=0.9850 (TP=524, FP=2505, FN=8,
+TN=27640 → measured FPR=0.0831). Using the softmax probability of the XSS
+class (not just the final argmax label), **PR-AUC (average precision) =
+0.9627** — vs. a no-skill baseline of 0.0173 (XSS's own prevalence in this
+set). This gap (0.963 vs. 0.017) shows the model's underlying *ranking*
+signal for XSS is strong; the poor precision is a property of the fixed
+3-way-argmax operating point under extreme imbalance, not an absence of
+discriminative signal. Applying Bayes' rule (precision(π) = π·TPR / (π·TPR +
+(1−π)·FPR)) with the measured TPR/FPR at this same operating point, to three
+assumed base rates: **π=0.1% → precision=1.17%; π=1% → precision=10.69%;
+π=1.7% (this set's own actual rate) → precision=17.30%** (self-consistent
+with the measured 0.1730 above — confirms the formula is correctly
+calibrated to the real confusion matrix). Solving the same formula for the
+FPR that would be *required* to reach a target precision of 50% at each
+base rate, fixed TPR=0.985: **π=0.1% needs FPR≤0.000986 (measured is 84x
+higher); π=1% needs FPR≤0.009950 (8.4x higher); π=1.7% needs FPR≤0.017384
+(4.8x higher).** **Conclusion: both effects are real and compounding, not
+either/or.** The extremely low real-world base rate of XSS mathematically
+caps precision at any fixed FPR (this alone would keep precision under ~2%
+at a plausible web-traffic-wide XSS rate of 0.1%) — but the model's FPR at
+the current fixed threshold (8.3%) is *also* too high even relative to this
+dataset's own inflated 1.7% rate (needs to drop ~4.8x just to hit 50%
+precision there), so it is not purely a base-rate artifact either. Given the
+strong PR-AUC, this reads as a **threshold-calibration problem at extreme
+class imbalance**, not a fundamental lack of signal — unlike the E_sem
+architectural limit in `docs/EXPERIMENT_LOG_semantic_edge_investigation.md`,
+this one is plausibly addressable by threshold tuning or a
+class-imbalance-aware decision rule, without further architecture changes.
+
 **Honest conclusion:** GATv2 (0.7309 accuracy) clearly outperforms both
 baselines on this external, differently-formatted dataset, and its
 external-Benign failure pattern is consistent with (an amplified version of)
