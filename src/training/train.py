@@ -24,7 +24,22 @@ DATA_PATH = os.path.join(HIN_DIR, paths.get('graphs_pkl', 'data/web_graphs.pkl')
 DEFAULT_SEED = int(config_cfg.get('seed', 42))
 MODEL_SAVE_PATH = os.path.join(HIN_DIR, paths.get('model_save', f'data/models_pretrained/best_web_gnn_seed{DEFAULT_SEED}.pth'))
 LOG_PATH = os.path.join(HIN_DIR, paths.get('logs_dir', 'logs'), 'training_history.log')
-TEST_SPLIT_INDEX_PATH = os.path.join(HIN_DIR, 'data', 'test_split_indices.pkl')
+# Global dataset split is kept in data/test_split_indices.pkl.
+# SQLi family-specific evaluation split must not overwrite it.
+SQLI_FAMILY_TEST_INDEX_PATH = os.path.join(HIN_DIR, 'data', 'sqli_family_test_indices.pkl')
+GLOBAL_SPLIT_PATH = os.path.join(HIN_DIR, 'data', 'test_split_indices.pkl')
+
+
+def _load_global_split():
+    """Load the frozen, class-balanced train/test split used for training
+    validation and early stopping (same split evaluate.py reports against).
+    This is intentionally NOT `_fixed_family_group_split`, which selects an
+    SQLi-only (single-class) test subset meant for the separate family
+    breakdown report, not for the main training loop's validation.
+    """
+    with open(GLOBAL_SPLIT_PATH, 'rb') as f:
+        split = pickle.load(f)
+    return list(split['train_idx']), list(split['test_idx'])
 
 
 def _load_sqli_family_map():
@@ -97,8 +112,10 @@ def _fixed_family_group_split(graphs):
         else:
             train_idx.append(idx)
 
-    with open(TEST_SPLIT_INDEX_PATH, 'wb') as f:
-        pickle.dump((train_idx, test_idx), f)
+    # Save the SQLi family split under a dedicated filename so that the
+    # global dataset-level split in data/test_split_indices.pkl remains stable.
+    with open(SQLI_FAMILY_TEST_INDEX_PATH, 'wb') as f:
+        pickle.dump({'train_idx': train_idx, 'test_idx': test_idx}, f)
 
     return train_idx, test_idx
 
@@ -126,11 +143,16 @@ def train(num_epochs=None, batch_size=None, lr=None, target_metric='acc', seed=N
         data_pkl = pickle.load(f)
 
     graphs = list(data_pkl['graphs'])
-    print('[*] Applying fixed family-aware split for sqli_pool_* and random split for csic_original groups')
-    train_idx, test_idx = _fixed_family_group_split(graphs)
+    train_idx, test_idx = _load_global_split()
     train_data = [graphs[i] for i in train_idx]
     test_data = [graphs[i] for i in test_idx]
-    print(f'[*] train split size: {len(train_data)}, test split size: {len(test_data)}')
+
+    y_all = [int(g.y.item()) for g in graphs]
+    train_bincount = [sum(1 for i in train_idx if y_all[i] == c) for c in range(3)]
+    test_bincount = [sum(1 for i in test_idx if y_all[i] == c) for c in range(3)]
+    print(f"[*] Using GLOBAL balanced split for training validation: "
+          f"train={len(train_idx)}, test={len(test_idx)}, "
+          f"bincount_train={train_bincount}, bincount_test={test_bincount}")
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_data, batch_size=batch_size)
 
@@ -209,6 +231,14 @@ def train(num_epochs=None, batch_size=None, lr=None, target_metric='acc', seed=N
             log_f.write(f"[*] Final epoch summary: epoch={last_epoch_stats['epoch']} loss={last_epoch_stats['loss']:.4f} val_acc={last_epoch_stats['val_acc']:.4f}\n")
         print(f"[*] TRAINING COMPLETE | epochs_run={last_epoch_stats['epoch'] if last_epoch_stats else 0} | wall_time={total_time:.1f}s | best_acc={best_acc:.4f} | best_epoch={best_epoch} | early_stop_reason={early_stop_reason} | model={MODEL_SAVE_PATH}")
         log_f.write(f"[*] TRAINING COMPLETE | epochs_run={last_epoch_stats['epoch'] if last_epoch_stats else 0} | wall_time={total_time:.1f}s | best_acc={best_acc:.4f} | best_epoch={best_epoch} | early_stop_reason={early_stop_reason} | model={MODEL_SAVE_PATH}\n")
+
+    # SQLi family-breakdown split (for evaluate.py's family report only) is
+    # computed as a separate post-training step, not used for early stopping
+    # or best-checkpoint selection above.
+    print('[*] Computing SQLi family-breakdown split (post-training, report-only)')
+    fam_train_idx, fam_test_idx = _fixed_family_group_split(graphs)
+    print(f'[*] SQLi family-breakdown split written to {SQLI_FAMILY_TEST_INDEX_PATH}: '
+          f'train={len(fam_train_idx)}, test={len(fam_test_idx)}')
 
 
 if __name__ == '__main__':
