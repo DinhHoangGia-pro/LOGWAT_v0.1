@@ -1,0 +1,10 @@
+technique,43,44,45,46,42_rerun
+Benign/field_query,1.0,1.0,1.0,1.0,1.0
+Benign/header_field,1.0,1.0,1.0,1.0,1.0
+Benign/json_field,1.0,1.0,1.0,1.0,1.0
+SQLi/case_mixing,1.0,1.0,1.0,1.0,1.0
+SQLi/comment_splitting,0.0,0.0,0.0,0.0,0.0
+SQLi/sql_new_commands,1.0,1.0,1.0,1.0,1.0
+XSS/data_uri_base64,1.0,0.0,1.0,1.0,1.0
+XSS/event_handler_focus,1.0,1.0,1.0,1.0,1.0
+XSS/svg_script_variant,1.0,1.0,1.0,1.0,1.0

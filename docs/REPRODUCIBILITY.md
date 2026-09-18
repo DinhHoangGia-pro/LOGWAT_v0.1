@@ -170,6 +170,21 @@ python -m scripts.download_external_dataset
 python -m scripts.prepare_external_dataset
 python -m scripts.build_external_graphs
 python -m scripts.evaluate_external_dataset
+
+# Optional: 5-seed mean+-std statistics for the official config (see
+# EXPERIMENT_LOG "5-seed statistics: official config"). Takes ~7-8 minutes
+# on the GPU environment this was measured on. Back up
+# data/models_pretrained/best_web_gnn_seed42.pth, logs/training_history.log,
+# results/main_results.csv, and results/heldout_matrix_full.csv FIRST -- this
+# script trains 5 more times and does NOT restore the deployed checkpoint
+# itself (see its docstring); restore your backups afterward.
+python -m scripts.run_5seed_stats
+
+# Optional: per-request latency breakdown (CPU + GPU if available), see
+# docs/LATENCY.md. Uses whatever is currently at
+# data/models_pretrained/best_web_gnn_seed42.pth -- run against the restored
+# deployed checkpoint, not mid-way through the 5-seed script above.
+python -m scripts.benchmark_latency
 ```
 
 To only re-evaluate the currently deployed checkpoint (no retraining, no dataset

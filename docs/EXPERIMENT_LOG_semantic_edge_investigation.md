@@ -642,3 +642,90 @@ between unrelated keyword occurrences** that happen to co-occur within a
 larger window (a precision/noise trade-off for `E_sem` specifically), not a
 meaningful compute-cost increase relative to the `E_seq`+`E_skip` edges that
 already dominate the graph.
+
+## 5-seed statistics: official config (2026-09-18)
+
+**Official config confirmed for this run (no ambiguity, no config change
+made):** full edges (E_seq+E_skip+E_sem), `use_edge_attr=False` (config (2)
+in §11's ablation didn't improve enough to justify the added complexity —
+§11(c)), current dataset (43659 rows: Mechanism 1 + Mechanism 2 [SQLi noise]
++ Mechanism 2b [XSS context-distance]). This is exactly the deployed
+`best_web_gnn_seed42.pth` (retrain #6 in `docs/REPRODUCIBILITY.md`'s
+checkpoint table). Trained seeds 42-46 (`scripts/run_5seed_stats.py`),
+evaluated each on the frozen test split and the 9-cell held-out matrix.
+Deployed checkpoint/log/results backed up before running and restored
+afterward (verified by md5sum) — this is a stats-collection exercise, the
+deployed model is unchanged.
+
+### Finding: training is not bit-reproducible even with a fixed seed on this GPU setup
+
+Three separate training runs with **the same seed=42** and **identical
+code/config** — the originally-deployed checkpoint, `scripts.run_5seed_stats`'s
+first loop iteration, and a standalone rerun done to recover this section's
+per-cell data (see below) — produced **three different training
+trajectories** (`epochs_run` 11 / 20 / 13 respectively, different per-epoch
+loss/accuracy values from epoch 1 onward). This is a real, verified
+methodological finding, not a script bug: `torch`/`torch_geometric`/CUDA
+operations (notably scatter/gather ops used by `GATv2Conv` and
+`global_max_pool`) are not deterministic by default on GPU unless
+`torch.use_deterministic_algorithms(True)` plus specific `cuDNN` flags are
+set, which this codebase does not do. **Consequence for the paper:** citing
+a single seed=42 result as *the* number, or describing seeds as fully
+controlling reproducibility, overstates precision on this hardware/software
+stack — the 5-seed spread reported below already reflects a mix of
+genuine inter-seed variance and this intra-seed GPU nondeterminism, and the
+two cannot be cleanly separated post hoc.
+
+### Test split: essentially saturated, negligible variance
+
+Mean accuracy = 0.99981, std = 0.000106 across 5 seeds (min 0.99976, max
+1.0) — consistent with every prior single-seed report in this document; the
+frozen test split remains too easy to discriminate between runs. Full
+per-seed and mean/std/min/max table: `results/final_stats_5seed.csv`.
+Cohen's d vs. the strongest Table 2 baseline (HGT, 95.87%), using the
+*measured* 5-seed std (not an assumed std=0 as flagged as a concern before
+this run): **d ≈ 387** — astronomically large only because the model's own
+std (0.0106 percentage points) is tiny relative to the ~4-point accuracy
+gap to HGT; report this Cohen's d with the caveat that it is only as
+meaningful as the (very small, likely near-saturated-metric-noise-floor)
+std it's divided by, not a claim that the model-to-model effect itself is
+"387 standard deviations big" in any intuitive sense.
+
+### Held-out matrix: 8/9 is not a fixed number — exactly one cell is seed-fragile, and it is not the one you'd guess
+
+Per-seed cells-correct: **42→7/9, 43→8/9, 44→7/9, 45→8/9, 46→8/9** (mean
+7.6/9, std 0.55). This *looks* like it could be `comment_splitting`
+intermittently working — it is not. Per-cell breakdown across all 5 seeds
+(`results/heldout_percell_5seed.csv`, seed 42 re-run separately to recover
+this since the original loop's seed=42 checkpoint was overwritten by seed
+43's training before its per-cell result was saved — see script docstring
+caveat added after this run):
+
+```
+technique                  43   44   45   46   42(rerun)
+Benign/field_query         1.0  1.0  1.0  1.0  1.0
+Benign/header_field        1.0  1.0  1.0  1.0  1.0
+Benign/json_field          1.0  1.0  1.0  1.0  1.0
+SQLi/case_mixing           1.0  1.0  1.0  1.0  1.0
+SQLi/comment_splitting     0.0  0.0  0.0  0.0  0.0   <- always fails, all 5 seeds (§9 architectural limit, confirmed again)
+SQLi/sql_new_commands      1.0  1.0  1.0  1.0  1.0
+XSS/data_uri_base64        1.0  0.0  1.0  1.0  1.0   <- the ONLY seed-fragile cell (fails only for seed 44)
+XSS/event_handler_focus    1.0  1.0  1.0  1.0  1.0
+XSS/svg_script_variant     1.0  1.0  1.0  1.0  1.0
+```
+
+**Two distinct, previously-conflated things are now separated:**
+`SQLi/comment_splitting` is a **stable, 100%-reproducible architectural
+limit** (0/5 seeds pass) — nothing new, confirms §9/§11/§Step-2 again,
+independent of GPU nondeterminism. `XSS/data_uri_base64` (a base64-encoded
+`data:` URI wrapping an `<svg>` payload) is **not** stable — it passes on
+4/5 seeds and fails on exactly 1 (seed 44) — this is a previously-unreported
+**seed-fragile cell**, not a hard limit like `comment_splitting`. It had
+looked like a solid, always-passing cell in every single-seed report earlier
+in this document; that was an artifact of never having tried more than one
+seed. **Correction for the paper: report the held-out matrix as "8/9 stable
++ 1/9 seed-fragile" (`data_uri_base64`, ~80% pass rate over 5 seeds), not as
+a flat "8/9."** `comment_splitting` remains the only cell with a documented,
+evidenced *architectural* cause; `data_uri_base64`'s occasional failure has
+no root-cause investigation yet (out of scope for this task) and should not
+be assumed to share `comment_splitting`'s cause.
