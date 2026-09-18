@@ -116,6 +116,15 @@ above), dropout's draws would desync and could plausibly explain divergence
 starting at epoch 2 rather than epoch 1. Not tested in isolation; fixing
 this would need its own verification pass, not assumed from this one.
 
+**Closed (2026-09-18):** residual non-determinism (~epoch 2 onward, std
+across 5 seeds ≈ 0.0001 on macro-F1) persists after ruling out
+`torch.use_deterministic_algorithms` and explicit `DataLoader` generators;
+likely attributable to CUDA-backed dropout sampling. Given the negligible
+magnitude relative to all reported effects in this work, further isolation
+was not pursued — seed=42 is documented as the reference run, with 5-seed
+variance reported wherever a claim's sensitivity to it matters
+(`results/final_stats_5seed.csv`).
+
 **Practical implication for the paper:** report metrics as **mean ± std over
 multiple seeds** (`results/final_stats_5seed.csv`), not as a single seed=42
 number presented as exactly reproducible — the 5-seed spread already
