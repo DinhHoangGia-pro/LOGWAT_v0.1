@@ -957,3 +957,63 @@ method's failures are individually explainable and none is a
 strictly-dominant approach across all nine adversarial techniques**, which
 is a stronger, more honest basis for a Limitations/Discussion section than
 a single leaderboard number.
+
+## RoBERTa on the external dataset: same benign-type-4 gap, broader failure (2026-09-18)
+
+RoBERTa (Reviewer #3 baseline) confusion matrix on
+`data/external/external_dataset_clean.csv` (rows=true, cols=pred,
+`[Benign, SQLi, XSS]`):
+
+```
+[[12042,   518,  6733],
+ [  679,  8527,  1646],
+ [    2,     0,   530]]
+```
+
+**Benign→XSS dominates: 6733/19293 (34.9%) of all Benign rows.**
+Benign→SQLi is small (518, 2.7%). SQLi→XSS is also notable (1646/10852,
+15.2%). XSS itself is near-perfect (530/532).
+
+**Checked against the known benign-type-4 gap** ("Root cause of external
+Benign misclassification: a 4th, un-augmented benign form" above): GATv2's
+per-row predictions were regenerated against the **current** deployed
+checkpoint for a row-level comparison (note: this checkpoint has been
+retrained since that section was written, so its aggregate count —
+5877/19293 Benign misclassified, 4750→XSS/1127→SQLi — differs from the
+7163/5422/1741 figures recorded there; both are real, just from different
+points in this checkpoint's retrain history, and this section uses the
+current one to match what RoBERTa is being compared against).
+
+- **100% of both models' misclassified Benign rows are "bare" values** (no
+  `=`, `&`, `:`, `{`, `}`) — **RoBERTa is failing on the same structural gap
+  already documented for GATv2, not a new failure category.**
+- But the two failure sets only overlap 2107/7251 rows (29% of RoBERTa's
+  misclassifications) — **RoBERTa fails on 5144 bare-value rows GATv2 gets
+  right**, including plain alphabetic tokens with no digits or `@` at all
+  (`"fennell"`, `"genny"`, `"mckenney"`, `"maala8"`), not just the
+  numeric-ID/email sub-patterns GATv2's gap was characterized by. RoBERTa's
+  version of this gap is broader, not just differently-shaped.
+- **The "content too short = no context, basically `<s></s>`" hypothesis is
+  a partial, not primary, explanation.** Token-count check (RoBERTa's own
+  tokenizer): rows misclassified Benign→XSS have median 6 tokens vs. 7 for
+  correctly-classified Benign — a real but small gap. Rows with ≤4 tokens
+  (`<s>` + ≤2 real subwords + `</s>`) are 31.5% of the misclassified set vs.
+  21.4% of the correct set — a moderate correlation, but 68.5% of the
+  misclassifications have more than 4 tokens, so tokenizer starvation alone
+  does not explain most of them.
+- **Directional bias matches GATv2's, more extreme:** both models
+  disproportionately guess XSS rather than SQLi for ambiguous bare-value
+  Benign input (GATv2: 4750 XSS vs. 1127 SQLi; RoBERTa: 6733 vs. 518) — same
+  direction, RoBERTa's skew is sharper.
+
+**Reading for the paper:** this is not evidence that a Transformer baseline
+solves (or introduces a new version of) the benign-type-4 gap — it inherits
+the same structural blind spot (bare, delimiter-free short values look
+attack-like to both a token-graph model and a pure sequence model alike),
+and inherits it *more severely* despite having no graph-size shortcut to
+blame. That rules out "GATv2's gap is a graph-structural artifact" as a
+complete explanation — a text-only architecture with none of GATv2's graph
+machinery has the same blind spot, which points toward the gap being about
+the *training data* (no bare-value Benign examples in any augmentation
+round — see "Train-only Benign syntax diversity" in `docs/DATASET.md`) more
+than about either model's specific architecture.
