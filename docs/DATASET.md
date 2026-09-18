@@ -258,3 +258,65 @@ performance (8/9) transfers to real-world-shaped external traffic; the
 both genuine, separately-reportable limitations for the paper's Discussion,
 alongside the E_sem architectural limit already documented in
 `docs/EXPERIMENT_LOG_semantic_edge_investigation.md`.
+
+### Root cause of external Benign misclassification: a 4th, un-augmented benign form (2026-09-18)
+
+Quick check (documentation only — no training/code change at this stage; this
+is Limitations material, not a bug to patch here). Of the 19293 external
+Benign rows, **7163 (37.1%) are misclassified** (5422 → SQLi, 1741 → XSS).
+10 real examples, verbatim content + length, sampled proportionally across
+both misprediction directions (6 SQLi-side, 4 XSS-side, matching the true
+~76%/24% split):
+
+| predicted as | len | content |
+|---|---|---|
+| SQLi | 16 | `1084102116286517` |
+| SQLi | 16 | `3006162765919932` |
+| SQLi | 16 | `2301580169203669` |
+| SQLi | 5 | `e72i4` |
+| SQLi | 16 | `7008973356777544` |
+| SQLi | 5 | `10860` |
+| XSS | 15 | `mori@itrends.do` |
+| XSS | 18 | `gunther@nik.com.tn` |
+| XSS | 21 | `mullen@menorca.com.bf` |
+| XSS | 34 | `keep_theberge9@aprendeaestudiar.gr` |
+
+**This is confirmed to be a 4th benign form, distinct from all three forms
+already covered by train augmentation** (`docs/DATASET.md` §§
+"Train-only Benign syntax diversity"): checked structurally across all 7163
+misclassified rows, not just the 10 samples above —
+
+```
+with '=' (query-string form):  0 / 7163
+with '&' (query-string form):  0 / 7163
+with ':' (header-style form):  0 / 7163
+with '{' or '}' (json form):   0 / 7163
+pure digit strings:            4075 / 7163 (56.9%)
+```
+
+**100% of misclassified external Benign rows contain none of `=`, `&`, `:`,
+`{`, `}`** — zero overlap with the query-string (`key=value&key=value`),
+header-style (`Name: value`), or JSON-style (`{"k":"v"}`) forms added by
+`scripts/add_benign_syntax_diversity_train.py`. They are **single bare
+values with no key/delimiter structure at all**: standalone numeric strings
+that look like credit-card numbers or ID/PIN codes (`1084102116286517`,
+`10860`), short alphanumeric tokens (`e72i4`), and — for the XSS-predicted
+half specifically — **email addresses** (`mori@itrends.do`), which the `@`
+and `.`-heavy structure of plausibly resembles the tokenization of
+XSS-relevant special characters (`@`, `.`) closely enough to be a distinct
+sub-pattern worth naming on its own.
+
+**For the paper's Limitations section:** the three benign-syntax-diversity
+forms added in this repo's training data (query-string, header, JSON) cover
+benign content that has *some* delimiter/key-value structure. This 4th form —
+an isolated bare value (numeric ID, short alphanumeric token, or email
+address) with no surrounding structure — was never represented in training,
+and the model has no reliable signal to distinguish "digits that are
+somebody's ID number" from "digits that are a SQLi numeric literal," or
+"an email address" from "an XSS payload with special characters." This is a
+genuine, previously-undocumented generalization gap, not covered by the
+existing 8/9 held-out matrix (whose `field_query`/`header_field`/`json_field`
+Benign cells are all structured, delimiter-bearing forms) and not something
+this task's scope fixes — recorded here as evidence for the Discussion/
+Limitations section, and as a candidate 4th augmentation form for anyone
+picking this up later.
