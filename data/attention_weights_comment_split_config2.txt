@@ -1,0 +1,7 @@
+model_path=/home/dhgia/Work/iot_mailware/LOGWAT_v0.1/LOGWAT_v0.1/data/models_pretrained/best_web_gnn_seed42_ablation_2_full_edge_attr.pth
+use_edge_attr=True
+n_esem_found=4 n_other=142 n_self_loop=37
+alpha_Esem_mean=0.166283
+alpha_other_mean=0.201772
+ratio=0.824115
+(reference, config 1 / retrain #5, no edge_attr: alpha_Esem_mean=0.154079 alpha_other_mean=0.202362 ratio=0.7614)

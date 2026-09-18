@@ -119,6 +119,32 @@ ratio alpha_Esem_mean / alpha_other_mean = 0.7614
 
 This reframes the one remaining held-out failure: it is not an unresolved bug requiring more investigation, but a **known, evidenced architectural limitation** of the current E_sem design (numerically outnumbered ~35:1 by other edge types, and not compensated for by attention weighting) — a legitimate limitation to report in the paper, with a documented path to addressing it (e.g. a dedicated/weighted edge type or relation-specific attention for E_sem) rather than something to keep patching with further data augmentation.
 
+## 10. Follow-up ablation: does an explicit relation-type signal help E_sem?
+
+Section 9's finding (E_sem edges get 24% less attention than surrounding n-gram edges) suggested a concrete architectural fix: give GATv2Conv an explicit relation-type signal per edge (one-hot seq/skip/sem, via PyTorch Geometric's native `edge_dim` mechanism) so attention can condition on edge type instead of treating all edges identically. Implemented and tested as a 4-way ablation (`scripts/run_ablation_edge_attr_seq_skip_sem.py`, full results: `results/ablation_edge_attr_seq_skip_sem.csv`).
+
+Prerequisite refactor: `sequential_edges()`/`skip_edges()` (previously stubs, with the real i↔i+1/i↔i+2 logic hardcoded inline in `graph_builder.py`) were extracted into real modules (`src/edges/sequential.py`, `src/edges/skip.py`), and a shared `build_single_graph()` helper added to `src/bag/graph_builder.py` with `use_seq`/`use_skip`/`use_sem`/`use_edge_attr` toggles, reused by `build_web_graphs()` and `build_heldout_matrix_eval.py` alike. Regression-verified byte-for-byte against the pre-refactor graph file: rebuilding all 43595 rows with default toggles reproduced identical totals (3,514,551 edges, 940,497 nodes).
+
+| config | test split macro F1 | held-out cells correct | comment_splitting | case_mixing |
+|---|---|---|---|---|
+| (1) full, no edge_attr (= retrain #5, reused not retrained) | 0.999778 | 8/9 | 0.0 | 1.0 |
+| (2) full, with edge_attr | 0.999778 | 8/9 | **0.0 (not fixed)** | 1.0 |
+| (3) no-skip, with edge_attr | 0.999778 | 7/9 | 0.0 | **0.0 (regressed)** |
+| (4) no-sem, with edge_attr | 0.999778 | 7/9 | 0.0 | **0.0 (regressed)** |
+
+**Test split macro F1 and confusion matrix were bit-for-bit identical across all 4 configurations** (`[[1550,0,0],[0,1214,0],[1,0,1450]]`, the same single XSS→Benign error every time) — a striking, additional confirmation of this investigation's recurring theme (§1, §4): the frozen test split is saturated to the point of not discriminating between architectural variants at all. All differentiation happens on the held-out matrix.
+
+**Attention weight on the comment_split sample, with edge_attr enabled (config 2):**
+```
+alpha_Esem_mean=0.166283   alpha_other_mean=0.201772   ratio=0.824115
+(config 1 / no edge_attr:  alpha_Esem_mean=0.154079   alpha_other_mean=0.202362   ratio=0.761400)
+```
+Giving the model an explicit relation-type signal **did raise E_sem's relative attention** (ratio 0.761 → 0.824, a real, measured increase) — but not past parity with other edges, and not enough to flip the wrong prediction. `SQLi / comment_splitting` stayed at 0.0 in config (2). Partial confirmation of §9's mechanism, insufficient on its own as a fix.
+
+Configs (3) and (4) each independently regressed `case_mixing` from 1.0 to 0.0, alongside the pre-existing `comment_splitting` failure — a new, single-run observation. Notably, removing E_skip (roughly a third of all edges) and removing E_sem (only 4 edges) produced the *same* held-out outcome, which is not what a purely edge-count-driven explanation would predict. With only one training run per configuration (no repeated seeds), this should be read as a preliminary signal worth a variance check, not a settled causal claim about E_skip or E_sem individually.
+
+**Conclusion:** the edge_attr mechanism is a real, measurable step in the right direction (attention ratio improved) but does not fully close the gap alone. §9's "architectural limitation" framing stands: E_sem needs more than a relation-type tag to compete with the volume of n-gram edges — options not yet tried include a learned per-relation weight/gate (rather than only letting attention discover it), reducing n-gram edge density, or a separate aggregation path for semantic edges.
+
 ## Final state
 
 **Held-out matrix: 8/9 cells correct (88.9%)**, up from 6/9 at the start of this investigation.
@@ -155,4 +181,6 @@ The one remaining failure has a known, evidenced cause (§9) rather than being a
 | `results/COMPARISON_v3_after_missing_payloads.csv` | retrain #3 (§6) |
 | `results/COMPARISON_v4_after_benign_syntax.csv` | retrain #4 (§7) |
 | `results/COMPARISON_v5_after_class_weight.csv` | retrain #5 (§8) |
+| `results/ablation_edge_attr_seq_skip_sem.csv` | 4-config seq/skip/sem/edge_attr ablation (§10) |
+| `data/attention_weights_comment_split_config2.txt` | attention weights with edge_attr enabled (§10) |
 | `docs/DATASET.md` | full dataset provenance, freeze state, and every augmentation round's exact row counts |
