@@ -19,3 +19,7 @@ torch-geometric==2.8.0.post1
 torch_scatter==2.1.2+pt26cu124
 torch_sparse==0.6.18+pt26cu124
 tqdm==4.70.1
+transformers==5.17.0
+tokenizers==0.23.2
+safetensors==0.8.0
+huggingface_hub==1.32.0
