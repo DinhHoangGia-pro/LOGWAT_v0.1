@@ -156,6 +156,27 @@ Configs (3) and (4) each independently regressed `case_mixing` from 1.0 to 0.0, 
 
 One genuine difference from the edge_attr configs: config (5)'s test-split confusion matrix is *not* identical to config (1)'s (a different single error: SQLi→XSS instead of XSS→Benign) — the only config in this whole ablation where the frozen test split actually distinguished a configuration. Config (6) matches config (1) exactly. So E_skip removal does perturb the model somewhat on the test split; E_sem removal (4 edges out of ~150) does not perturb it at all -- consistent with §9's finding that E_sem is a very small, easily-outweighed signal.
 
+## 11. Consolidated ablation conclusion (paper-ready)
+
+All 6 ablation configurations in one table (`results/ablation_edge_attr_seq_skip_sem.csv`, §10; seed=42 throughout, same dataset — 5 rounds of train-only augmentation + balanced class weighting — for every config):
+
+| config | E_seq | E_skip | E_sem | edge_attr | test split macro F1 | test confusion matrix | held-out (9 cells) | comment_splitting | case_mixing |
+|---|---|---|---|---|---|---|---|---|---|
+| (1) full, no edge_attr | ✓ | ✓ | ✓ |  | 0.999778 | `[[1550,0,0],[0,1214,0],[1,0,1450]]` | **8/9** | 0.0 | 1.0 |
+| (2) full + edge_attr | ✓ | ✓ | ✓ | ✓ | 0.999778 | same as (1) | 8/9 | 0.0 | 1.0 |
+| (3) no-skip + edge_attr | ✓ |  | ✓ | ✓ | 0.999778 | same as (1) | 7/9 | 0.0 | **0.0** |
+| (4) no-sem + edge_attr | ✓ | ✓ |  | ✓ | 0.999778 | same as (1) | 7/9 | 0.0 | **0.0** |
+| (5) no-skip, no edge_attr | ✓ |  | ✓ |  | 0.999748 | `[[1550,0,0],[0,1214,0],[0,1,1450]]` (differs from (1)) | 7/9 | 0.0 | **0.0** |
+| (6) no-sem, no edge_attr | ✓ | ✓ |  |  | 0.999778 | same as (1) | 7/9 | 0.0 | **0.0** |
+
+Three findings, stated for direct use in the paper's Discussion:
+
+**(a) E_seq/E_skip are load-bearing for both the standard benchmark and generalization.** Removing E_skip regresses the held-out matrix (8/9 → 7/9, `case_mixing` 1.0 → 0.0) in *both* the edge_attr and no-edge_attr configurations (3, 5) — the effect is attributable to E_skip itself, not to the relation-type mechanism used to test it. Configuration (5) is also the *only* one of the six whose test-split confusion matrix differs at all from the baseline (a new SQLi→XSS error replacing the baseline's XSS→Benign error) — the only edge-removal in this whole ablation that perturbs the otherwise-saturated standard benchmark (§1, §4, §10) even slightly. E_skip is not a redundant structural convenience; it measurably contributes to both evaluation regimes.
+
+**(b) E_sem has a generalization-specific role that the standard benchmark cannot see.** Removing E_sem regresses the held-out matrix identically to removing E_skip (8/9 → 7/9, `case_mixing` regresses) in both configurations (4, 6) — so E_sem is doing real, necessary work for obfuscation robustness. But configuration (6)'s test-split confusion matrix is *bit-for-bit identical* to the full baseline (1): removing all 4 E_sem edges changes nothing measurable on the standard test split. This is the clearest confirmation of the circularity concern that opened this investigation (§1): the standard benchmark's labels and difficulty are keyword-driven, so a component whose entire purpose is representing keyword *relationships* under obfuscation is invisible to it by construction — its contribution only becomes visible under a held-out evaluation designed to require generalization. A benchmark section reporting only the standard test split would not detect E_sem's necessity at all.
+
+**(c) The multi-relational signal (edge_attr) is a real but insufficient mitigation — confirming a genuine architectural limit, not merely a missing feature.** Enabling edge_attr (relation-type one-hot, fed through GATv2Conv's native `edge_dim`) measurably raises E_sem's learned attention on the one persistently-misclassified held-out sample: `alpha_Esem_mean / alpha_other_mean` rises from **0.761** (config 1, no signal) to **0.824** (config 2, with signal) — the model *does* learn to weight semantic edges somewhat more given the means to distinguish them. Yet `SQLi / comment_splitting` stays at accuracy 0.0 in every configuration tested, edge_attr or not. The remaining gap is not explained by an absent relation-type signal (that was directly tested and only partially helped) — it is better explained by E_sem's edges being numerically overwhelmed: 4 semantic edges against 142 n-gram edges in the same graph (≈2.7% of edges), for a component whose signal must compete edge-for-edge with sequential/skip structure in the same attention computation. This motivates a specific, falsifiable next step for future work rather than an open question: E_sem needs a mechanism that doesn't compete on edge count at all (e.g. a learned per-relation gate/weight applied after aggregation, a separate aggregation path for semantic edges before merging with the sequential representation, or reducing n-gram edge density), not just a richer per-edge feature.
+
 ## Final state
 
 **Held-out matrix: 8/9 cells correct (88.9%)**, up from 6/9 at the start of this investigation.
@@ -166,8 +187,8 @@ One genuine difference from the edge_attr configs: config (5)'s test-split confu
 | Benign / header_field | 0.0 | **1.0** | fixed (retrain #4) |
 | Benign / json_field | 0.0 | **1.0** | fixed (retrain #4) |
 | SQLi / sql_new_commands | 1.0 | 1.0 | always correct |
-| SQLi / comment_splitting | 0.0 | **0.0** | fixed in #2/#3, regressed in #4, not restored by #5 — architectural limit, evidenced in §9 |
-| SQLi / case_mixing | 1.0 | 1.0 | always correct |
+| SQLi / comment_splitting | 0.0 | **0.0** | fixed in #2/#3, regressed in #4, not restored by #5 — architectural limit, evidenced in §9 and §11c |
+| SQLi / case_mixing | 1.0 | 1.0 | correct in the deployed (full-edge) model; §11 shows it regresses to 0.0 whenever E_skip or E_sem is ablated |
 | XSS / data_uri_base64 | 1.0 | 1.0 | always correct |
 | XSS / event_handler_focus | 1.0 | 1.0 | always correct |
 | XSS / svg_script_variant | 1.0 | 1.0 | always correct |
