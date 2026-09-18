@@ -1017,3 +1017,66 @@ machinery has the same blind spot, which points toward the gap being about
 the *training data* (no bare-value Benign examples in any augmentation
 round — see "Train-only Benign syntax diversity" in `docs/DATASET.md`) more
 than about either model's specific architecture.
+
+## Interpretability: GATv2 edge-attention vs RoBERTa/CodeBERT attention-rollout (2026-09-18)
+
+Minimal, honest comparison (Reviewer #3 asked for interpretability
+discussion, no specific method mandated). GATv2 side reuses existing
+edge-level attention extraction (`scripts/inspect_attention_weights.py`,
+`data/attention_weights_comment_split.txt`); the baselines get a
+deliberately simple attention-rollout proxy
+(`scripts/interpretability_attention_rollout.py`): mean attention FROM the
+`<s>`/[CLS] token TO every input token, averaged across all layers and
+heads (not the full recursive Abnar & Zuidema rollout). Same
+`sqli_comment_split` content used by both, for direct comparison:
+`'p=0;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=0;--'`.
+Two more examples (`sqli_clear`, `xss_svg_onload`) covered for RoBERTa and
+CodeBERT only. Full data: `results/interpretability/` (6 PNGs,
+`attention_rollout_report.txt`).
+
+**GATv2 (existing result, restated for comparison):** attention is
+attributable to a *relation type*. On this exact content, the 4 `E_sem`
+edges average 0.154 attention, ordinary (non-self-loop) edges average
+0.202, self-loops average 0.207 — E_sem edges get *less*, not more,
+attention than typical edges here (ratio 0.76), a finding already on record
+elsewhere in this document (§9) and not re-derived here. The point for this
+comparison isn't whether E_sem is favored — it's that the number is
+meaningful at all: every attention weight in this model is tagged with
+*which structural relationship* (E_seq/E_skip/E_sem) it belongs to.
+
+**RoBERTa/CodeBERT (new):** the rollout gives only token-level importance,
+with no relational structure — attention FROM `<s>` TO token *i* says
+nothing about token *i*'s relationship to any other token. On
+`sqli_comment_split`, RoBERTa's top non-special tokens are `--`, two `/**`
+fragments (0.029-0.025); CodeBERT's are `--`, two `;` tokens (0.023-0.018)
+— both land on SQL-syntax markers near the injected comment fragments,
+plausible but not surprising for a model whose classifier head reads only
+the `<s>` representation. On `xss_svg_onload`
+(`'<svg onload=alert(1)>'`), both models' top token is `<` for RoBERTa /
+`<`+`alert` for CodeBERT — i.e. attending to the opening delimiter and the
+payload keyword, not to `onload` itself specifically.
+
+**A real limitation of this simple method, visible in the actual numbers,
+not just asserted:** a large fraction of `<s>`'s own attention mass goes
+to **itself** — e.g. `sqli_comment_split`/RoBERTa: `<s>`→`<s>` = 0.4731 of
+the total (see `results/interpretability/roberta_sqli_comment_split.png`),
+~16.1x the next-highest token (`--`, 0.0293). This is a known property of raw
+attention in Transformer classifiers (the `[CLS]`-attends-to-itself
+phenomenon), not a bug in this script, but it means the "top-attended
+tokens" reported above are computed after excluding the special tokens
+(`<s>`/`</s>`/`<pad>`) from the ranking — read as "most-attended *content*
+token," not as a claim that this is where most of the model's attention
+literally goes.
+
+**Framing for the paper (qualitative, not quantitative — no attempt to
+force this into a single comparable metric):** GATv2's attention is
+structurally interpretable — a practitioner can ask "how much does this
+model rely on semantic-dependency edges vs. sequential ones" and get a
+real, relation-typed answer. RoBERTa/CodeBERT's attention-rollout answers a
+narrower question — "which tokens did the classifier's representation draw
+from" — with no equivalent notion of edge type, because there are no edges;
+BAG's explicit multi-relational graph structure is not something a
+sequence-only Transformer has an analogue for. This is a genuine
+architectural trade-off, not a deficiency of the rollout method: the
+comparison exists to make the trade-off legible, not to declare one
+approach's interpretability "better" in the abstract.

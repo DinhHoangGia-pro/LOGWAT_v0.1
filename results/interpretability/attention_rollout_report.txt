@@ -1,0 +1,6 @@
+[RoBERTa][sqli_clear] content="1' UNION SELECT username, password FROM users--" top-attended-tokens: ĠSELECT=0.0416, '=0.0367, --=0.0353
+[RoBERTa][sqli_comment_split] content='p=0;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=0;--' top-attended-tokens: --=0.0293, /**=0.0251, /**=0.0196
+[RoBERTa][xss_svg_onload] content='<svg onload=alert(1)>' top-attended-tokens: <=0.0488, alert=0.0403, sv=0.0371
+[CodeBERT][sqli_clear] content="1' UNION SELECT username, password FROM users--" top-attended-tokens: --=0.0316, '=0.0259, 1=0.0251
+[CodeBERT][sqli_comment_split] content='p=0;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=0;--' top-attended-tokens: --=0.0229, ;=0.0209, ;=0.0178
+[CodeBERT][xss_svg_onload] content='<svg onload=alert(1)>' top-attended-tokens: <=0.0365, alert=0.0318, load=0.0317
