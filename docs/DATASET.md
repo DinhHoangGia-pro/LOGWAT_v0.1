@@ -2,6 +2,58 @@
 
 Dataset description and schema.
 
+## Source data: CSIC 2010 license/terms of use (investigated 2026-09-18)
+
+`data/csic_database.csv` (raw) is the "HTTP DATASET CSIC 2010", created by
+Carmen Torrano Giménez, Alejandro Pérez Villegas, and Gonzalo Álvarez Marañón at
+the Information Security Institute of CSIC (Spanish National Research Council)
+in 2009-2010, originally hosted at `isi.csic.es/dataset/` /
+`tic.itefi.csic.es/dataset/`.
+
+**Finding: no explicit, discoverable license or terms-of-use document exists for
+this dataset — for either the raw data or derived/processed data.**
+
+- The original CSIC host page is currently unreachable (`isi.csic.es`: connection
+  timeout; `tic.itefi.csic.es`: "no route to host" — checked directly via
+  `urllib`, not just a proxy/tool restriction), so it could not be read directly.
+  It could not be recovered via the Wayback Machine either (archive.org rate-limited
+  every retry during this check).
+- The [IMPACT Cyber Trust mirror listing](https://www.impactcybertrust.org/dataset_view?idDataset=940)
+  (a formal dataset-sharing framework that normally documents usage terms)
+  explicitly marks this dataset as offered **"outside of the IMPACT mediation
+  framework"**, with **no redistribution or derived-data clause given** — it
+  defers to the CSIC host page for actual terms, which (see above) is down.
+- No secondary source checked — academic papers citing the dataset, the
+  [SpiderLabs modsecurity-crs discussion](https://github.com/SpiderLabs/owasp-modsecurity-crs/issues/1016),
+  multiple GitHub mirrors (e.g. [Kiinitix/HTTP-CSIC-2010](https://github.com/Kiinitix/HTTP-CSIC-2010)),
+  a Kaggle re-upload, or a [PhD-thesis-linked reformatted-CSV mirror](https://petescully.co.uk/research/csic-2010-http-dataset-in-csv-format-for-weka-analysis/)
+  — quotes any explicit clause restricting or permitting redistribution of
+  either raw or derived data. The one consistent norm across sources is
+  **attribution**: acknowledge the three CSIC researchers above as the dataset's
+  creators. None of these mirrors are the authoritative source, so their
+  practice (freely re-hosting raw and reformatted copies) is evidence of a
+  de facto community norm, not a confirmed legal permission.
+
+**Conclusion for this repo:** there is no confirmed prohibition on redistributing
+derived data specifically (nor, symmetrically, a confirmed blanket permission for
+either raw or derived redistribution — the honest answer is "undocumented,"
+not "permitted"). Until the original terms page is reachable and re-checked:
+- Treat `data/csic_database.csv` (raw CSIC content) as **not verified safe to
+  publish/redistribute** — it is already excluded from git via `.gitignore`
+  (`data/*.csv`); keep it that way and do not attach it to the paper's
+  supplementary material without re-checking this page first.
+- `data/augmented_web_attack.csv` is a **derived** dataset (labeled/balanced/
+  augmented; only 84 rows keep `source='csic_original'`, i.e. an unmodified raw
+  CSIC row end-to-end — the `NA`-source Benign/XSS rows below still reuse raw
+  CSIC header fields (User-Agent, cookie, etc.) as templates even where
+  `content` was replaced). Its legal status is exactly as undocumented as the
+  raw data's, not clearer — no source draws a raw-vs-derived distinction
+  explicitly. Do not treat "it's derived" as license clearance.
+- Cite the three original CSIC researchers by name wherever the dataset is
+  described in the paper, per the attribution norm found above.
+- Re-attempt this check (the CSIC page, then the Wayback Machine) before final
+  paper/code submission — a live terms page could change this conclusion.
+
 ## Frozen dataset v1
 
 - Freeze time: 2026-09-17 11:35:16 +0700
@@ -67,3 +119,14 @@ Motivated by the held-out `Benign header_field`/`Benign json_field` cells stayin
 - `source='benign_short_synthetic'`, `source_uid='benign_short_synthetic_header_<seq>'` / `'benign_short_synthetic_json_<seq>'` — new, no collisions, appended past the previous 38595-row range so automatically outside `test_split_indices.pkl`'s `test_idx`.
 - Row counts: 38595 → **43595** (+5000). `attack_type` counts: `{0: 15000, 1: 18595, 2: 10000}`.
 - Full report + samples: `data/benign_syntax_diversity_train_report.txt`.
+
+## Checksums
+
+SHA-256 of the current frozen dataset files (`data/augmented_web_attack.csv`,
+43595 rows including all augmentation rounds above; `data/test_split_indices.pkl`),
+for verifying a copy matches this exact state:
+
+```
+845a3acbdf8250a59c02daa93bb43a58c7a9b317e1efcdf0a397e3a3b4d29b7d  data/augmented_web_attack.csv
+f216c0679cf2b1e0fd41c4cffc1c865bb432312010cbb81eff678b25da68003d  data/test_split_indices.pkl
+```

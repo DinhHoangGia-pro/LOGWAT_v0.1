@@ -1,0 +1,20 @@
+[*] seed=42 | model_save=./data/models_pretrained/best_web_gnn_seed42.pth | early_stop_patience=10 | early_stop_min_delta=0.0
+[*] Applying fixed family-aware split for sqli_pool_* and random split for csic_original groups
+[*] train split size: 27271, test split size: 2813
+[DEBUG] ACTUAL EPOCH LOOP BOUND = 100
+Epoch 001 | Loss: 0.0167 | Acc: 1.0000 | LR: 0.000500 | Time: 3.7s
+   [V] Saved Best: 1.0000
+Epoch 002 | Loss: 0.0007 | Acc: 1.0000 | LR: 0.000500 | Time: 3.2s
+Epoch 003 | Loss: 0.0002 | Acc: 1.0000 | LR: 0.000500 | Time: 3.5s
+Epoch 004 | Loss: 0.0001 | Acc: 1.0000 | LR: 0.000500 | Time: 3.8s
+Epoch 005 | Loss: 0.0000 | Acc: 1.0000 | LR: 0.000500 | Time: 3.6s
+Epoch 006 | Loss: 0.0000 | Acc: 1.0000 | LR: 0.000500 | Time: 3.4s
+Epoch 007 | Loss: 0.0000 | Acc: 1.0000 | LR: 0.000250 | Time: 3.5s
+Epoch 008 | Loss: 0.0000 | Acc: 1.0000 | LR: 0.000250 | Time: 3.5s
+Epoch 009 | Loss: 0.0000 | Acc: 1.0000 | LR: 0.000250 | Time: 3.5s
+Epoch 010 | Loss: 0.0000 | Acc: 1.0000 | LR: 0.000250 | Time: 3.4s
+Epoch 011 | Loss: 0.0000 | Acc: 1.0000 | LR: 0.000250 | Time: 3.4s
+[*] Early stopping at epoch 11: plateau: validation accuracy did not improve for 10 consecutive epochs
+[*] First epoch summary: epoch=1 loss=0.0167 val_acc=1.0000
+[*] Final epoch summary: epoch=11 loss=0.0000 val_acc=1.0000
+[*] TRAINING COMPLETE | epochs_run=11 | wall_time=46.5s | best_acc=1.0000 | best_epoch=1 | early_stop_reason=plateau: validation accuracy did not improve for 10 consecutive epochs | model=./data/models_pretrained/best_web_gnn_seed42.pth

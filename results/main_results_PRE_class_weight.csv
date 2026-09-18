@@ -1,0 +1,15 @@
+subset,source,family,label,precision,recall,f1_score,support
+SQLi tổng hợp,all,,0,1.0,1.0,1.0,1550
+SQLi tổng hợp,all,,1,1.0,1.0,1.0,1214
+SQLi tổng hợp,all,,2,1.0,1.0,1.0,1451
+SQLi tổng hợp,all,,macro avg,1.0,1.0,1.0,4215
+SQLi tổng hợp,all,,weighted avg,1.0,1.0,1.0,4215
+SQLi chỉ sqli_pool,sqli_pool,,1,1.0,1.0,1.0,1200
+SQLi chỉ sqli_pool,sqli_pool,,macro avg,1.0,1.0,1.0,1200
+SQLi chỉ sqli_pool,sqli_pool,,weighted avg,1.0,1.0,1.0,1200
+family_breakdown,sqli_pool,Boolean-based,1,1.0,1.0,1.0,800
+family_breakdown,sqli_pool,Boolean-based,macro avg,1.0,1.0,1.0,800
+family_breakdown,sqli_pool,Boolean-based,weighted avg,1.0,1.0,1.0,800
+family_breakdown,sqli_pool,Time-based,1,1.0,1.0,1.0,400
+family_breakdown,sqli_pool,Time-based,macro avg,1.0,1.0,1.0,400
+family_breakdown,sqli_pool,Time-based,weighted avg,1.0,1.0,1.0,400

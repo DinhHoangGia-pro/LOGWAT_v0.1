@@ -1,0 +1,18 @@
+==========================================================================================
+SQLi comment_splitting: num_nodes/num_edges cua 10 graph,
+so sanh voi mean SQLi=10.7 va mean Benign=41.2
+==========================================================================================
+[matrix_sqli_comment_splitting_00] num_nodes=37 num_edges=142 pred=Benign
+[matrix_sqli_comment_splitting_01] num_nodes=37 num_edges=142 pred=Benign
+[matrix_sqli_comment_splitting_02] num_nodes=37 num_edges=142 pred=Benign
+[matrix_sqli_comment_splitting_03] num_nodes=37 num_edges=142 pred=Benign
+[matrix_sqli_comment_splitting_04] num_nodes=37 num_edges=142 pred=Benign
+[matrix_sqli_comment_splitting_05] num_nodes=37 num_edges=142 pred=Benign
+[matrix_sqli_comment_splitting_06] num_nodes=37 num_edges=142 pred=Benign
+[matrix_sqli_comment_splitting_07] num_nodes=37 num_edges=142 pred=Benign
+[matrix_sqli_comment_splitting_08] num_nodes=37 num_edges=142 pred=Benign
+[matrix_sqli_comment_splitting_09] num_nodes=37 num_edges=142 pred=Benign
+
+mean num_nodes=37.0, mean num_edges=142.0
+so voi known means: Benign=41.2, SQLi=10.7, XSS=21.7
+gan nhat voi lop: Benign (mean=41.2)

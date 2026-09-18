@@ -1,0 +1,91 @@
+source_uid,content,attack_type,source,class_name,technique
+matrix_benign_field_query_00,GET /home?page=0&mode=dashboard HTTP/1.1,0,matrix_benign_field_query,Benign,field_query
+matrix_benign_field_query_01,GET /home?page=1&mode=dashboard HTTP/1.1,0,matrix_benign_field_query,Benign,field_query
+matrix_benign_field_query_02,GET /home?page=2&mode=dashboard HTTP/1.1,0,matrix_benign_field_query,Benign,field_query
+matrix_benign_field_query_03,GET /home?page=3&mode=dashboard HTTP/1.1,0,matrix_benign_field_query,Benign,field_query
+matrix_benign_field_query_04,GET /home?page=4&mode=dashboard HTTP/1.1,0,matrix_benign_field_query,Benign,field_query
+matrix_benign_field_query_05,GET /home?page=5&mode=dashboard HTTP/1.1,0,matrix_benign_field_query,Benign,field_query
+matrix_benign_field_query_06,GET /home?page=6&mode=dashboard HTTP/1.1,0,matrix_benign_field_query,Benign,field_query
+matrix_benign_field_query_07,GET /home?page=7&mode=dashboard HTTP/1.1,0,matrix_benign_field_query,Benign,field_query
+matrix_benign_field_query_08,GET /home?page=8&mode=dashboard HTTP/1.1,0,matrix_benign_field_query,Benign,field_query
+matrix_benign_field_query_09,GET /home?page=9&mode=dashboard HTTP/1.1,0,matrix_benign_field_query,Benign,field_query
+matrix_benign_header_field_00,Authorization: Bearer token_0; X-Trace: session-0,0,matrix_benign_header_field,Benign,header_field
+matrix_benign_header_field_01,Authorization: Bearer token_1; X-Trace: session-1,0,matrix_benign_header_field,Benign,header_field
+matrix_benign_header_field_02,Authorization: Bearer token_2; X-Trace: session-2,0,matrix_benign_header_field,Benign,header_field
+matrix_benign_header_field_03,Authorization: Bearer token_3; X-Trace: session-3,0,matrix_benign_header_field,Benign,header_field
+matrix_benign_header_field_04,Authorization: Bearer token_4; X-Trace: session-4,0,matrix_benign_header_field,Benign,header_field
+matrix_benign_header_field_05,Authorization: Bearer token_5; X-Trace: session-5,0,matrix_benign_header_field,Benign,header_field
+matrix_benign_header_field_06,Authorization: Bearer token_6; X-Trace: session-6,0,matrix_benign_header_field,Benign,header_field
+matrix_benign_header_field_07,Authorization: Bearer token_7; X-Trace: session-7,0,matrix_benign_header_field,Benign,header_field
+matrix_benign_header_field_08,Authorization: Bearer token_8; X-Trace: session-8,0,matrix_benign_header_field,Benign,header_field
+matrix_benign_header_field_09,Authorization: Bearer token_9; X-Trace: session-9,0,matrix_benign_header_field,Benign,header_field
+matrix_benign_json_field_00,"{""page"":""dashboard"",""user"":""alice0"",""locale"":""en-US""}",0,matrix_benign_json_field,Benign,json_field
+matrix_benign_json_field_01,"{""page"":""dashboard"",""user"":""alice1"",""locale"":""en-US""}",0,matrix_benign_json_field,Benign,json_field
+matrix_benign_json_field_02,"{""page"":""dashboard"",""user"":""alice2"",""locale"":""en-US""}",0,matrix_benign_json_field,Benign,json_field
+matrix_benign_json_field_03,"{""page"":""dashboard"",""user"":""alice3"",""locale"":""en-US""}",0,matrix_benign_json_field,Benign,json_field
+matrix_benign_json_field_04,"{""page"":""dashboard"",""user"":""alice4"",""locale"":""en-US""}",0,matrix_benign_json_field,Benign,json_field
+matrix_benign_json_field_05,"{""page"":""dashboard"",""user"":""alice5"",""locale"":""en-US""}",0,matrix_benign_json_field,Benign,json_field
+matrix_benign_json_field_06,"{""page"":""dashboard"",""user"":""alice6"",""locale"":""en-US""}",0,matrix_benign_json_field,Benign,json_field
+matrix_benign_json_field_07,"{""page"":""dashboard"",""user"":""alice7"",""locale"":""en-US""}",0,matrix_benign_json_field,Benign,json_field
+matrix_benign_json_field_08,"{""page"":""dashboard"",""user"":""alice8"",""locale"":""en-US""}",0,matrix_benign_json_field,Benign,json_field
+matrix_benign_json_field_09,"{""page"":""dashboard"",""user"":""alice9"",""locale"":""en-US""}",0,matrix_benign_json_field,Benign,json_field
+matrix_sqli_sql_new_commands_00,login=0;TRUNCATE TABLE audit_log_0;--,1,matrix_sqli_sql_new_commands,SQLi,sql_new_commands
+matrix_sqli_sql_new_commands_01,login=1;TRUNCATE TABLE audit_log_1;--,1,matrix_sqli_sql_new_commands,SQLi,sql_new_commands
+matrix_sqli_sql_new_commands_02,login=2;TRUNCATE TABLE audit_log_2;--,1,matrix_sqli_sql_new_commands,SQLi,sql_new_commands
+matrix_sqli_sql_new_commands_03,login=3;TRUNCATE TABLE audit_log_3;--,1,matrix_sqli_sql_new_commands,SQLi,sql_new_commands
+matrix_sqli_sql_new_commands_04,login=4;TRUNCATE TABLE audit_log_4;--,1,matrix_sqli_sql_new_commands,SQLi,sql_new_commands
+matrix_sqli_sql_new_commands_05,login=5;TRUNCATE TABLE audit_log_5;--,1,matrix_sqli_sql_new_commands,SQLi,sql_new_commands
+matrix_sqli_sql_new_commands_06,login=6;TRUNCATE TABLE audit_log_6;--,1,matrix_sqli_sql_new_commands,SQLi,sql_new_commands
+matrix_sqli_sql_new_commands_07,login=7;TRUNCATE TABLE audit_log_7;--,1,matrix_sqli_sql_new_commands,SQLi,sql_new_commands
+matrix_sqli_sql_new_commands_08,login=8;TRUNCATE TABLE audit_log_8;--,1,matrix_sqli_sql_new_commands,SQLi,sql_new_commands
+matrix_sqli_sql_new_commands_09,login=9;TRUNCATE TABLE audit_log_9;--,1,matrix_sqli_sql_new_commands,SQLi,sql_new_commands
+matrix_sqli_comment_splitting_00,p=0;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=0;--,1,matrix_sqli_comment_splitting,SQLi,comment_splitting
+matrix_sqli_comment_splitting_01,p=1;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=1;--,1,matrix_sqli_comment_splitting,SQLi,comment_splitting
+matrix_sqli_comment_splitting_02,p=2;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=2;--,1,matrix_sqli_comment_splitting,SQLi,comment_splitting
+matrix_sqli_comment_splitting_03,p=3;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=3;--,1,matrix_sqli_comment_splitting,SQLi,comment_splitting
+matrix_sqli_comment_splitting_04,p=4;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=4;--,1,matrix_sqli_comment_splitting,SQLi,comment_splitting
+matrix_sqli_comment_splitting_05,p=5;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=5;--,1,matrix_sqli_comment_splitting,SQLi,comment_splitting
+matrix_sqli_comment_splitting_06,p=6;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=6;--,1,matrix_sqli_comment_splitting,SQLi,comment_splitting
+matrix_sqli_comment_splitting_07,p=7;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=7;--,1,matrix_sqli_comment_splitting,SQLi,comment_splitting
+matrix_sqli_comment_splitting_08,p=8;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=8;--,1,matrix_sqli_comment_splitting,SQLi,comment_splitting
+matrix_sqli_comment_splitting_09,p=9;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=9;--,1,matrix_sqli_comment_splitting,SQLi,comment_splitting
+matrix_sqli_case_mixing_00,q=0;uN/**/ioN aLl sEl/**/eCt * frOm admins WH/**/ere id=0;--,1,matrix_sqli_case_mixing,SQLi,case_mixing
+matrix_sqli_case_mixing_01,q=1;uN/**/ioN aLl sEl/**/eCt * frOm admins WH/**/ere id=1;--,1,matrix_sqli_case_mixing,SQLi,case_mixing
+matrix_sqli_case_mixing_02,q=2;uN/**/ioN aLl sEl/**/eCt * frOm admins WH/**/ere id=2;--,1,matrix_sqli_case_mixing,SQLi,case_mixing
+matrix_sqli_case_mixing_03,q=3;uN/**/ioN aLl sEl/**/eCt * frOm admins WH/**/ere id=3;--,1,matrix_sqli_case_mixing,SQLi,case_mixing
+matrix_sqli_case_mixing_04,q=4;uN/**/ioN aLl sEl/**/eCt * frOm admins WH/**/ere id=4;--,1,matrix_sqli_case_mixing,SQLi,case_mixing
+matrix_sqli_case_mixing_05,q=5;uN/**/ioN aLl sEl/**/eCt * frOm admins WH/**/ere id=5;--,1,matrix_sqli_case_mixing,SQLi,case_mixing
+matrix_sqli_case_mixing_06,q=6;uN/**/ioN aLl sEl/**/eCt * frOm admins WH/**/ere id=6;--,1,matrix_sqli_case_mixing,SQLi,case_mixing
+matrix_sqli_case_mixing_07,q=7;uN/**/ioN aLl sEl/**/eCt * frOm admins WH/**/ere id=7;--,1,matrix_sqli_case_mixing,SQLi,case_mixing
+matrix_sqli_case_mixing_08,q=8;uN/**/ioN aLl sEl/**/eCt * frOm admins WH/**/ere id=8;--,1,matrix_sqli_case_mixing,SQLi,case_mixing
+matrix_sqli_case_mixing_09,q=9;uN/**/ioN aLl sEl/**/eCt * frOm admins WH/**/ere id=9;--,1,matrix_sqli_case_mixing,SQLi,case_mixing
+matrix_xss_data_uri_base64_00,"data:text/html;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIGRhdGEtaWQ9MD48L3N2Zz4=",2,matrix_xss_data_uri_base64,XSS,data_uri_base64
+matrix_xss_data_uri_base64_01,"data:text/html;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIGRhdGEtaWQ9MT48L3N2Zz4=",2,matrix_xss_data_uri_base64,XSS,data_uri_base64
+matrix_xss_data_uri_base64_02,"data:text/html;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIGRhdGEtaWQ9Mj48L3N2Zz4=",2,matrix_xss_data_uri_base64,XSS,data_uri_base64
+matrix_xss_data_uri_base64_03,"data:text/html;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIGRhdGEtaWQ9Mz48L3N2Zz4=",2,matrix_xss_data_uri_base64,XSS,data_uri_base64
+matrix_xss_data_uri_base64_04,"data:text/html;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIGRhdGEtaWQ9ND48L3N2Zz4=",2,matrix_xss_data_uri_base64,XSS,data_uri_base64
+matrix_xss_data_uri_base64_05,"data:text/html;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIGRhdGEtaWQ9NT48L3N2Zz4=",2,matrix_xss_data_uri_base64,XSS,data_uri_base64
+matrix_xss_data_uri_base64_06,"data:text/html;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIGRhdGEtaWQ9Nj48L3N2Zz4=",2,matrix_xss_data_uri_base64,XSS,data_uri_base64
+matrix_xss_data_uri_base64_07,"data:text/html;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIGRhdGEtaWQ9Nz48L3N2Zz4=",2,matrix_xss_data_uri_base64,XSS,data_uri_base64
+matrix_xss_data_uri_base64_08,"data:text/html;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIGRhdGEtaWQ9OD48L3N2Zz4=",2,matrix_xss_data_uri_base64,XSS,data_uri_base64
+matrix_xss_data_uri_base64_09,"data:text/html;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIGRhdGEtaWQ9OT48L3N2Zz4=",2,matrix_xss_data_uri_base64,XSS,data_uri_base64
+matrix_xss_event_handler_focus_00,<svg xmlns='http://www.w3.org/2000/svg' onfocus=payload_0(1)>x</svg>,2,matrix_xss_event_handler_focus,XSS,event_handler_focus
+matrix_xss_event_handler_focus_01,<svg xmlns='http://www.w3.org/2000/svg' onfocus=payload_1(1)>x</svg>,2,matrix_xss_event_handler_focus,XSS,event_handler_focus
+matrix_xss_event_handler_focus_02,<svg xmlns='http://www.w3.org/2000/svg' onfocus=payload_2(1)>x</svg>,2,matrix_xss_event_handler_focus,XSS,event_handler_focus
+matrix_xss_event_handler_focus_03,<svg xmlns='http://www.w3.org/2000/svg' onfocus=payload_3(1)>x</svg>,2,matrix_xss_event_handler_focus,XSS,event_handler_focus
+matrix_xss_event_handler_focus_04,<svg xmlns='http://www.w3.org/2000/svg' onfocus=payload_4(1)>x</svg>,2,matrix_xss_event_handler_focus,XSS,event_handler_focus
+matrix_xss_event_handler_focus_05,<svg xmlns='http://www.w3.org/2000/svg' onfocus=payload_5(1)>x</svg>,2,matrix_xss_event_handler_focus,XSS,event_handler_focus
+matrix_xss_event_handler_focus_06,<svg xmlns='http://www.w3.org/2000/svg' onfocus=payload_6(1)>x</svg>,2,matrix_xss_event_handler_focus,XSS,event_handler_focus
+matrix_xss_event_handler_focus_07,<svg xmlns='http://www.w3.org/2000/svg' onfocus=payload_7(1)>x</svg>,2,matrix_xss_event_handler_focus,XSS,event_handler_focus
+matrix_xss_event_handler_focus_08,<svg xmlns='http://www.w3.org/2000/svg' onfocus=payload_8(1)>x</svg>,2,matrix_xss_event_handler_focus,XSS,event_handler_focus
+matrix_xss_event_handler_focus_09,<svg xmlns='http://www.w3.org/2000/svg' onfocus=payload_9(1)>x</svg>,2,matrix_xss_event_handler_focus,XSS,event_handler_focus
+matrix_xss_svg_script_variant_00,"<svg><a href='data:text/html;base64,PHNjcmlwdD50cmlnZ2VyKDApPC9zY3JpcHQ+'>x</a></svg>",2,matrix_xss_svg_script_variant,XSS,svg_script_variant
+matrix_xss_svg_script_variant_01,"<svg><a href='data:text/html;base64,PHNjcmlwdD50cmlnZ2VyKDEpPC9zY3JpcHQ+'>x</a></svg>",2,matrix_xss_svg_script_variant,XSS,svg_script_variant
+matrix_xss_svg_script_variant_02,"<svg><a href='data:text/html;base64,PHNjcmlwdD50cmlnZ2VyKDIpPC9zY3JpcHQ+'>x</a></svg>",2,matrix_xss_svg_script_variant,XSS,svg_script_variant
+matrix_xss_svg_script_variant_03,"<svg><a href='data:text/html;base64,PHNjcmlwdD50cmlnZ2VyKDMpPC9zY3JpcHQ+'>x</a></svg>",2,matrix_xss_svg_script_variant,XSS,svg_script_variant
+matrix_xss_svg_script_variant_04,"<svg><a href='data:text/html;base64,PHNjcmlwdD50cmlnZ2VyKDQpPC9zY3JpcHQ+'>x</a></svg>",2,matrix_xss_svg_script_variant,XSS,svg_script_variant
+matrix_xss_svg_script_variant_05,"<svg><a href='data:text/html;base64,PHNjcmlwdD50cmlnZ2VyKDUpPC9zY3JpcHQ+'>x</a></svg>",2,matrix_xss_svg_script_variant,XSS,svg_script_variant
+matrix_xss_svg_script_variant_06,"<svg><a href='data:text/html;base64,PHNjcmlwdD50cmlnZ2VyKDYpPC9zY3JpcHQ+'>x</a></svg>",2,matrix_xss_svg_script_variant,XSS,svg_script_variant
+matrix_xss_svg_script_variant_07,"<svg><a href='data:text/html;base64,PHNjcmlwdD50cmlnZ2VyKDcpPC9zY3JpcHQ+'>x</a></svg>",2,matrix_xss_svg_script_variant,XSS,svg_script_variant
+matrix_xss_svg_script_variant_08,"<svg><a href='data:text/html;base64,PHNjcmlwdD50cmlnZ2VyKDgpPC9zY3JpcHQ+'>x</a></svg>",2,matrix_xss_svg_script_variant,XSS,svg_script_variant
+matrix_xss_svg_script_variant_09,"<svg><a href='data:text/html;base64,PHNjcmlwdD50cmlnZ2VyKDkpPC9zY3JpcHQ+'>x</a></svg>",2,matrix_xss_svg_script_variant,XSS,svg_script_variant

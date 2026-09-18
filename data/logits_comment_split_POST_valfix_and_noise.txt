@@ -1,0 +1,10 @@
+MODEL_PATH: /home/dhgia/Work/iot_mailware/LOGWAT_v0.1/LOGWAT_v0.1/data/models_pretrained/best_web_gnn_seed42.pth
+checkpoint mtime: 1789691994.0791156
+content: p=0;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=0;--
+num_nodes: 37 num_edges: 146
+Benign: 0.983093
+SQLi: 2.189723
+XSS: -3.124282
+argmax prediction: SQLi
+top1 - top2 margin: 1.20662921667099
+SQLi - Benign gap: 1.20662921667099

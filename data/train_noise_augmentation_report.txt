@@ -1,0 +1,54 @@
+=== Train-only SQLi comment-splitting-style noise augmentation ===
+Mechanism: random-position whitespace insertion inside a randomly chosen SQL keyword occurrence
+(DIFFERENT from held-out's fixed /**/ mid-keyword insertion in scripts/build_heldout_matrix_eval.py)
+Seed: 42, target fraction of eligible rows: 0.35
+
+dataset rows before: 30084
+dataset rows after:  32195
+
+sqli_pool unique source_uid present in dataset: 25
+  excluded (global test_split_indices.pkl test_idx): ['sqli_pool_6', 'sqli_pool_7', 'sqli_pool_16']
+  excluded (SQLi family-test uids, per-family rule): ['sqli_pool_0', 'sqli_pool_1', 'sqli_pool_8', 'sqli_pool_9', 'sqli_pool_16', 'sqli_pool_17', 'sqli_pool_24']
+  eligible for noise: 16 uids -> ['sqli_pool_2', 'sqli_pool_3', 'sqli_pool_4', 'sqli_pool_5', 'sqli_pool_10', 'sqli_pool_11', 'sqli_pool_12', 'sqli_pool_13', 'sqli_pool_14', 'sqli_pool_15', 'sqli_pool_18', 'sqli_pool_19', 'sqli_pool_20', 'sqli_pool_21', 'sqli_pool_22', 'sqli_pool_23']
+
+eligible rows (train, not touching either test split): 6400
+sampled for noising: 2240 (skipped, no keyword match: 129)
+new noised rows appended: 2111
+
+total train sqli_pool rows BEFORE augmentation: 8800
+total train sqli_pool rows AFTER augmentation (orig + noised): 10911
+  noise ratio / eligible pool: 0.3298
+  noise ratio / original train sqli_pool count: 0.2399
+  noise ratio / final train sqli_pool count: 0.1935
+
+=== Sample before/after (first 10) ===
+sqli_pool_23 -> sqli_pool_noise_0
+  before: '; DROP TABLE sessions; --
+  after:  '; D	ROP TABLE sessions; --
+sqli_pool_12 -> sqli_pool_noise_1
+  before: benchmark(1000000,md5(1))
+  after:  benc  hmark(1000000,md5(1))
+sqli_pool_5 -> sqli_pool_noise_2
+  before: UNION SELECT username, password FROM users--
+  after:  UNION SELECT username, password F   ROM users--
+sqli_pool_13 -> sqli_pool_noise_3
+  before: ; SELECT pg_sleep(5);--
+  after:  ; SELEC 	 T pg_sleep(5);--
+sqli_pool_5 -> sqli_pool_noise_4
+  before: UNION SELECT username, password FROM users--
+  after:  U NION SELECT username, password FROM users--
+sqli_pool_18 -> sqli_pool_noise_5
+  before: 1; DROP TABLE users; --
+  after:  1; D   ROP TABLE users; --
+sqli_pool_15 -> sqli_pool_noise_6
+  before: extractvalue(1,concat(0x3a,(select database())))
+  after:  extractva  lue(1,concat(0x3a,(select database())))
+sqli_pool_2 -> sqli_pool_noise_7
+  before: ' OR '1'='1'/*
+  after:  ' O 	 R '1'='1'/*
+sqli_pool_3 -> sqli_pool_noise_8
+  before: 1' OR '1'='1' -- 
+  after:  1' O  R '1'='1' -- 
+sqli_pool_2 -> sqli_pool_noise_9
+  before: ' OR '1'='1'/*
+  after:  ' O	R '1'='1'/*

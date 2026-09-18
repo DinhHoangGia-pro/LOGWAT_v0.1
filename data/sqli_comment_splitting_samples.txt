@@ -1,0 +1,13 @@
+==========================================================================================
+SQLi comment_splitting: 10 mau that + nhan du doan cua model
+==========================================================================================
+[matrix_sqli_comment_splitting_00] true=SQLi pred=Benign nodes=37 edges=142 content='p=0;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=0;--'
+[matrix_sqli_comment_splitting_01] true=SQLi pred=Benign nodes=37 edges=142 content='p=1;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=1;--'
+[matrix_sqli_comment_splitting_02] true=SQLi pred=Benign nodes=37 edges=142 content='p=2;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=2;--'
+[matrix_sqli_comment_splitting_03] true=SQLi pred=Benign nodes=37 edges=142 content='p=3;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=3;--'
+[matrix_sqli_comment_splitting_04] true=SQLi pred=Benign nodes=37 edges=142 content='p=4;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=4;--'
+[matrix_sqli_comment_splitting_05] true=SQLi pred=Benign nodes=37 edges=142 content='p=5;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=5;--'
+[matrix_sqli_comment_splitting_06] true=SQLi pred=Benign nodes=37 edges=142 content='p=6;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=6;--'
+[matrix_sqli_comment_splitting_07] true=SQLi pred=Benign nodes=37 edges=142 content='p=7;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=7;--'
+[matrix_sqli_comment_splitting_08] true=SQLi pred=Benign nodes=37 edges=142 content='p=8;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=8;--'
+[matrix_sqli_comment_splitting_09] true=SQLi pred=Benign nodes=37 edges=142 content='p=9;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=9;--'

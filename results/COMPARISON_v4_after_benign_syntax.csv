@@ -1,0 +1,21 @@
+section,metric,before_PRE_benign_syntax,after_POST_benign_syntax,data_provenance
+a_test_split,macro_precision,1.0,1.0,results/main_results_PRE_benign_syntax.csv vs results/main_results.csv (both live files)
+a_test_split,macro_recall,1.0,1.0,results/main_results_PRE_benign_syntax.csv vs results/main_results.csv (both live files)
+a_test_split,macro_f1,1.0,1.0,results/main_results_PRE_benign_syntax.csv vs results/main_results.csv (both live files)
+a_test_split,confusion_matrix,"[[1550,0,0],[0,1214,0],[0,0,1451]]","[[1550,0,0],[0,1214,0],[0,0,1451]]",results/main_results_PRE_benign_syntax.csv vs results/main_results.csv (both live files)
+b_heldout_matrix,Benign_field_query_gatv2_accuracy,1.0,1.0,results/heldout_matrix_full_PRE_benign_syntax.csv vs results/heldout_matrix_full.csv (both live files)
+b_heldout_matrix,Benign_header_field_gatv2_accuracy,0.0,1.0,results/heldout_matrix_full_PRE_benign_syntax.csv vs results/heldout_matrix_full.csv (both live files) -- FIXED
+b_heldout_matrix,Benign_json_field_gatv2_accuracy,0.0,1.0,results/heldout_matrix_full_PRE_benign_syntax.csv vs results/heldout_matrix_full.csv (both live files) -- FIXED
+b_heldout_matrix,SQLi_sql_new_commands_gatv2_accuracy,1.0,1.0,results/heldout_matrix_full_PRE_benign_syntax.csv vs results/heldout_matrix_full.csv (both live files)
+b_heldout_matrix,SQLi_comment_splitting_gatv2_accuracy,1.0,0.0,results/heldout_matrix_full_PRE_benign_syntax.csv vs results/heldout_matrix_full.csv (both live files) -- REGRESSED (was fixed in retrain #2/#3)
+b_heldout_matrix,SQLi_case_mixing_gatv2_accuracy,1.0,1.0,results/heldout_matrix_full_PRE_benign_syntax.csv vs results/heldout_matrix_full.csv (both live files)
+b_heldout_matrix,XSS_data_uri_base64_gatv2_accuracy,1.0,1.0,results/heldout_matrix_full_PRE_benign_syntax.csv vs results/heldout_matrix_full.csv (both live files)
+b_heldout_matrix,XSS_event_handler_focus_gatv2_accuracy,1.0,1.0,results/heldout_matrix_full_PRE_benign_syntax.csv vs results/heldout_matrix_full.csv (both live files)
+b_heldout_matrix,XSS_svg_script_variant_gatv2_accuracy,1.0,1.0,results/heldout_matrix_full_PRE_benign_syntax.csv vs results/heldout_matrix_full.csv (both live files)
+c_decision_tree_size_baseline,overall_accuracy_num_nodes_num_edges_only,0.7877,0.7877,data/decision_tree_size_baseline.txt (fresh run, unchanged)
+d_training,train_rows_benign_class,8450,13450,bincount_train label=0 (+5000 new benign_short_synthetic rows)
+d_training,epochs_run,11,17,logs/training_history_PRE_benign_syntax.log vs logs/training_history.log
+d_training,best_epoch,1,7,logs/training_history_PRE_benign_syntax.log vs logs/training_history.log
+d_training,instant_convergence_epoch1,yes (val_acc=1.0 at epoch 1),no (val_acc=0.9995 at epoch1, reached 1.0 at epoch7),logs/training_history.log -- notable: first retrain in this session that did NOT converge instantly
+e_diagnostic,comment_split_sample_logits,"Benign=0.98 SQLi=2.19 XSS=-3.12 (gap +1.21, correct)","Benign=5.96 SQLi=-0.25 XSS=-7.15 (gap -6.21, wrong)",inline logit probe on p=0;UNI/**/ON ALL SEL/**/ECT...;-- -- large swing toward Benign
+e_diagnostic,comment_split_Esem_edges,4,4,scripts/inspect_semantic_edges.py -- unaffected (deterministic, independent of checkpoint)

@@ -1,0 +1,10 @@
+label,class_name,technique,n_samples,gatv2_accuracy,string_matching_accuracy,gatv2_correct,string_matching_correct
+0,Benign,field_query,10,1.0,1.0,10,10
+0,Benign,header_field,10,0.0,1.0,0,10
+0,Benign,json_field,10,0.0,1.0,0,10
+1,SQLi,sql_new_commands,10,1.0,0.0,10,0
+1,SQLi,comment_splitting,10,1.0,0.0,10,0
+1,SQLi,case_mixing,10,1.0,0.0,10,0
+2,XSS,data_uri_base64,10,1.0,0.0,10,0
+2,XSS,event_handler_focus,10,1.0,0.0,10,0
+2,XSS,svg_script_variant,10,1.0,0.0,10,0

@@ -1,0 +1,34 @@
+==========================================================================================
+TASK 3: Kich thuoc graph (num_nodes/num_edges) cua 2 cell benign bi sai,
+so sanh voi mean da biet: Benign=41.2, SQLi=10.7, XSS=21.7
+==========================================================================================
+
+--- technique=header_field (n=10) ---
+[matrix_benign_header_field_00] num_nodes=12 num_edges=42 pred=SQLi
+[matrix_benign_header_field_01] num_nodes=12 num_edges=42 pred=SQLi
+[matrix_benign_header_field_02] num_nodes=12 num_edges=42 pred=SQLi
+[matrix_benign_header_field_03] num_nodes=12 num_edges=42 pred=SQLi
+[matrix_benign_header_field_04] num_nodes=12 num_edges=42 pred=SQLi
+[matrix_benign_header_field_05] num_nodes=12 num_edges=42 pred=SQLi
+[matrix_benign_header_field_06] num_nodes=12 num_edges=42 pred=SQLi
+[matrix_benign_header_field_07] num_nodes=12 num_edges=42 pred=SQLi
+[matrix_benign_header_field_08] num_nodes=12 num_edges=42 pred=SQLi
+[matrix_benign_header_field_09] num_nodes=12 num_edges=42 pred=SQLi
+  -> mean num_nodes=12.0, mean num_edges=42.0
+     so voi known means: Benign=41.2, SQLi=10.7, XSS=21.7
+     gan nhat voi lop: SQLi (mean=10.7)
+
+--- technique=json_field (n=10) ---
+[matrix_benign_json_field_00] num_nodes=27 num_edges=102 pred=XSS
+[matrix_benign_json_field_01] num_nodes=27 num_edges=102 pred=XSS
+[matrix_benign_json_field_02] num_nodes=27 num_edges=102 pred=XSS
+[matrix_benign_json_field_03] num_nodes=27 num_edges=102 pred=XSS
+[matrix_benign_json_field_04] num_nodes=27 num_edges=102 pred=XSS
+[matrix_benign_json_field_05] num_nodes=27 num_edges=102 pred=XSS
+[matrix_benign_json_field_06] num_nodes=27 num_edges=102 pred=XSS
+[matrix_benign_json_field_07] num_nodes=27 num_edges=102 pred=XSS
+[matrix_benign_json_field_08] num_nodes=27 num_edges=102 pred=XSS
+[matrix_benign_json_field_09] num_nodes=27 num_edges=102 pred=XSS
+  -> mean num_nodes=27.0, mean num_edges=102.0
+     so voi known means: Benign=41.2, SQLi=10.7, XSS=21.7
+     gan nhat voi lop: XSS (mean=21.7)

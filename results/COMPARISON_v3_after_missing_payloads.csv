@@ -1,0 +1,19 @@
+section,metric,before_PRE_missing_payloads,after_POST_missing_payloads,data_provenance
+a_test_split,macro_precision,1.0,1.0,results/main_results_PRE_missing_payloads.csv vs results/main_results.csv (both live files)
+a_test_split,macro_recall,1.0,1.0,results/main_results_PRE_missing_payloads.csv vs results/main_results.csv (both live files)
+a_test_split,macro_f1,1.0,1.0,results/main_results_PRE_missing_payloads.csv vs results/main_results.csv (both live files)
+a_test_split,confusion_matrix,"[[1550,0,0],[0,1214,0],[0,0,1451]]","[[1550,0,0],[0,1214,0],[0,0,1451]]",results/main_results_PRE_missing_payloads.csv vs results/main_results.csv (both live files)
+b_heldout_matrix,Benign_field_query_gatv2_accuracy,1.0,1.0,results/heldout_matrix_full_PRE_missing_payloads.csv vs results/heldout_matrix_full.csv (both live files)
+b_heldout_matrix,Benign_header_field_gatv2_accuracy,0.0,0.0,results/heldout_matrix_full_PRE_missing_payloads.csv vs results/heldout_matrix_full.csv (both live files)
+b_heldout_matrix,Benign_json_field_gatv2_accuracy,0.0,0.0,results/heldout_matrix_full_PRE_missing_payloads.csv vs results/heldout_matrix_full.csv (both live files)
+b_heldout_matrix,SQLi_sql_new_commands_gatv2_accuracy,1.0,1.0,results/heldout_matrix_full_PRE_missing_payloads.csv vs results/heldout_matrix_full.csv (both live files)
+b_heldout_matrix,SQLi_comment_splitting_gatv2_accuracy,1.0,1.0,results/heldout_matrix_full_PRE_missing_payloads.csv vs results/heldout_matrix_full.csv (both live files)
+b_heldout_matrix,SQLi_case_mixing_gatv2_accuracy,1.0,1.0,results/heldout_matrix_full_PRE_missing_payloads.csv vs results/heldout_matrix_full.csv (both live files)
+b_heldout_matrix,XSS_data_uri_base64_gatv2_accuracy,1.0,1.0,results/heldout_matrix_full_PRE_missing_payloads.csv vs results/heldout_matrix_full.csv (both live files)
+b_heldout_matrix,XSS_event_handler_focus_gatv2_accuracy,1.0,1.0,results/heldout_matrix_full_PRE_missing_payloads.csv vs results/heldout_matrix_full.csv (both live files)
+b_heldout_matrix,XSS_svg_script_variant_gatv2_accuracy,1.0,1.0,results/heldout_matrix_full_PRE_missing_payloads.csv vs results/heldout_matrix_full.csv (both live files)
+c_decision_tree_size_baseline,overall_accuracy_num_nodes_num_edges_only,0.7877,0.7877,data/decision_tree_size_baseline.txt (fresh run, test split/graphs for original rows unchanged)
+d_training,train_rows_sqli_pool_class,17381,17381,logs comparison (bincount_train label=1); unchanged since 2nd retrain other than +6400 payload rows already reflected
+d_training,epochs_run,11,11,logs/training_history_PRE_missing_payloads.log vs logs/training_history.log
+d_training,best_epoch,1,1,logs/training_history_PRE_missing_payloads.log vs logs/training_history.log
+d_training,sqli_payloads_present_in_train,25 of 41 (idx 0-24 only),41 of 41 (idx 0-24 original + 25-40 via sqli_pool_extra),data/augmented_web_attack.csv

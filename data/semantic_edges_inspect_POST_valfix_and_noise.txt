@@ -1,0 +1,24 @@
+--- comment_split (37 node, pred=Benign) ---
+  n_tokens=37
+  tokens (10 dau)=['p', '=', '0', ';', 'uni', '/', '*', '*', '/', 'on']
+  so canh E_sem = 4
+  danh sach canh E_sem = [(9, 16), (16, 9), (16, 23), (23, 16)]
+
+--- clean (12 node, pred=SQLi dung) ---
+  n_tokens=12
+  tokens (10 dau)=['p', '=', '0', ';', 'union', 'all', 'select', '*', 'from', 'users']
+  so canh E_sem = 4
+  danh sach canh E_sem = [(4, 6), (6, 4), (6, 8), (8, 6)]
+
+--- header_field (12 node, pred=SQLi sai) ---
+  n_tokens=12
+  tokens (10 dau)=['authorization', ':', 'bearer', 'token_0', ';', 'x', '-', 'trace', ':', 'session']
+  so canh E_sem = 0
+  danh sach canh E_sem = []
+
+--- header_padded (36 node, pred=XSS sai) ---
+  n_tokens=36
+  tokens (10 dau)=['authorization', ':', 'bearer', 'token_0', ';', 'x', '-', 'trace', ':', 'session']
+  so canh E_sem = 0
+  danh sach canh E_sem = []
+

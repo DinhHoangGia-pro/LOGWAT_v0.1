@@ -1,0 +1,14 @@
+DECISION TREE BASELINE (num_nodes, num_edges) tren web_graphs.pkl MOI (sau semantic_edges fix)
+Train: n=25869, Test: n=4215
+Overall accuracy: 0.7877
+
+              precision    recall  f1-score   support
+
+      Benign     0.8575    0.8310    0.8440      1550
+        SQLi     0.7951    0.6680    0.7261      1214
+         XSS     0.7212    0.8415    0.7767      1451
+
+    accuracy                         0.7877      4215
+   macro avg     0.7913    0.7802    0.7823      4215
+weighted avg     0.7926    0.7877    0.7869      4215
+

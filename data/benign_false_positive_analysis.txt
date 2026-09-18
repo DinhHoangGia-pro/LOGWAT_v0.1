@@ -1,0 +1,27 @@
+Benign false-positive analysis for header_field and json_field
+===========================================================
+Check if punctuation-heavy benign formats accidentally resemble graph structures from E_seq/E_skip; look for repeated colons/braces/commas and token adjacency, even without literal SQLi/XSS keywords.
+
+matrix_benign_header_field_00	header_field	model_pred=SQLi	content=Authorization: Bearer token_0; X-Trace: session-0
+matrix_benign_header_field_01	header_field	model_pred=SQLi	content=Authorization: Bearer token_1; X-Trace: session-1
+matrix_benign_header_field_02	header_field	model_pred=SQLi	content=Authorization: Bearer token_2; X-Trace: session-2
+matrix_benign_header_field_03	header_field	model_pred=SQLi	content=Authorization: Bearer token_3; X-Trace: session-3
+matrix_benign_header_field_04	header_field	model_pred=SQLi	content=Authorization: Bearer token_4; X-Trace: session-4
+matrix_benign_header_field_05	header_field	model_pred=SQLi	content=Authorization: Bearer token_5; X-Trace: session-5
+matrix_benign_header_field_06	header_field	model_pred=SQLi	content=Authorization: Bearer token_6; X-Trace: session-6
+matrix_benign_header_field_07	header_field	model_pred=SQLi	content=Authorization: Bearer token_7; X-Trace: session-7
+matrix_benign_header_field_08	header_field	model_pred=SQLi	content=Authorization: Bearer token_8; X-Trace: session-8
+matrix_benign_header_field_09	header_field	model_pred=SQLi	content=Authorization: Bearer token_9; X-Trace: session-9
+matrix_benign_json_field_00	json_field	model_pred=XSS	content={"page":"dashboard","user":"alice0","locale":"en-US"}
+matrix_benign_json_field_01	json_field	model_pred=XSS	content={"page":"dashboard","user":"alice1","locale":"en-US"}
+matrix_benign_json_field_02	json_field	model_pred=XSS	content={"page":"dashboard","user":"alice2","locale":"en-US"}
+matrix_benign_json_field_03	json_field	model_pred=XSS	content={"page":"dashboard","user":"alice3","locale":"en-US"}
+matrix_benign_json_field_04	json_field	model_pred=XSS	content={"page":"dashboard","user":"alice4","locale":"en-US"}
+matrix_benign_json_field_05	json_field	model_pred=XSS	content={"page":"dashboard","user":"alice5","locale":"en-US"}
+matrix_benign_json_field_06	json_field	model_pred=XSS	content={"page":"dashboard","user":"alice6","locale":"en-US"}
+matrix_benign_json_field_07	json_field	model_pred=XSS	content={"page":"dashboard","user":"alice7","locale":"en-US"}
+matrix_benign_json_field_08	json_field	model_pred=XSS	content={"page":"dashboard","user":"alice8","locale":"en-US"}
+matrix_benign_json_field_09	json_field	model_pred=XSS	content={"page":"dashboard","user":"alice9","locale":"en-US"}
+
+Observation: these are benign HTTP/JSON strings; the model predicted SQLi/XSS even though they contain no literal Table-1 keywords such as UNION, SELECT, <script, onerror, javascript:, alert(, or document.cookie.
+Likely explanation: punctuation-heavy token adjacency / repeated separators create graph motifs that resemble the E_seq/E_skip patterns used in attack-like samples, even without explicit SQLi/XSS strings.

@@ -1,0 +1,47 @@
+=== CLASSIFICATION REPORT (TEST SPLIT) ===
+Benign: precision=1.000, recall=1.000, f1=1.000
+SQLi: precision=1.000, recall=1.000, f1=1.000
+XSS: precision=1.000, recall=1.000, f1=1.000
+macro avg: {'precision': 1.0, 'recall': 1.0, 'f1-score': 1.0, 'support': 4215.0}
+
+=== CONFUSION MATRIX ===
+[[1550    0    0]
+ [   0 1214    0]
+ [   0    0 1451]]
+
+[!] SQLi <-> XSS confusions (symmetric): 0
+[SQLi tổng hợp] n=1550 | label=0 | precision=1.0 | recall=1.0 | f1=1.0
+[SQLi tổng hợp] n=1214 | label=1 | precision=1.0 | recall=1.0 | f1=1.0
+[SQLi tổng hợp] n=1451 | label=2 | precision=1.0 | recall=1.0 | f1=1.0
+[SQLi tổng hợp] n=4215 | label=macro avg | precision=1.0 | recall=1.0 | f1=1.0
+[SQLi tổng hợp] n=4215 | label=weighted avg | precision=1.0 | recall=1.0 | f1=1.0
+[SQLi chỉ sqli_pool] n=1200 | label=1 | precision=1.0 | recall=1.0 | f1=1.0
+[SQLi chỉ sqli_pool] n=1200 | label=macro avg | precision=1.0 | recall=1.0 | f1=1.0
+[SQLi chỉ sqli_pool] n=1200 | label=weighted avg | precision=1.0 | recall=1.0 | f1=1.0
+[family_breakdown] n=800 | label=1 | precision=1.0 | recall=1.0 | f1=1.0
+[family_breakdown] n=800 | label=macro avg | precision=1.0 | recall=1.0 | f1=1.0
+[family_breakdown] n=800 | label=weighted avg | precision=1.0 | recall=1.0 | f1=1.0
+[family_breakdown] n=400 | label=1 | precision=1.0 | recall=1.0 | f1=1.0
+[family_breakdown] n=400 | label=macro avg | precision=1.0 | recall=1.0 | f1=1.0
+[family_breakdown] n=400 | label=weighted avg | precision=1.0 | recall=1.0 | f1=1.0
+
+[+] Wrote detailed classification reports to results/main_results.csv
+            subset    source        family        label  precision  recall  f1_score  support
+     SQLi tổng hợp       all                          0        1.0     1.0       1.0     1550
+     SQLi tổng hợp       all                          1        1.0     1.0       1.0     1214
+     SQLi tổng hợp       all                          2        1.0     1.0       1.0     1451
+     SQLi tổng hợp       all                  macro avg        1.0     1.0       1.0     4215
+     SQLi tổng hợp       all               weighted avg        1.0     1.0       1.0     4215
+SQLi chỉ sqli_pool sqli_pool                          1        1.0     1.0       1.0     1200
+SQLi chỉ sqli_pool sqli_pool                  macro avg        1.0     1.0       1.0     1200
+SQLi chỉ sqli_pool sqli_pool               weighted avg        1.0     1.0       1.0     1200
+  family_breakdown sqli_pool Boolean-based            1        1.0     1.0       1.0      800
+  family_breakdown sqli_pool Boolean-based    macro avg        1.0     1.0       1.0      800
+  family_breakdown sqli_pool Boolean-based weighted avg        1.0     1.0       1.0      800
+  family_breakdown sqli_pool    Time-based            1        1.0     1.0       1.0      400
+  family_breakdown sqli_pool    Time-based    macro avg        1.0     1.0       1.0      400
+  family_breakdown sqli_pool    Time-based weighted avg        1.0     1.0       1.0      400
+
+TOP missed SQLi samples:
+
+TOP false positives (Benign->SQLi):

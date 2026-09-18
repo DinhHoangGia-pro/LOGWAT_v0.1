@@ -1,0 +1,15 @@
+EPOCH COUNT = 11
+COMPLETE LINE = [*] TRAINING COMPLETE | epochs_run=11 | wall_time=46.5s | best_acc=1.0000 | best_epoch=1 | early_stop_reason=plateau: validation accuracy did not improve for 10 consecutive epochs | model=./data/models_pretrained/best_web_gnn_seed42.pth
+EPOCHS_RUN = 11
+MATCHED
+
+=== DECISION TREE BASELINE ===
+              precision    recall  f1-score   support
+
+      Benign       0.95      0.40      0.56      1550
+        SQLi       0.79      0.66      0.72      1214
+         XSS       0.55      0.96      0.70      1451
+
+    accuracy                           0.67      4215
+   macro avg       0.76      0.68      0.66      4215
+weighted avg       0.77      0.67      0.66      4215

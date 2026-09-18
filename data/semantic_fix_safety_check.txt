@@ -1,0 +1,14 @@
+==========================================================================================
+BUOC 1: KIEM TRA AN TOAN semantic_edges() FIX TREN TOAN BO 10.000 DONG BENIGN
+==========================================================================================
+
+Tong so dong Benign kiem tra: 10000
+
+(1) TRUOC fix (khop token don le tuyet doi): 0/10000 dong co E_sem>0 (0.00%)
+(2) SAU fix (ghep token qua noise char): 0/10000 dong co E_sem>0 (0.00%)
+
+Chenh lech (2) - (1) = +0.00 diem %
+
+Dieu kien dung (tang > 5.0%): KHONG - AN TOAN, tiep tuc BUOC 2
+
+(Khong can liet ke vi du vi khong vuot nguong dung.)

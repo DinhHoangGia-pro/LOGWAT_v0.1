@@ -1,0 +1,21 @@
+[*] seed=42 | model_save=./data/models_pretrained/best_web_gnn_seed42.pth | early_stop_patience=10 | early_stop_min_delta=0.0
+[*] Using GLOBAL balanced split for training validation: train=34380, test=4215, bincount_train=[8450, 17381, 8549], bincount_test=[1550, 1214, 1451]
+[DEBUG] ACTUAL EPOCH LOOP BOUND = 100
+Epoch 001 | Loss: 0.0129 | Acc: 1.0000 | LR: 0.000500 | Time: 3.9s
+   [V] Saved Best: 1.0000
+Epoch 002 | Loss: 0.0005 | Acc: 1.0000 | LR: 0.000500 | Time: 3.7s
+Epoch 003 | Loss: 0.0001 | Acc: 1.0000 | LR: 0.000500 | Time: 3.7s
+Epoch 004 | Loss: 0.0000 | Acc: 1.0000 | LR: 0.000500 | Time: 3.7s
+Epoch 005 | Loss: 0.0000 | Acc: 1.0000 | LR: 0.000500 | Time: 3.7s
+Epoch 006 | Loss: 0.0000 | Acc: 1.0000 | LR: 0.000500 | Time: 3.8s
+Epoch 007 | Loss: 0.0000 | Acc: 1.0000 | LR: 0.000250 | Time: 3.8s
+Epoch 008 | Loss: 0.0000 | Acc: 1.0000 | LR: 0.000250 | Time: 3.7s
+Epoch 009 | Loss: 0.0001 | Acc: 1.0000 | LR: 0.000250 | Time: 3.7s
+Epoch 010 | Loss: 0.0012 | Acc: 1.0000 | LR: 0.000250 | Time: 3.7s
+Epoch 011 | Loss: 0.0000 | Acc: 1.0000 | LR: 0.000250 | Time: 3.8s
+[*] Early stopping at epoch 11: plateau: validation accuracy did not improve for 10 consecutive epochs
+[*] First epoch summary: epoch=1 loss=0.0129 val_acc=1.0000
+[*] Final epoch summary: epoch=11 loss=0.0000 val_acc=1.0000
+[*] TRAINING COMPLETE | epochs_run=11 | wall_time=50.0s | best_acc=1.0000 | best_epoch=1 | early_stop_reason=plateau: validation accuracy did not improve for 10 consecutive epochs | model=./data/models_pretrained/best_web_gnn_seed42.pth
+[*] Computing SQLi family-breakdown split (post-training, report-only)
+[*] SQLi family-breakdown split written to ./data/sqli_family_test_indices.pkl: train=35782, test=2813

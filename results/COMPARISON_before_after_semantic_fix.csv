@@ -1,0 +1,19 @@
+section,metric,before_PRE_semantic_fix,after_POST_semantic_fix
+a_test_split,macro_precision,0.9997256515775034,0.9997256515775034
+a_test_split,macro_recall,0.9997702733746842,0.9997702733746842
+a_test_split,macro_f1,0.9997478664081751,0.9997478664081751
+a_test_split,Benign_f1,1.0,1.0
+a_test_split,SQLi_f1,0.9995883079456568,0.9995883079456568
+a_test_split,XSS_f1,0.9996552912788692,0.9996552912788692
+b_heldout_matrix,Benign_field_query_gatv2_accuracy,1.0,1.0
+b_heldout_matrix,Benign_header_field_gatv2_accuracy,0.0,0.0
+b_heldout_matrix,Benign_json_field_gatv2_accuracy,0.0,0.0
+b_heldout_matrix,SQLi_sql_new_commands_gatv2_accuracy,1.0,1.0
+b_heldout_matrix,SQLi_comment_splitting_gatv2_accuracy,0.0,0.0
+b_heldout_matrix,SQLi_case_mixing_gatv2_accuracy,1.0,1.0
+b_heldout_matrix,XSS_data_uri_base64_gatv2_accuracy,1.0,1.0
+b_heldout_matrix,XSS_event_handler_focus_gatv2_accuracy,1.0,1.0
+b_heldout_matrix,XSS_svg_script_variant_gatv2_accuracy,1.0,1.0
+c_decision_tree_size_baseline,overall_accuracy_num_nodes_num_edges_only,khong_do_truoc_fix,0.7877
+d_case_mixing_validity,tokenizer_calls_lower,"True (tokenizer.py:13, khong doi giua truoc/sau fix)","True (tokenizer.py:13, khong doi giua truoc/sau fix)"
+d_case_mixing_validity,ket_luan,case_mixing KHONG phai thu thach that vi tokenizer tu dong lowercase truoc khi so khop,accuracy=1.0 o ca truoc va sau fix khong co y nghia kiem dinh cho ky thuat nay

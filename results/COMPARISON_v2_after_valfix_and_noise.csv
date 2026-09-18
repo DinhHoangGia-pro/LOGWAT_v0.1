@@ -1,0 +1,18 @@
+section,metric,before_PRE_valfix_and_noise,after_POST_valfix_and_noise,before_data_provenance,after_data_provenance
+a_test_split,macro_precision,1.0,1.0,memory_record_investigation_2026-09-17_update7,results/main_results.csv (fresh run)
+a_test_split,macro_recall,1.0,1.0,memory_record_investigation_2026-09-17_update7,results/main_results.csv (fresh run)
+a_test_split,macro_f1,0.9997478664081751,1.0,memory_record_investigation_2026-09-17_update7,results/main_results.csv (fresh run)
+a_test_split,confusion_matrix,"[[1550,0,0],[0,1214,0],[0,1,1450]]","[[1550,0,0],[0,1214,0],[0,0,1451]]",memory_record_investigation_2026-09-17_update7,results/main_results.csv (fresh run)
+b_heldout_matrix,Benign_field_query_gatv2_accuracy,1.0,1.0,memory_record_investigation_2026-09-17_update7,results/heldout_matrix_full.csv (fresh run)
+b_heldout_matrix,Benign_header_field_gatv2_accuracy,0.0,0.0,memory_record_investigation_2026-09-17_update7,results/heldout_matrix_full.csv (fresh run)
+b_heldout_matrix,Benign_json_field_gatv2_accuracy,0.0,0.0,memory_record_investigation_2026-09-17_update7,results/heldout_matrix_full.csv (fresh run)
+b_heldout_matrix,SQLi_sql_new_commands_gatv2_accuracy,1.0,1.0,memory_record_investigation_2026-09-17_update7,results/heldout_matrix_full.csv (fresh run)
+b_heldout_matrix,SQLi_comment_splitting_gatv2_accuracy,0.0,1.0,memory_record_investigation_2026-09-17_update7,results/heldout_matrix_full.csv (fresh run)
+b_heldout_matrix,SQLi_case_mixing_gatv2_accuracy,1.0,1.0,memory_record_investigation_2026-09-17_update7,results/heldout_matrix_full.csv (fresh run)
+b_heldout_matrix,XSS_data_uri_base64_gatv2_accuracy,1.0,1.0,memory_record_investigation_2026-09-17_update7,results/heldout_matrix_full.csv (fresh run)
+b_heldout_matrix,XSS_event_handler_focus_gatv2_accuracy,1.0,1.0,memory_record_investigation_2026-09-17_update7,results/heldout_matrix_full.csv (fresh run)
+b_heldout_matrix,XSS_svg_script_variant_gatv2_accuracy,1.0,1.0,memory_record_investigation_2026-09-17_update7,results/heldout_matrix_full.csv (fresh run)
+c_decision_tree_size_baseline,overall_accuracy_num_nodes_num_edges_only,0.7877,0.7877,memory_record_investigation_2026-09-17_update7,data/decision_tree_size_baseline.txt (fresh run, reproduced identically)
+d_training_validation,val_acc_epoch1,N/A (val set was SQLi-only pre-fix; not comparable),1.0,n/a (methodology changed),data/RUN_train_console_v2.txt (fresh run)
+d_training_validation,epochs_run,11,11,logs/training_history_PRE_valfix_and_noise.log,logs/training_history.log
+d_training_validation,best_epoch,1 (on SQLi-only val set, not comparable),1 (on 3-class balanced val set),logs/training_history_PRE_valfix_and_noise.log,data/RUN_train_console_v2.txt (fresh run)

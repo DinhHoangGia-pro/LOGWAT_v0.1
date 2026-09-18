@@ -1,0 +1,16 @@
+==========================================================================================
+TASK 2: Phan bo du doan tren toan bo 90 mau held-out (that = 30/30/30)
+==========================================================================================
+
+Phan bo THAT (label):
+  Benign (label=0): 30
+  SQLi (label=1): 30
+  XSS (label=2): 30
+
+Phan bo DU DOAN (GATv2):
+  Benign (pred=0): 20
+  SQLi (pred=1): 30
+  XSS (pred=2): 40
+
+Tong so mau: 90
+So mau du doan dung: 60 / 90

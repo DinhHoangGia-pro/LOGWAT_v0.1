@@ -1,0 +1,27 @@
+==========================================================================================
+TASK 1: Noi dung that + nhan du doan cho benign_header_field va benign_json_field
+==========================================================================================
+
+--- technique=header_field (n=10) ---
+[matrix_benign_header_field_00] true=Benign pred=SQLi nodes=12 edges=42 content='Authorization: Bearer token_0; X-Trace: session-0'
+[matrix_benign_header_field_01] true=Benign pred=SQLi nodes=12 edges=42 content='Authorization: Bearer token_1; X-Trace: session-1'
+[matrix_benign_header_field_02] true=Benign pred=SQLi nodes=12 edges=42 content='Authorization: Bearer token_2; X-Trace: session-2'
+[matrix_benign_header_field_03] true=Benign pred=SQLi nodes=12 edges=42 content='Authorization: Bearer token_3; X-Trace: session-3'
+[matrix_benign_header_field_04] true=Benign pred=SQLi nodes=12 edges=42 content='Authorization: Bearer token_4; X-Trace: session-4'
+[matrix_benign_header_field_05] true=Benign pred=SQLi nodes=12 edges=42 content='Authorization: Bearer token_5; X-Trace: session-5'
+[matrix_benign_header_field_06] true=Benign pred=SQLi nodes=12 edges=42 content='Authorization: Bearer token_6; X-Trace: session-6'
+[matrix_benign_header_field_07] true=Benign pred=SQLi nodes=12 edges=42 content='Authorization: Bearer token_7; X-Trace: session-7'
+[matrix_benign_header_field_08] true=Benign pred=SQLi nodes=12 edges=42 content='Authorization: Bearer token_8; X-Trace: session-8'
+[matrix_benign_header_field_09] true=Benign pred=SQLi nodes=12 edges=42 content='Authorization: Bearer token_9; X-Trace: session-9'
+
+--- technique=json_field (n=10) ---
+[matrix_benign_json_field_00] true=Benign pred=XSS nodes=27 edges=102 content='{"page":"dashboard","user":"alice0","locale":"en-US"}'
+[matrix_benign_json_field_01] true=Benign pred=XSS nodes=27 edges=102 content='{"page":"dashboard","user":"alice1","locale":"en-US"}'
+[matrix_benign_json_field_02] true=Benign pred=XSS nodes=27 edges=102 content='{"page":"dashboard","user":"alice2","locale":"en-US"}'
+[matrix_benign_json_field_03] true=Benign pred=XSS nodes=27 edges=102 content='{"page":"dashboard","user":"alice3","locale":"en-US"}'
+[matrix_benign_json_field_04] true=Benign pred=XSS nodes=27 edges=102 content='{"page":"dashboard","user":"alice4","locale":"en-US"}'
+[matrix_benign_json_field_05] true=Benign pred=XSS nodes=27 edges=102 content='{"page":"dashboard","user":"alice5","locale":"en-US"}'
+[matrix_benign_json_field_06] true=Benign pred=XSS nodes=27 edges=102 content='{"page":"dashboard","user":"alice6","locale":"en-US"}'
+[matrix_benign_json_field_07] true=Benign pred=XSS nodes=27 edges=102 content='{"page":"dashboard","user":"alice7","locale":"en-US"}'
+[matrix_benign_json_field_08] true=Benign pred=XSS nodes=27 edges=102 content='{"page":"dashboard","user":"alice8","locale":"en-US"}'
+[matrix_benign_json_field_09] true=Benign pred=XSS nodes=27 edges=102 content='{"page":"dashboard","user":"alice9","locale":"en-US"}'

@@ -1,0 +1,32 @@
+==========================================================================================
+CAUSAL PROBE: sua kich thuoc graph (padding/truncation), giu nguyen loai noi dung,
+xem prediction co doi theo kich thuoc graph hay khong
+==========================================================================================
+
+--- CASE 1: benign header_field -> PADDED (them filler vo hai) ---
+TRUOC: content='Authorization: Bearer token_0; X-Trace: session-0'
+       num_nodes=12 num_edges=42 prediction=SQLi
+SAU:   content='Authorization: Bearer token_0; X-Trace: session-0; X-Custom-Header: value; X-Custom-Header: value; X-Custom-Header: value'
+       num_nodes=36 num_edges=138 prediction=XSS
+=> Doi tu SQLi sang XSS khi num_nodes tang 12 -> 36
+
+--- CASE 2: benign field_query (dang dung) -> TRUNCATED (cat bot) ---
+TRUOC: content='GET /home?page=0&mode=dashboard HTTP/1.1'
+       num_nodes=16 num_edges=58 prediction=Benign
+SAU:   content='GET /home?page=0&mode=dashboard'
+       num_nodes=11 num_edges=38 prediction=Benign
+=> KHONG doi, van la Benign du num_nodes giam 16 -> 11
+
+--- CASE 3: SQLi comment_splitting -> RUT GON (bo /**/,  giu payload UNION ALL SELECT) ---
+TRUOC: content='p=0;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=0;--'
+       num_nodes=37 num_edges=142 prediction=Benign
+SAU:   content='p=0;UNION ALL SELECT * FROM users--'
+       num_nodes=12 num_edges=46 prediction=SQLi
+=> Doi tu Benign sang SQLi khi num_nodes giam 37 -> 12
+
+==========================================================================================
+TOM TAT
+==========================================================================================
+Case 1 (benign header_field, pad 12->36 nodes): SQLi -> XSS
+Case 2 (benign field_query, truncate 16->11 nodes): Benign -> Benign
+Case 3 (SQLi comment_splitting, shrink 37->12 nodes): Benign -> SQLi

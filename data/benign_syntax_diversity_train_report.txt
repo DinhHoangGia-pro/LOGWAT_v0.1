@@ -1,0 +1,34 @@
+=== Train-only Benign syntax diversity: header-style + json-style ===
+Verified before generation: of 1689 train Benign rows with num_nodes<=15,
+0/1689 contained ':' and 0/1689 contained '{'/'}'; 1685/1689 were key=value&key=value.
+Header/field names deliberately disjoint from held-out's Authorization/X-Trace and page/user/locale.
+
+seed=42
+header-style rows added: 2500
+json-style rows added:   2500
+dataset rows before: 38595
+dataset rows after:  43595
+
+=== Sample header-style (first 10) ===
+  benign_short_synthetic_header_0: X-Request-Time: 1234760738; X-Client-Version: 1.0.11; X-Request-ID: req-8b9d2434
+  benign_short_synthetic_header_1: X-Correlation-ID: corr-acc37459ee; Connection: keep-alive
+  benign_short_synthetic_header_2: Accept-Encoding: identity
+  benign_short_synthetic_header_3: X-Client-Version: 3.14.48; Accept: text/html,application/xhtml+xml
+  benign_short_synthetic_header_4: X-Request-Time: 1153407200
+  benign_short_synthetic_header_5: X-Client-Version: 3.13.76; X-Request-Time: 1068212356; Accept-Encoding: identity
+  benign_short_synthetic_header_6: Accept: text/html,application/xhtml+xml; Cache-Control: max-age=3600; X-Request-ID: req-b83cfe0b
+  benign_short_synthetic_header_7: X-Client-Version: 8.2.97; Server: Apache/2.4.41; X-Request-ID: req-3d4cbf37
+  benign_short_synthetic_header_8: X-Request-Time: 1068747287
+  benign_short_synthetic_header_9: Accept: */*; Vary: Accept-Encoding; X-Request-Time: 1101281557
+
+=== Sample json-style (first 10) ===
+  benign_short_synthetic_json_2500: {"count":162,"code":507,"method":"POST"}
+  benign_short_synthetic_json_2501: {"action":"logout","id":154341,"timestamp":1844443232}
+  benign_short_synthetic_json_2502: {"timestamp":1726025536,"method":"GET","retries":4}
+  benign_short_synthetic_json_2503: {"method":"PUT","type":"event","action":"login"}
+  benign_short_synthetic_json_2504: {"count":361,"action":"update","retries":4,"id":723544}
+  benign_short_synthetic_json_2505: {"code":230,"id":432738,"success":true,"level":"error"}
+  benign_short_synthetic_json_2506: {"path":"/health","status":"pending","id":625730}
+  benign_short_synthetic_json_2507: {"code":413,"retries":5,"timestamp":1617144850,"method":"POST"}
+  benign_short_synthetic_json_2508: {"success":false,"type":"request"}
+  benign_short_synthetic_json_2509: {"id":949867,"count":466,"success":false}

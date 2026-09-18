@@ -7,3 +7,16 @@ data/data/
 __pycache__/
 *.pyc
 logs/
+
+# Exceptions: small, deliverable files worth tracking despite the blanket
+# rules above. Raw source data (csic_database.csv, labeled_csic_database.csv,
+# Attack_Dataset.csv, XSS_dataset.csv — license/terms of use unverified, see
+# docs/DATASET.md), in-progress backup snapshots (augmented_web_attack_PRE_*.csv),
+# the 321MB web_graphs.pkl (regenerable via scripts/build_graphs.py, would
+# exceed GitHub's 100MB file limit), and test_split_indices_SQLI_ONLY_bug.pkl
+# (obsolete artifact of a fixed bug) stay ignored.
+!data/augmented_web_attack.csv
+!data/sqli_payload_pool.csv
+!data/heldout_keyword_test.csv
+!data/test_split_indices.pkl
+!data/sqli_family_test_indices.pkl

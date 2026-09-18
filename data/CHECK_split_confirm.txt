@@ -1,0 +1,7 @@
+type(split) = <class 'dict'>
+keys = ['train_idx', 'test_idx']
+len(train_idx) = 25869
+len(test_idx) = 4215
+bincount train = [8450, 8870, 8549]
+bincount test = [1550, 1214, 1451]
+ratio test/(train+test) = 0.1401

