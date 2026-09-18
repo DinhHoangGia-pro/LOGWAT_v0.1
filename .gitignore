@@ -32,3 +32,9 @@ logs/
 # ignored -- exceeds GitHub's 100MB hard file-size limit, same reasoning as
 # the top-level web_graphs.pkl exclusion above.
 data/external/*.pkl
+
+# Transformer baseline train/test text CSVs (Reviewer #3 baselines) --
+# regenerable in seconds via scripts/prepare_transformer_baseline_data.py
+# from the already-frozen augmented_web_attack.csv/test_split_indices.pkl,
+# same reasoning as web_graphs.pkl above.
+data/transformer_baseline/
