@@ -3,10 +3,12 @@ import pickle
 import time
 from collections import defaultdict
 
+import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
 from sklearn.model_selection import GroupShuffleSplit, train_test_split
+from sklearn.utils.class_weight import compute_class_weight
 from torch_geometric.loader import DataLoader
 
 from src.models.logwat import HeavyWebGNN
@@ -166,10 +168,23 @@ def train(num_epochs=None, batch_size=None, lr=None, target_metric='acc', seed=N
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_data, batch_size=batch_size)
 
+    y_train_for_weight = np.array([int(graphs[i].y.item()) for i in train_idx])
+    class_weights = compute_class_weight(
+        class_weight='balanced',
+        classes=np.array([0, 1, 2]),
+        y=y_train_for_weight
+    )
+    class_weights_tensor = torch.tensor(class_weights, dtype=torch.float).to(device)
+    class_weight_line = f"[*] Computed class weights (balanced): {class_weights.tolist()}"
+    print(class_weight_line)
+    os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
+    with open(LOG_PATH, 'a') as _cw_log:
+        _cw_log.write(class_weight_line + "\n")
+
     model = HeavyWebGNN().to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=training_cfg.get('weight_decay', 0.1))
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=5)
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.CrossEntropyLoss(weight=class_weights_tensor)
 
     best_acc = -1.0
     best_epoch = 0
