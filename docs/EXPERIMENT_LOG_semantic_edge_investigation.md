@@ -2,6 +2,16 @@
 
 Chronological record of a single investigation thread spanning 2026-09-17 to 2026-09-18: why GATv2 achieves near-perfect accuracy on the frozen test split yet fails on a small held-out matrix designed to test generalization to unseen evasion techniques, and how far that gap could be closed. Numbers below are copied from the referenced evidence files, not re-derived from memory.
 
+**Terminology note (for the .tex draft).** Grepping this file, `docs/DATASET.md`, and every `results/*.csv`/`data/*.txt` turns up several names in use for the same 90-sample (3 classes × 3 evasion techniques × 10) evaluation set:
+- **"held-out matrix"** — the dominant prose term in this file (section headers §2, §11, "Final state") and in `docs/DATASET.md`.
+- `heldout_matrix_full` / `heldout_matrix_eval` — the filename/script-name form (no hyphen, Python/CSV identifier constraint), e.g. `results/heldout_matrix_full.csv`, `scripts/build_heldout_matrix_eval.py`. Same referent as "held-out matrix", just a naming-convention artifact, not a different concept.
+- "held-out set" — used a couple of times loosely (`docs/DATASET.md`, memory notes) as a synonym; drop this form in the paper, it reads as the standard ML train/val/test held-out split and invites confusion with the frozen test split (`data/test_split_indices.pkl`), which is a *different* thing.
+- "90-sample" / "90 mẫu" — a size descriptor, not a name; fine as an appositive but not as the standalone term.
+- "obfuscation test set" / "evasion technique(s) matrix" — descriptive phrasing that shows up in prose (e.g. "generalization to unseen evasion techniques") but is never used as the object's name anywhere in the repo; avoid introducing it as a new label in the paper.
+- **Do not confuse with** `heldout_keyword_eval` / `heldout_keyword_comparison` (`results/heldout_keyword_comparison.csv`) — a *different* artifact (GATv2-vs-string-matching baseline comparison), not this 90-sample matrix.
+
+**Chosen canonical term for the paper: "held-out matrix"** (full form on first use: "held-out matrix (90 samples: 3 classes × 3 evasion techniques × 10)", short form "held-out matrix" thereafter). This is a documentation-only note — no files are renamed; existing `heldout_matrix_*` file/script names stay as-is.
+
 ## 1. Initial trigger: suspected label/E_sem circularity
 
 On the frozen test split (`data/test_split_indices.pkl`, 4215 rows), GATv2 reaches macro F1 ≈ 0.999 for all three classes (Benign/SQLi/XSS). A pure string-matching baseline (`classify_request()` in `src/preprocessing/normalization.py`, the same regex heuristic used to *label* the dataset) reaches ≈ 0.99 on the same split.
@@ -168,6 +178,8 @@ All 6 ablation configurations in one table (`results/ablation_edge_attr_seq_skip
 | (4) no-sem + edge_attr | ✓ | ✓ |  | ✓ | 0.999778 | same as (1) | 7/9 | 0.0 | **0.0** |
 | (5) no-skip, no edge_attr | ✓ |  | ✓ |  | 0.999748 | `[[1550,0,0],[0,1214,0],[0,1,1450]]` (differs from (1)) | 7/9 | 0.0 | **0.0** |
 | (6) no-sem, no edge_attr | ✓ | ✓ |  |  | 0.999778 | same as (1) | 7/9 | 0.0 | **0.0** |
+
+**Note on `case_mixing` in this table:** it does *not* measure resistance to case-obfuscation — `src/preprocessing/tokenizer.py:13` lowercases tokens before the model ever sees them, so the technique is already neutralized upstream and this cell cannot fail on that basis (confirmed by direct inspection, not re-tested here). What it's actually measuring is the same underlying capability as `sql_new_commands`: clear, non-evasive SQLi recognition. Read its regressions in configs (3)-(6) accordingly — as E_skip/E_sem being load-bearing for plain SQLi detection, not for obfuscation robustness.
 
 Three findings, stated for direct use in the paper's Discussion:
 

@@ -1,0 +1,21 @@
+# Pinned to the versions actually used to produce results/ and docs/EXPERIMENT_LOG_semantic_edge_investigation.md
+# (venv: hin_web_vulne/web_venv, Python 3.10.20, CUDA 12.4).
+#
+# torch/torch_scatter/torch_sparse are CUDA wheels, not on PyPI by default. Install in this order:
+#   pip install torch==2.6.0+cu124 --index-url https://download.pytorch.org/whl/cu124
+#   pip install -r requirements.txt
+#   pip install torch_scatter==2.1.2+pt26cu124 torch_sparse==0.6.18+pt26cu124 \
+#       -f https://data.pyg.org/whl/torch-2.6.0+cu124.html
+# For a CPU-only setup, install plain `torch==2.6.0` from PyPI instead and drop the torch_scatter/
+# torch_sparse pins (torch-geometric's GATv2Conv works without them, just slower).
+
+numpy==1.26.4
+pandas==2.2.3
+PyYAML==6.0.3
+scikit-learn==1.7.2
+scipy==1.15.3
+torch==2.6.0+cu124
+torch-geometric==2.8.0.post1
+torch_scatter==2.1.2+pt26cu124
+torch_sparse==0.6.18+pt26cu124
+tqdm==4.70.1
