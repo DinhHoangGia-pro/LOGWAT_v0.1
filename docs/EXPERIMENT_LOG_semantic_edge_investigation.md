@@ -370,3 +370,130 @@ match) → **2111 rows actually noised and appended**, i.e. 2111/2240 = 94.24%
 of sampled rows survive to become new training rows, each with exactly one
 keyword split by 1-3 inserted whitespace characters at a uniformly random
 interior position.
+
+## XSS Noise-Augmentation Feasibility Check (2026-09-18, pre-implementation)
+
+Done **before** writing any XSS augmentation script, per the requirement to
+verify syntactic validity with a real HTML parser first rather than assume.
+
+**Tooling caveat (stated upfront, not buried):** this sandbox has only
+Python's stdlib `html.parser` available — `bs4`, `lxml`, `html5lib`,
+`selenium`, and `playwright` are all **not installed**
+(`pip list` checked directly), so **no real browser engine was available to
+test against.** Everything below reflects `html.parser`'s tokenizer
+specifically, cross-checked against WHATWG HTML5 tokenizer spec knowledge
+where noted, but is **not** empirical browser confirmation. Recommended
+before citing this in the paper as a browser-validated claim: re-run against
+an actual browser (e.g. via a headless Chromium) or at minimum `lxml`/`bs4`
+with `html5lib` backend, which implement the HTML5 spec's parsing algorithm
+more faithfully than `html.parser`.
+
+### 1 & 2. Parser tests (`html.parser.HTMLParser`, `handle_starttag` output)
+
+| variant | input | parsed attribute for the keyword | keyword preserved intact? |
+|---|---|---|---|
+| tab between tag/attr | `<img\tonerror=alert(1)>` | `('onerror', 'alert(1)')` | ✅ yes |
+| newline between tag/attr | `<img\nonerror=alert(1)>` | `('onerror', 'alert(1)')` | ✅ yes |
+| benign attr before keyword, `src=x` first | `<img src=x onerror=alert(1) data-x=1>` | `('onerror', 'alert(1)')` (order preserved: src, onerror, data-x) | ✅ yes |
+| benign attrs both sides | `<img data-a=1 onerror=alert(1) data-b=2 data-c=3>` | `('onerror', 'alert(1)')` | ✅ yes |
+| `script`/`src`, 1 benign attr before | `<script data-x=1 src=//evil.com/x.js></script>` | `('src', '//evil.com/x.js')` | ✅ yes |
+| `script`/`src`, heavy noise (5 attrs) | `<script type=text/javascript data-a=1 data-b=2 data-c=3 src=//evil.com/x.js data-d=4></script>` | `('src', '//evil.com/x.js')` | ✅ yes |
+| null byte glued to attr name (no space) | `<img onerror\x00=alert(1)>` | `('onerror\x00', 'alert(1)')` | ❌ **no** — name is `onerror\x00`, not `onerror` |
+| control char (BEL) glued to attr name | `<img onerror\x07=alert(1)>` | `('onerror\x07', 'alert(1)')` | ❌ **no** |
+| null byte mid attr name | `<img oner\x00ror=alert(1)>` | `('oner\x00ror', 'alert(1)')` | ❌ **no** |
+
+**Whitespace variants (tab/newline as the tag↔attribute separator) and
+attribute reordering/interspersing are both syntactically valid per
+`html.parser`, and both keep the target attribute name byte-identical to
+`onerror`/`src`.** Per WHATWG HTML5 tokenizer spec knowledge (not
+independently browser-verified here, see caveat above), this also matches
+real-browser behavior: any of U+0009 TAB, U+000A LF, U+000C FF, U+000D CR,
+or U+0020 SPACE is a valid "before attribute name" state transition, and
+attribute order/count is never semantically constrained by the spec.
+
+**The null-byte/control-character variant does NOT satisfy "keyword
+preserved, only context changed"** — in `html.parser`, the byte fuses onto
+the attribute name, producing a different string (`onerror\x00` ≠
+`onerror`). This is not independently confirmed against a real browser here,
+but WHATWG spec knowledge indicates real browsers replace embedded NUL with
+U+FFFD in the attribute-name state rather than stripping it — also
+producing a mutated (not preserved) name. **This variant is structurally the
+same category as SQL's mid-keyword comment-splitting (character-level
+keyword fragmentation), not the "context-only" mechanism being tested for —
+excluded from the "Mechanism 2 for XSS" conclusion below.**
+
+### 3. Does this actually break E_sem / E_skip in this repo's graph construction? (empirical, not hypothetical)
+
+Ran the real `web_security_tokenizer()` + `semantic_edges()` /
+`skip_edges()` from `src/preprocessing/tokenizer.py` / `src/edges/semantic.py`
+/ `src/edges/skip.py` directly.
+
+**Whitespace variant has zero effect on the graph** — `web_security_tokenizer`
+splits purely on `\w`/punctuation regardless of which whitespace character
+separated tokens in the source, so `<img\tsrc=x\tonerror=alert(1)>` produces
+the exact same token list, same `img`↔`onerror` token-index gap (4), and the
+exact same E_sem/E_skip edges as the plain-space version. **Already
+neutralized before it reaches the model — same dead-end category as the
+`case_mixing` finding (tokenizer `.lower()`), not a useful test vector.**
+
+**Benign-attribute insertion is different: it measurably grows the
+`img`↔`onerror` token-index gap, and breaks `E_sem` once the gap reaches
+`window=15`:**
+
+| # benign attributes inserted between `img` and `onerror` | token-index gap | `E_sem` connects them? |
+|---|---|---|
+| 0 (baseline, `<img onerror=...>`) | 1 | ✅ yes (2 edges) |
+| 1 (`<img data-0=v0 onerror=...>`) | 6 | ✅ yes |
+| 2 (`<img data-0=v0 data-1=v1 onerror=...>`) | 11 | ✅ yes |
+| 3 (`<img data-0=v0 data-1=v1 data-2=v2 onerror=...>`) | **16** | ❌ **no (0 edges)** |
+| 5 / 8 / 10 / 12 / 15 / 20 | 26 / 41 / 51 / 61 / 76 / 101 | ❌ no, all |
+
+**At exactly 3 inserted benign attributes, the token gap (16) exceeds
+`semantic_edges()`'s `window=15` and the E_sem edge disappears entirely** —
+confirmed by direct execution of the repo's real `semantic_edges()`, not
+estimated. Three `data-*`-style attributes (`<img data-0=v0 data-1=v1
+data-2=v2 onerror=alert(1)>`) is trivially valid HTML5 (custom `data-*`
+attributes are explicitly spec-sanctioned and ignored by both parsers and
+browsers otherwise), and the payload remains **fully functional as a real
+XSS attack** — no browser cares about attribute count, order, or the
+presence of unrelated `data-*` attributes when deciding whether to fire
+`onerror`.
+
+**Can `E_skip`/`E_seq` bridge this gap instead?** No — checked
+`src/models/layers.py`: `GATBackbone` has exactly **2 `GATv2Conv` layers**,
+so the model's message-passing receptive field is 2 hops. `E_skip` connects
+only `i`↔`i+2`; two hops of that reaches at most `i±4`. A gap of 16+ tokens
+is categorically unreachable by any combination of `E_seq`/`E_skip` edges
+within a 2-layer GNN, regardless of tuning `k`. Once benign-attribute
+padding exceeds ~3 attributes, `img` and `onerror` (or `script` and `src`)
+become **graph-topologically disconnected** for this architecture — no
+edge-based path of any type reaches between them.
+
+### Conclusion
+
+**Yes — a valid "Mechanism 2 for XSS" exists, genuinely different in nature
+from SQL's mid-keyword character-splitting, and it has been confirmed (not
+just hypothesized) to break `E_sem` in this repo's actual graph construction
+code:**
+
+> **Benign HTML attribute padding**: insert ≥3 syntactically valid,
+> semantically inert attributes (e.g. `data-*` custom attributes) between
+> the two halves of an XSS semantic pair (`img`...`onerror`,
+> `script`...`src`, `svg`...`onload`). The keyword tokens themselves are
+> never touched — this is fundamentally a **token-distance/context-dilution**
+> attack, not a character-fragmentation attack like SQL comment-splitting —
+> and it is valid, functional, unlimited-scale HTML (an attacker can add as
+> many `data-*` attributes as needed with zero cost to exploit reliability).
+> Confirmed to break `E_sem` at the token level once the gap exceeds
+> `window=15`, and confirmed structurally unbridgeable by `E_skip`/`E_seq`
+> given the model's 2-layer GNN receptive field.
+
+This is a real, implementable augmentation direction (not a Limitations-only
+finding) — recorded here as the pre-implementation feasibility check;
+writing the actual `add_xss_attribute_padding_train.py` augmentation script
+(if the user wants to proceed) is a separate, not-yet-done step. Two
+variants tested and explicitly **ruled out** as not fitting this mechanism:
+whitespace-separator noise (already neutralized by the tokenizer before
+reaching the model — no test value) and null-byte/control-character
+insertion (mutates the keyword itself, same category as SQL
+comment-splitting, not "context-only").
