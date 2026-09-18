@@ -1,0 +1,22 @@
+method,eval_mode,group,precision,recall,f1_score,support,accuracy,n_correct,n_total
+CodeBERT,test_split,Benign,1.0,1.0,1.0,1550.0,,,
+CodeBERT,test_split,SQLi,0.9991769547325103,1.0,0.9995883079456567,1214.0,,,
+CodeBERT,test_split,XSS,1.0,0.9993108201240524,0.9996552912788693,1451.0,,,
+CodeBERT,test_split,macro avg,0.9997256515775034,0.9997702733746842,0.9997478664081753,4215.0,,,
+CodeBERT,test_split,weighted avg,0.9997629473417006,0.9997627520759194,0.9997627600217477,4215.0,,,
+CodeBERT,test_split_duplication_breakdown,duplicate_content,,,,,1.0,1063.0,1063.0
+CodeBERT,test_split_duplication_breakdown,novel_content,,,,,0.9996827411167513,3151.0,3152.0
+CodeBERT,held_out_matrix,Benign/field_query,,,,,1.0,10.0,10.0
+CodeBERT,held_out_matrix,Benign/header_field,,,,,1.0,10.0,10.0
+CodeBERT,held_out_matrix,Benign/json_field,,,,,1.0,10.0,10.0
+CodeBERT,held_out_matrix,SQLi/sql_new_commands,,,,,1.0,10.0,10.0
+CodeBERT,held_out_matrix,SQLi/comment_splitting,,,,,0.0,0.0,10.0
+CodeBERT,held_out_matrix,SQLi/case_mixing,,,,,0.0,0.0,10.0
+CodeBERT,held_out_matrix,XSS/data_uri_base64,,,,,1.0,10.0,10.0
+CodeBERT,held_out_matrix,XSS/event_handler_focus,,,,,1.0,10.0,10.0
+CodeBERT,held_out_matrix,XSS/svg_script_variant,,,,,1.0,10.0,10.0
+CodeBERT,external_dataset,Benign,0.9272287362739624,0.2582283729850205,0.4039568636990189,19293.0,,,
+CodeBERT,external_dataset,SQLi,0.6820903647250952,0.9237007003317361,0.7847189603882887,10852.0,,,
+CodeBERT,external_dataset,XSS,0.05015082956259427,1.0,0.0955116696588869,532.0,,,
+CodeBERT,external_dataset,macro avg,0.5531566435205507,0.7273096911055855,0.4280624979153982,30677.0,,,
+CodeBERT,external_dataset,weighted avg,0.8253006776496264,0.5065032434723082,0.5333025438516612,30677.0,,,

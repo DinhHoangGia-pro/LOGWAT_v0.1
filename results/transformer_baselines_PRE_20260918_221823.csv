@@ -1,0 +1,22 @@
+method,eval_mode,group,precision,recall,f1_score,support,accuracy,n_correct,n_total
+RoBERTa,test_split,Benign,1.0,1.0,1.0,1550.0,,,
+RoBERTa,test_split,SQLi,1.0,1.0,1.0,1214.0,,,
+RoBERTa,test_split,XSS,1.0,1.0,1.0,1451.0,,,
+RoBERTa,test_split,macro avg,1.0,1.0,1.0,4215.0,,,
+RoBERTa,test_split,weighted avg,1.0,1.0,1.0,4215.0,,,
+RoBERTa,test_split_duplication_breakdown,duplicate_content,,,,,1.0,1063.0,1063.0
+RoBERTa,test_split_duplication_breakdown,novel_content,,,,,1.0,3152.0,3152.0
+RoBERTa,held_out_matrix,Benign/field_query,,,,,1.0,10.0,10.0
+RoBERTa,held_out_matrix,Benign/header_field,,,,,1.0,10.0,10.0
+RoBERTa,held_out_matrix,Benign/json_field,,,,,1.0,10.0,10.0
+RoBERTa,held_out_matrix,SQLi/sql_new_commands,,,,,1.0,10.0,10.0
+RoBERTa,held_out_matrix,SQLi/comment_splitting,,,,,0.0,0.0,10.0
+RoBERTa,held_out_matrix,SQLi/case_mixing,,,,,0.0,0.0,10.0
+RoBERTa,held_out_matrix,XSS/data_uri_base64,,,,,0.0,0.0,10.0
+RoBERTa,held_out_matrix,XSS/event_handler_focus,,,,,1.0,10.0,10.0
+RoBERTa,held_out_matrix,XSS/svg_script_variant,,,,,1.0,10.0,10.0
+RoBERTa,external_dataset,Benign,0.9464748879981136,0.624164204633805,0.7522488755622189,19293.0,,,
+RoBERTa,external_dataset,SQLi,0.9427307904919845,0.7857537781054184,0.85711413780972,10852.0,,,
+RoBERTa,external_dataset,XSS,0.059490402963295545,0.9962406015037594,0.11227624192352505,532.0,,,
+RoBERTa,external_dataset,macro avg,0.6495653604844646,0.8020528614143276,0.5738797517651546,30677.0,,,
+RoBERTa,external_dataset,weighted avg,0.929768342632692,0.687779117905923,0.778246606266463,30677.0,,,
