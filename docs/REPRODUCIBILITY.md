@@ -269,3 +269,92 @@ python -m scripts.benchmark_latency
 
 To only re-evaluate the currently deployed checkpoint (no retraining, no dataset
 changes), run steps 5-6 alone.
+
+## Transformer Baselines (Reviewer #3, 2026-09-18)
+
+Real fine-tunes (not stubs) of `roberta-base` and `microsoft/codebert-base`
+for 3-class web-attack classification on raw `content` text, added to
+address Reviewer #3's request for a Transformer/LLM baseline comparison
+(accuracy, latency, interpretability). Full narrative and findings:
+`docs/EXPERIMENT_LOG_semantic_edge_investigation.md`'s Reviewer-#3-dated
+sections (content duplication, held-out matrix comparison, external-dataset
+analysis, interpretability). This section covers setup/reproducibility only.
+
+**Environment:** same venv as the rest of this document
+(`hin_web_vulne/web_venv`), plus `transformers==5.17.0`,
+`tokenizers==0.23.2`, `safetensors==0.8.0`, `huggingface_hub==1.32.0`
+(resolve cleanly against the pinned `torch==2.6.0+cu124`), and
+`matplotlib==3.10.9` (interpretability plots only). Added to
+`requirements.txt`.
+
+**Data:** `data/transformer_baseline/{train,test}.csv` (gitignored,
+regenerable), built by `scripts/prepare_transformer_baseline_data.py` from
+the exact same frozen split GATv2 uses (`test_idx` from
+`test_split_indices.pkl` as-is, `train_idx` = every other current graph
+index, matching `src/training/train.py::_load_global_split()` — NOT
+`test_split_indices.pkl`'s own stale `train_idx` field). Verified via
+positional `source_uid`+`attack_type` alignment against
+`data/web_graphs.pkl`, not assumed. Resulting bincounts (`train=[13450,
+17381, 8613]`, `test=[1550, 1214, 1451]`) match this document's documented
+GATv2 split exactly.
+
+**Hyperparameters (both models, identical):** `batch_size=32`, `lr=2e-5`,
+`max_length=128` (95th-percentile token length over train, per-tokenizer,
+computed not guessed: p95=126, rounded up to the nearest multiple of 8),
+up to 5 epochs with early stopping (`patience=2`, `min_delta=0`) on a
+validation loss computed from a **5% stratified split carved out of TRAIN
+only** (`val_fraction=0.05`, `random_state=seed`) — deliberately NOT
+test-set accuracy, unlike GATv2's own training loop (a known methodology
+weakness of this project, see the "Seed"/nondeterminism sections above;
+these baselines avoid repeating it). `seed=42` via the existing
+`src/utils/seed.py::set_seed()`, same `generator=`-seeded `DataLoader` as
+`train.py`.
+
+**Commands:**
+```bash
+source .venv/bin/activate  # or hin_web_vulne/web_venv, see top of this doc
+python -m scripts.prepare_transformer_baseline_data
+python -m scripts.finetune_roberta      # ~24 min on this GPU
+python -m scripts.finetune_codebert     # ~30 min on this GPU
+python -m scripts.evaluate_transformer_baselines   # test split + held-out + external
+python -m scripts.evaluate_string_matching_test_split   # fills string-matching's one missing mode
+python -m scripts.benchmark_latency_transformers   # ~5-8 min, same methodology as #11
+python -m scripts.interpretability_attention_rollout
+python -m scripts.build_final_baseline_comparison  # assembles the 4-method table from the above
+```
+
+**Fine-tune results (both converged the same way — best epoch 1, early-stopped
+at epoch 3):**
+
+| model | epochs_run | best_epoch | best_val_loss | wall time |
+|---|---|---|---|---|
+| RoBERTa | 3 | 1 (val_acc 0.9995) | 0.0054 | 1465s (~24.4 min) |
+| CodeBERT | 3 | 1 (val_acc 0.9995) | 0.0051 | 1782s (~29.7 min; epoch 1 ran concurrently with a RoBERTa eval job on the same GPU, inflating its time — epochs 2-3 alone: 493s/635s) |
+
+Checkpoints: `data/models_pretrained/{roberta,codebert}_baseline_seed42/`
+(gitignored, ~500MB each). Logs: `logs/{roberta,codebert}_training.log`.
+
+**Known limitation carried into every result reported for these baselines
+(and for GATv2, and for string-matching — not specific to the new
+baselines):** 25.2% of the frozen test split shares byte-identical
+`content` with some train row (finite SQLi/XSS payload pools reused across
+`source_uid` groups — not the previously-fixed `GroupShuffleSplit` bug, see
+EXPERIMENT_LOG). Verified NOT silently inflating these numbers: both
+baselines score ~1.0 on the duplicate-content AND the novel-content test
+subsets alike (`results/transformer_baselines.csv`,
+`test_split_duplication_breakdown` rows).
+
+### TrafficLLM (`cui2025trafficllm`, cited in the paper's Related Work) — not run
+
+Reviewer #3 also raised TrafficLLM specifically. Checked feasibility before
+deciding, not skipped without reason: TrafficLLM
+(arXiv:2504.04222, github.com/ZGC-LLM-Safety/TrafficLLM) is built on a
+**ChatGLM2-6B backbone (6B parameters)**. Per the paper's own reported
+figures, **training a new PEFT adaptation requires 23GB GPU memory** (14h,
+20k steps on 50k samples), and **inference alone requires 13GB**. This
+machine's GPU has **8GB total VRAM** (7.2GB free at idle) — insufficient
+for TrafficLLM even for inference-only use, let alone fine-tuning, by a
+wide margin (13GB inference requirement vs. 8GB total capacity). Not run.
+This is a hardware constraint, not a scope decision: RoBERTa/CodeBERT
+(125M/125M params) were feasible on this GPU precisely because they are
+roughly 50x smaller than TrafficLLM's backbone.
