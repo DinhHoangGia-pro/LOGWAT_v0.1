@@ -86,18 +86,35 @@ via the warning instead of silently if it ever does matter, and costs
 attempting determinism), but **do not claim it fixed reproducibility** — it
 did not, on this codebase/torch/torch_geometric version combination.
 
-**Most likely additional cause (hypothesis, not confirmed — out of scope to
-chase further here):** `src/training/train.py`'s `DataLoader(train_data,
-batch_size=batch_size, shuffle=True)` passes no explicit `generator=`, so
-`RandomSampler` reseeds itself from an implementation-internal draw on
-*each* `__iter__()` call (i.e. every epoch) rather than from a single
-seeded, run-reproducible stream — a classic, easy-to-miss PyTorch gotcha
-distinct from `torch.manual_seed()`/`cuda.manual_seed_all()`, and consistent
-with epoch 1 (before any such re-seeding happens) matching while later
-epochs don't. The `Dropout(0.5)` in `src/models/layers.py`'s classifier head
-is a second plausible contributor. Neither has been tested in isolation;
-fixing this would need its own verification pass, not assumed from this
-one.
+**Tested and ruled out (2026-09-18):** the hypothesis that
+`src/training/train.py`'s `DataLoader(train_data, batch_size=batch_size,
+shuffle=True)` passing no explicit `generator=` was the (or a) cause —
+`RandomSampler` without an explicit generator draws from the global
+`torch.default_generator`, which *is* seeded by `set_seed()`'s
+`torch.manual_seed(seed)`, so this was always a weaker hypothesis than it
+looked; tested anyway since it's a classic, easy-to-miss PyTorch gotcha.
+Added `generator=torch.Generator().manual_seed(seed)` to the `train_loader`
+construction and ran two more `seed=42` runs on identical code/config/data.
+**Still diverges from epoch 2**: epoch 1 matched bit-for-bit (`Loss: 0.0172
+| Acc: 0.9988` both runs), epoch 2 didn't (`Loss: 0.0016/Acc: 0.9991` vs.
+`Loss: 0.0015/Acc: 0.9993`), and `epochs_run` differed more than the
+pre-fix baseline (13 vs. 15, `best_epoch` 3 vs. 5). The `generator=` change
+is kept in `train.py` anyway — it's strictly more correct (an explicit,
+independent RNG stream for the loader instead of implicitly sharing the
+global default generator with every other RNG consumer in the training
+loop) and doesn't cost anything — but **it does not fix reproducibility**,
+consistent with the fact that it was never actually decoupled from
+`torch.manual_seed()` in the first place.
+
+**Remaining plausible contributor (hypothesis, not confirmed — out of scope
+to chase further here):** the `Dropout(0.5)` in `src/models/layers.py`'s
+classifier head draws from the CUDA RNG per-call during `model.train()`,
+so its per-epoch draw sequence depends on exactly how many other CUDA RNG
+draws happened earlier in that epoch — if that count itself varies run to
+run (e.g. via the non-deterministic scatter-gather ops already identified
+above), dropout's draws would desync and could plausibly explain divergence
+starting at epoch 2 rather than epoch 1. Not tested in isolation; fixing
+this would need its own verification pass, not assumed from this one.
 
 **Practical implication for the paper:** report metrics as **mean ± std over
 multiple seeds** (`results/final_stats_5seed.csv`), not as a single seed=42

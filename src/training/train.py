@@ -167,7 +167,8 @@ def train(num_epochs=None, batch_size=None, lr=None, target_metric='acc', seed=N
     print(f"[*] Using GLOBAL balanced split for training validation: "
           f"train={len(train_idx)}, test={len(test_idx)}, "
           f"bincount_train={train_bincount}, bincount_test={test_bincount}")
-    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
+    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True,
+                               generator=torch.Generator().manual_seed(seed))
     test_loader = DataLoader(test_data, batch_size=batch_size)
 
     y_train_for_weight = np.array([int(graphs[i].y.item()) for i in train_idx])
