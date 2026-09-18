@@ -826,3 +826,55 @@ the mechanisms this project relies on for genuine-generalization claims
 "External Evaluation Dataset" in `docs/DATASET.md`); this finding is an
 additional, independent reason those two evaluations matter, not a new
 requirement to add them.
+
+## RoBERTa held-out failure pattern mirrors GATv2's, for different reasons (2026-09-18)
+
+RoBERTa baseline (Reviewer #3, `results/transformer_baselines.csv`), full
+9-cell held-out matrix, deployed GATv2 checkpoint alongside for comparison:
+
+| technique | GATv2 | RoBERTa |
+|---|---|---|
+| Benign/field_query | 1.0 | 1.0 |
+| Benign/header_field | 1.0 | 1.0 |
+| Benign/json_field | 1.0 | 1.0 |
+| SQLi/sql_new_commands | 1.0 | 1.0 |
+| SQLi/comment_splitting | 0.0 | 0.0 |
+| **SQLi/case_mixing** | **1.0** | **0.0** |
+| XSS/data_uri_base64 | 1.0 | 0.0 |
+| XSS/event_handler_focus | 1.0 | 1.0 |
+| XSS/svg_script_variant | 1.0 | 1.0 |
+
+RoBERTa: 6/9. Both architectures fail `comment_splitting` (already
+established as an architectural limit for GATv2, §9/§11/Step-2 above — not
+re-derived here for RoBERTa, just noting it fails the same cell). Both
+being wrong on the same cell for what could be different reasons is
+expected and not itself the finding here.
+
+**The `case_mixing` row is the finding.** This project already knows
+GATv2's 1.0 on `case_mixing` is not a meaningful case-obfuscation-robustness
+result — `src/preprocessing/tokenizer.py:13` lowercases every token before
+GATv2 (or the string-matching baseline, whose regexes are also
+case-insensitive) ever sees it, so the technique is neutralized upstream
+and the cell cannot fail on that basis regardless of what the model
+learned (documented at line 182 and 437 above, "not a useful test vector").
+**RoBERTa's tokenizer does not lowercase** (verified directly:
+`AutoTokenizer.from_pretrained('roberta-base').encode('uN/**/ioN aLl
+sEl/**/eCt')` preserves `'u','N','aL','l','El','e','Ct'` with case intact,
+byte-level BPE, no `do_lower_case` normalization) — RoBERTa receives the
+case-mixed payload exactly as an attacker would send it, with no
+upstream neutralization. **It fails, 0/10.**
+
+This makes RoBERTa's `case_mixing` result the **first actually meaningful
+measurement of case-obfuscation robustness in this entire investigation** —
+every prior report of this cell (GATv2 across all configs/seeds, §11's
+6-config ablation, the 5-seed run) was measuring "does the model recognize
+plain, un-obfuscated SQLi keywords once lowercased," not case-obfuscation
+resistance, despite being labeled `case_mixing` throughout. Read together:
+**neither architecture actually handles case-mixing once something isn't
+silently normalizing it away first.** GATv2's apparent robustness on this
+cell was never real; it was an artifact of a preprocessing step shared by
+every method evaluated through that pipeline. This doesn't retroactively
+change any of §11's ablation conclusions (already caveated at line 182 not
+to read `case_mixing` as an obfuscation-robustness signal there) — it
+confirms that caveat was correct, from an independent angle, rather than
+introducing a new one.
