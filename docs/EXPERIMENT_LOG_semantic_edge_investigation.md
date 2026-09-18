@@ -754,3 +754,75 @@ a flat "8/9."** `comment_splitting` remains the only cell with a documented,
 evidenced *architectural* cause; `data_uri_base64`'s occasional failure has
 no root-cause investigation yet (out of scope for this task) and should not
 be assumed to share `comment_splitting`'s cause.
+
+## Test-split content duplication (25.2%, primarily XSS 45.7%) (2026-09-18)
+
+Discovered while checking the RoBERTa/CodeBERT baseline (Reviewer #3) for
+early-stopping leakage (val set correctly carved from train only, not
+test.csv — that check was clean). Investigating a secondary symptom (val
+rows sharing exact `content` text with test rows) traced back to a property
+of `data/test_split_indices.pkl` itself, affecting **every** method
+evaluated against it, not just the new baselines.
+
+**Measured (`data/augmented_web_attack.csv` + `data/test_split_indices.pkl`,
+current train/test split via `src/training/train.py::_load_global_split()`'s
+logic — test_idx frozen, train_idx = complement):**
+
+- **1063/4215 test rows (25.2%)** have `content` byte-identical to at least
+  one train row. Per class: **0/1550 Benign**, 400/1214 SQLi (33.0%),
+  **663/1451 XSS (45.7%)**.
+- Checked whether this is the previously-fixed `GroupShuffleSplit` bug
+  (§ "Train-only addition of the 16 missing SQLi payloads" in
+  `docs/DATASET.md`, where a single `source_uid` payload group ended up
+  split across both train and test): **it is not**. Grouped by
+  `source_uid`, **0/664** unique overlapping content strings have the same
+  `source_uid` appearing on both sides — every overlap is between two
+  *different* `source_uid` groups that independently produced identical
+  `content` text. `GroupShuffleSplit`-by-`source_uid` is working exactly as
+  designed; it just doesn't (and structurally cannot) guarantee unique
+  *content* across groups when the underlying SQLi/XSS payload pools are
+  finite and reused across many template rows (Mechanism 1, "Template
+  poisoning" — see `docs/BIA_DECISION_LOG.md` §1-2). XSS is hit hardest
+  because its external payload corpus is smaller relative to the number of
+  XSS rows generated from it than SQLi's is.
+
+**This is a structural limitation of the main benchmark, distinct from and
+additional to the label/E_sem circularity concern (§1):** §1 is about
+*keyword-driven labels* making the standard test split unable to detect
+whether a component (E_sem) is doing real generalization work. This
+duplication finding is about the split not even being fully novel-content
+at the *entity* level for ~1 in 4 test rows — `source_uid`-grouping
+correctly prevents a single generation *event* from leaking, but does not
+and cannot prevent two independent generation events from producing
+identical text when drawn from the same finite payload pool. Both concerns
+point the same direction: **the standard test split alone overstates how
+much genuine content-generalization any method evaluated on it (GATv2,
+string-matching, RoBERTa, CodeBERT alike) has been shown to have.**
+
+**Not fixed — the frozen split stays frozen** (explicit decision, confirmed
+2026-09-18): re-splitting by content-hash instead of `source_uid` would
+invalidate every prior checkpoint/result in this document's history for a
+benefit that verification below shows is small in practice.
+
+**Verified NOT to be silently inflating the headline number:** using an
+early RoBERTa checkpoint (epoch 1, val_acc 0.9995) as a probe, accuracy was
+1.00 on **both** the 1063 duplicate-content test rows and the 3152
+novel-content test rows — i.e. this baseline's near-perfect test-split
+score is not an artifact of memorizing the duplicated 25.2%; it scores just
+as well on the genuinely-unseen 74.8%. This is consistent with the
+test-split-is-already-saturated finding elsewhere in this document (5-seed
+stats: mean accuracy 0.9998, std 0.0001) and does not retroactively excuse
+the structural issue, just narrows its practical impact on this
+particular dataset/task combination.
+
+**This is why the held-out 9-cell matrix and the external dataset carry
+more generalization weight than the standard test split, not less, and
+should be read as reinforcing rather than redundant with each other:**
+checked directly — the held-out matrix has **0/90** rows with content
+overlapping train, and the external dataset has **1/30677** (a single
+generic short benign string, `'a="get";'`, coincidental). Both were already
+the mechanisms this project relies on for genuine-generalization claims
+(§1's circularity concern, "XSS Context-Distance Augmentation" §Step 2,
+"External Evaluation Dataset" in `docs/DATASET.md`); this finding is an
+additional, independent reason those two evaluations matter, not a new
+requirement to add them.

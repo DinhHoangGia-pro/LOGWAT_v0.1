@@ -176,6 +176,23 @@ f216c0679cf2b1e0fd41c4cffc1c865bb432312010cbb81eff678b25da68003d  data/test_spli
 `845a3acbdf8250a59c02daa93bb43a58c7a9b317e1efcdf0a397e3a3b4d29b7d` — preserved at
 `data/augmented_web_attack_PRE_xss_context.csv`.)
 
+## Test-split content duplication (25.2%, primarily XSS 45.7%)
+
+**25.2% of the frozen test split (1063/4215 rows; 45.7% of its XSS rows,
+33.0% of SQLi, 0% of Benign) has `content` text byte-identical to some row
+in train** — a structural property of `test_split_indices.pkl` itself
+(finite SQLi/XSS payload pools reused across many `source_uid` template
+rows), confirmed NOT a recurrence of the `source_uid`-group-split bug fixed
+elsewhere in this document (0/664 overlapping content strings share a
+`source_uid` across train/test). Affects every method evaluated against
+this split (GATv2, string-matching, RoBERTa, CodeBERT), not just one
+baseline. The frozen split is not being changed because of this. Full
+investigation, verification that it does not silently inflate the headline
+accuracy number, and why this makes the held-out matrix (0/90 overlap) and
+external dataset (1/30677 overlap) carry more generalization weight than
+the standard split: `docs/EXPERIMENT_LOG_semantic_edge_investigation.md`,
+"Test-split content duplication" section.
+
 ## External Evaluation Dataset (2026-09-18, Reviewer #1)
 
 Goal: evaluate (never train/fine-tune on) the deployed checkpoint against an
