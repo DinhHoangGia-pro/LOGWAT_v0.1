@@ -23,3 +23,4 @@ transformers==5.17.0
 tokenizers==0.23.2
 safetensors==0.8.0
 huggingface_hub==1.32.0
+matplotlib==3.10.9
