@@ -155,6 +155,8 @@ def train(num_epochs=None, batch_size=None, lr=None, target_metric='acc', seed=N
         data_pkl = pickle.load(f)
 
     graphs = list(data_pkl['graphs'])
+    use_edge_attr = getattr(graphs[0], 'edge_attr', None) is not None
+    print(f"[*] use_edge_attr={use_edge_attr} (auto-detected from web_graphs.pkl)")
     train_idx, test_idx = _load_global_split(len(graphs))
     train_data = [graphs[i] for i in train_idx]
     test_data = [graphs[i] for i in test_idx]
@@ -181,7 +183,7 @@ def train(num_epochs=None, batch_size=None, lr=None, target_metric='acc', seed=N
     with open(LOG_PATH, 'a') as _cw_log:
         _cw_log.write(class_weight_line + "\n")
 
-    model = HeavyWebGNN().to(device)
+    model = HeavyWebGNN(use_edge_attr=use_edge_attr).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=training_cfg.get('weight_decay', 0.1))
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=5)
     criterion = nn.CrossEntropyLoss(weight=class_weights_tensor)
@@ -205,7 +207,8 @@ def train(num_epochs=None, batch_size=None, lr=None, target_metric='acc', seed=N
             for data in train_loader:
                 data = data.to(device)
                 optimizer.zero_grad()
-                out = model(data.x, data.edge_index, data.batch)
+                ea = data.edge_attr if use_edge_attr else None
+                out = model(data.x, data.edge_index, data.batch, edge_attr=ea)
                 loss = criterion(out, data.y)
                 loss.backward(); optimizer.step()
                 total_loss += loss.item()
@@ -215,7 +218,8 @@ def train(num_epochs=None, batch_size=None, lr=None, target_metric='acc', seed=N
             with torch.no_grad():
                 for data in test_loader:
                     data = data.to(device)
-                    pred = model(data.x, data.edge_index, data.batch).argmax(dim=1)
+                    ea = data.edge_attr if use_edge_attr else None
+                    pred = model(data.x, data.edge_index, data.batch, edge_attr=ea).argmax(dim=1)
                     correct += (pred == data.y).sum().item()
 
             epoch_loss = total_loss / max(1, len(train_loader))

@@ -42,7 +42,14 @@ def _load_test_indices(graphs):
     if TEST_SPLIT_PATH.exists():
         with open(TEST_SPLIT_PATH, 'rb') as f:
             loaded = pickle.load(f)
-        if isinstance(loaded, tuple) and len(loaded) == 2:
+        if isinstance(loaded, dict):
+            if 'test_idx' in loaded:
+                test_idx = loaded['test_idx']
+            elif 'train_idx' in loaded and 'test_idx' not in loaded:
+                test_idx = loaded['train_idx']
+            else:
+                raise KeyError(f"Unexpected split dict keys: {list(loaded.keys())}")
+        elif isinstance(loaded, tuple) and len(loaded) == 2:
             _, test_idx = loaded
         else:
             test_idx = loaded
@@ -150,7 +157,10 @@ def evaluate(top_k=10, plot_cm=False):
     dataset = data_pkl['graphs']
     loader = DataLoader(dataset, batch_size=1, shuffle=False)
 
-    model = HeavyWebGNN().to(device)
+    use_edge_attr = getattr(dataset[0], 'edge_attr', None) is not None
+    print(f"[*] use_edge_attr={use_edge_attr} (auto-detected from web_graphs.pkl)")
+
+    model = HeavyWebGNN(use_edge_attr=use_edge_attr).to(device)
     if os.path.exists(MODEL_PATH):
         model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
     model.eval()
@@ -161,7 +171,8 @@ def evaluate(top_k=10, plot_cm=False):
     with torch.no_grad():
         for data in loader:
             data = data.to(device)
-            out = model(data.x, data.edge_index, data.batch)
+            ea = data.edge_attr if use_edge_attr else None
+            out = model(data.x, data.edge_index, data.batch, edge_attr=ea)
             pred = out.argmax(dim=1).cpu().numpy()
             y_pred.extend(pred)
             y_true.extend(data.y.cpu().numpy())
