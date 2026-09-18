@@ -145,6 +145,17 @@ Configs (3) and (4) each independently regressed `case_mixing` from 1.0 to 0.0, 
 
 **Conclusion:** the edge_attr mechanism is a real, measurable step in the right direction (attention ratio improved) but does not fully close the gap alone. §9's "architectural limitation" framing stands: E_sem needs more than a relation-type tag to compete with the volume of n-gram edges — options not yet tried include a learned per-relation weight/gate (rather than only letting attention discover it), reducing n-gram edge density, or a separate aggregation path for semantic edges.
 
+**Follow-up: isolating E_skip/E_sem removal from the edge_attr mechanism.** Configs (3)/(4) both used edge_attr, so it wasn't clear whether the `case_mixing` regression came from removing the edge type itself or from some edge_attr interaction. Two more configs (`scripts/run_ablation_extra_no_edge_attr.py`) repeat (3)/(4) with edge_attr off, same seed=42:
+
+| config | test split macro F1 | test confusion matrix | held-out cells | case_mixing |
+|---|---|---|---|---|
+| (5) no-skip, no edge_attr | 0.999748 | `[[1550,0,0],[0,1214,0],[0,1,1450]]` (1 SQLi→XSS) | 7/9 | **0.0** |
+| (6) no-sem, no edge_attr | 0.999778 | `[[1550,0,0],[0,1214,0],[1,0,1450]]` (identical to config 1) | 7/9 | **0.0** |
+
+`case_mixing` regresses to 0.0 in both (5) and (6) — **the same regression seen in (3)/(4), now confirmed to happen with edge_attr off too.** This rules out edge_attr as the cause: removing either E_skip or E_sem alone, by itself, breaks `case_mixing`, regardless of whether the relation-type signal is present. It also further weakens a pure edge-count explanation (E_skip ≈ a third of all edges; E_sem is 4 edges) — both removals cause the identical held-out outcome.
+
+One genuine difference from the edge_attr configs: config (5)'s test-split confusion matrix is *not* identical to config (1)'s (a different single error: SQLi→XSS instead of XSS→Benign) — the only config in this whole ablation where the frozen test split actually distinguished a configuration. Config (6) matches config (1) exactly. So E_skip removal does perturb the model somewhat on the test split; E_sem removal (4 edges out of ~150) does not perturb it at all -- consistent with §9's finding that E_sem is a very small, easily-outweighed signal.
+
 ## Final state
 
 **Held-out matrix: 8/9 cells correct (88.9%)**, up from 6/9 at the start of this investigation.
