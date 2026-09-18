@@ -404,17 +404,36 @@ and `.`-heavy structure of plausibly resembles the tokenization of
 XSS-relevant special characters (`@`, `.`) closely enough to be a distinct
 sub-pattern worth naming on its own.
 
+**Gap definition broadened (2026-09-18, RoBERTa baseline, Reviewer #3):**
+the RoBERTa Transformer baseline — a text-only architecture with no
+graph-size shortcut, so this isn't a GATv2-specific artifact — hits the
+same 100%-bare-value pattern on this same external dataset, but fails on a
+*wider* set of rows than GATv2's numeric-ID/alphanumeric-token/email
+sub-patterns above: plain alphabetic words with no digits, no `@`, no
+special characters at all (`"fennell"`, `"genny"`, `"mckenney"`, `"maala8"`
+— see `docs/EXPERIMENT_LOG_semantic_edge_investigation.md`, "RoBERTa on the
+external dataset: same benign-type-4 gap, broader failure"). **The gap
+description is corrected accordingly: not "numeric ID, short alphanumeric
+token, or email address" (three named sub-cases) but "any bare short value
+(numeric, alphanumeric, or plain word) without any structural
+delimiter"** — the defining property is the *absence of delimiter/key-value
+structure*, not membership in one of the three originally-observed
+sub-patterns; those three were what GATv2's specific misclassifications
+happened to look like, not the full extent of the gap.
+
 **For the paper's Limitations section:** the three benign-syntax-diversity
 forms added in this repo's training data (query-string, header, JSON) cover
-benign content that has *some* delimiter/key-value structure. This 4th form —
-an isolated bare value (numeric ID, short alphanumeric token, or email
-address) with no surrounding structure — was never represented in training,
-and the model has no reliable signal to distinguish "digits that are
-somebody's ID number" from "digits that are a SQLi numeric literal," or
-"an email address" from "an XSS payload with special characters." This is a
-genuine, previously-undocumented generalization gap, not covered by the
-existing 8/9 held-out matrix (whose `field_query`/`header_field`/`json_field`
-Benign cells are all structured, delimiter-bearing forms) and not something
-this task's scope fixes — recorded here as evidence for the Discussion/
-Limitations section, and as a candidate 4th augmentation form for anyone
-picking this up later.
+benign content that has *some* delimiter/key-value structure. This 4th
+form — any bare short value (numeric, alphanumeric, or plain word) with no
+surrounding structure — was never represented in training, and the model
+has no reliable signal to distinguish "digits that are somebody's ID
+number" from "digits that are a SQLi numeric literal," "an email address"
+from "an XSS payload with special characters," or, per the broadened
+finding above, even a plain English-looking word from an attack token. This
+is a genuine, previously-undocumented generalization gap, not covered by
+the existing 8/9 held-out matrix (whose `field_query`/`header_field`/
+`json_field` Benign cells are all structured, delimiter-bearing forms), not
+architecture-specific (confirmed present in both a graph model and a
+text-only Transformer), and not something this task's scope fixes —
+recorded here as evidence for the Discussion/Limitations section, and as a
+candidate 4th augmentation form for anyone picking this up later.

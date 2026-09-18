@@ -992,7 +992,15 @@ current one to match what RoBERTa is being compared against).
   right**, including plain alphabetic tokens with no digits or `@` at all
   (`"fennell"`, `"genny"`, `"mckenney"`, `"maala8"`), not just the
   numeric-ID/email sub-patterns GATv2's gap was characterized by. RoBERTa's
-  version of this gap is broader, not just differently-shaped.
+  version of this gap is broader, not just differently-shaped. **This
+  broadens the gap's definition itself: `docs/DATASET.md`'s "4th benign
+  form" is corrected from the three originally-observed sub-cases
+  ("numeric ID, short alphanumeric token, or email address") to "any bare
+  short value (numeric, alphanumeric, or plain word) without any
+  structural delimiter" — the defining property was always the missing
+  delimiter/key-value structure, not membership in one of three named
+  sub-patterns, and RoBERTa's plain-word failures are the evidence that
+  distinction matters.**
 - **The "content too short = no context, basically `<s></s>`" hypothesis is
   a partial, not primary, explanation.** Token-count check (RoBERTa's own
   tokenizer): rows misclassified Benign→XSS have median 6 tokens vs. 7 for
