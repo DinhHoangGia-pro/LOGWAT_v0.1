@@ -30,16 +30,26 @@ SQLI_FAMILY_TEST_INDEX_PATH = os.path.join(HIN_DIR, 'data', 'sqli_family_test_in
 GLOBAL_SPLIT_PATH = os.path.join(HIN_DIR, 'data', 'test_split_indices.pkl')
 
 
-def _load_global_split():
+def _load_global_split(num_graphs):
     """Load the frozen, class-balanced train/test split used for training
     validation and early stopping (same split evaluate.py reports against).
     This is intentionally NOT `_fixed_family_group_split`, which selects an
     SQLi-only (single-class) test subset meant for the separate family
     breakdown report, not for the main training loop's validation.
+
+    `test_idx` is used exactly as frozen (never touched). `train_idx` is
+    derived as "every graph index NOT in test_idx", not read verbatim from
+    the pickle -- this way, any row appended to the dataset AFTER the split
+    was frozen (e.g. train-only augmentation rows placed past the original
+    index range) is automatically included in training instead of silently
+    dropped, while the frozen test set stays exactly as-is.
     """
     with open(GLOBAL_SPLIT_PATH, 'rb') as f:
         split = pickle.load(f)
-    return list(split['train_idx']), list(split['test_idx'])
+    test_idx = list(split['test_idx'])
+    test_set = set(test_idx)
+    train_idx = [i for i in range(num_graphs) if i not in test_set]
+    return train_idx, test_idx
 
 
 def _load_sqli_family_map():
@@ -143,7 +153,7 @@ def train(num_epochs=None, batch_size=None, lr=None, target_metric='acc', seed=N
         data_pkl = pickle.load(f)
 
     graphs = list(data_pkl['graphs'])
-    train_idx, test_idx = _load_global_split()
+    train_idx, test_idx = _load_global_split(len(graphs))
     train_data = [graphs[i] for i in train_idx]
     test_data = [graphs[i] for i in test_idx]
 
