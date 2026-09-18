@@ -1,0 +1,3 @@
+label,class_name,technique,n_samples,gatv2_accuracy,gatv2_correct
+2,XSS,attribute_spacing_in_range,10,1.0,10
+2,XSS,attribute_spacing_out_of_range,10,1.0,10

@@ -120,16 +120,56 @@ Motivated by the held-out `Benign header_field`/`Benign json_field` cells stayin
 - Row counts: 38595 → **43595** (+5000). `attack_type` counts: `{0: 15000, 1: 18595, 2: 10000}`.
 - Full report + samples: `data/benign_syntax_diversity_train_report.txt`.
 
+## Train-only XSS context-distance augmentation (2026-09-18)
+
+Analogous in purpose to the SQLi comment-splitting noise round above, but
+structurally different (context/distance dilution, not character-level
+keyword fragmentation) — see `docs/EXPERIMENT_LOG_semantic_edge_investigation.md`,
+"XSS Noise-Augmentation Feasibility Check" and "XSS Context-Distance
+Augmentation" for the full feasibility analysis and result.
+
+- Script: `scripts/add_xss_context_augmentation.py`. Append-only. Targets
+  only 3 of E_sem's 9 semantic pairs: `('img','onerror')`, `('script','src')`,
+  `('svg','onload')`.
+- Eligible pool: train-only XSS rows (`source` is `NaN`) containing at least
+  one target pair as whole words — only 186/8549 (most XSS payloads in this
+  dataset use event handlers/tags outside E_sem's 9-pair vocabulary).
+  35% sampled (matching `NOISE_FRACTION` from the SQLi noise script, for
+  methodological consistency) → 65 rows; 1-2 random benign HTML attributes
+  (`data-*`/`class`/`id`/`style`) inserted immediately before the pair's
+  second keyword, **only accepted if the resulting token gap stays <15**
+  (E_sem's `window`, checked per-row via the real tokenizer) — 60/65
+  accepted with 2 attributes, 4/65 downgraded to 1, 1/65 skipped entirely
+  (didn't fit even at 1 attribute).
+- `source='xss_pool_context'`, `source_uid='xss_pool_context_<i>'` — new, no
+  collisions, appended past the previous 43595-row range so automatically
+  outside `test_split_indices.pkl`'s `test_idx`.
+- Row counts: 43595 → **43659** (+64). `attack_type` counts:
+  `{0: 15000, 1: 18595, 2: 10064}`.
+- Full report + samples: `data/xss_context_augmentation_report.txt`.
+- Retrain result: frozen test split reached macro F1 = 1.0 exactly (0 errors,
+  a marginal improvement over the pre-retrain 1-error state). New held-out
+  cells (`scripts/build_heldout_window_test.py`) show **no measurable
+  change** — both the in-range (gap<15) and a separate out-of-range (gap≥16)
+  control cell were already 10/10 on the checkpoint *before* this
+  augmentation/retrain, and remain 10/10 after. See EXPERIMENT_LOG for why
+  this revises (rather than confirms) the original hard-limit hypothesis for
+  the out-of-range case.
+
 ## Checksums
 
 SHA-256 of the current frozen dataset files (`data/augmented_web_attack.csv`,
-43595 rows including all augmentation rounds above; `data/test_split_indices.pkl`),
+43659 rows including all augmentation rounds above; `data/test_split_indices.pkl`),
 for verifying a copy matches this exact state:
 
 ```
-845a3acbdf8250a59c02daa93bb43a58c7a9b317e1efcdf0a397e3a3b4d29b7d  data/augmented_web_attack.csv
+1c100f6ddee2715cf84805c864e6f9400c5f5961b31924983ca4b92a17f21213  data/augmented_web_attack.csv
 f216c0679cf2b1e0fd41c4cffc1c865bb432312010cbb81eff678b25da68003d  data/test_split_indices.pkl
 ```
+
+(Prior state, 43595 rows before the XSS context-distance augmentation round:
+`845a3acbdf8250a59c02daa93bb43a58c7a9b317e1efcdf0a397e3a3b4d29b7d` — preserved at
+`data/augmented_web_attack_PRE_xss_context.csv`.)
 
 ## External Evaluation Dataset (2026-09-18, Reviewer #1)
 

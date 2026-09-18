@@ -23,6 +23,10 @@ build a new frozen dataset version), you must manually delete the rows with the
 matching `source` value first — do not just remove or comment out the guard, since
 that reintroduces the exact `source_uid` collision risk above.
 
+`scripts/add_xss_context_augmentation.py` (added later, same session) carries
+the identical guard from the start (`source == 'xss_pool_context'`), applying
+this pattern to every append-only augmentation script going forward.
+
 ## Environment
 
 All numbers in `results/` and `docs/EXPERIMENT_LOG_semantic_edge_investigation.md`
@@ -73,18 +77,23 @@ before being overwritten, so all six are preserved in
 | 2 | `best_web_gnn_seed42_PRE_missing_payloads.pth` | `logs/training_history_PRE_missing_payloads.log` | fixed `train.py` validation-split bug (was validating against an SQLi-only split) + 2111 train-only comment-split-noise rows (`scripts/add_train_noise_augmentation.py`) (§5) |
 | 3 | `best_web_gnn_seed42_PRE_benign_syntax.pth` | `logs/training_history_PRE_benign_syntax.log` | +6400 train-only rows for the 16 SQLi payloads missing from the frozen dataset (`scripts/add_missing_sqli_payloads_train.py`) (§6) |
 | 4 | `best_web_gnn_seed42_PRE_class_weight.pth` | `logs/training_history_PRE_class_weight.log` | +5000 train-only benign header/JSON syntax rows (`scripts/add_benign_syntax_diversity_train.py`) (§7) |
-| 5 (current, deployed) | `best_web_gnn_seed42.pth` | `logs/training_history.log` | balanced class-weighted `CrossEntropyLoss` (`compute_class_weight('balanced', ...)`); no data change (§8) |
+| 5 | `best_web_gnn_seed42_PRE_xss_context.pth` | `logs/training_history_PRE_xss_context.log` | balanced class-weighted `CrossEntropyLoss` (`compute_class_weight('balanced', ...)`); no data change (§8) |
+| 6 (current, deployed) | `best_web_gnn_seed42.pth` | `logs/training_history.log` | +64 train-only XSS context-distance (benign attribute padding) rows (`scripts/add_xss_context_augmentation.py`); see EXPERIMENT_LOG "XSS Context-Distance Augmentation" |
 
-Final training set: 43,595 rows total (25,869 original + 2111 + 6400 + 5000), test
-set unchanged at 4215. `epochs_run=11`, seed=42 for every retrain above except #4
-(benign-syntax retrain, `epochs_run=17`, best_epoch=7 — the only retrain where
-validation didn't converge at epoch 1; val_acc=0.9995 at epoch 1 instead of 1.0).
+Final training set: 43,659 rows total (25,869 original + 2111 + 6400 + 5000 +
+64), test set unchanged at 4215. `epochs_run=11`, seed=42 for every retrain
+above except #4 (benign-syntax retrain, `epochs_run=17`, best_epoch=7 — the
+only retrain where validation didn't converge at epoch 1; val_acc=0.9995 at
+epoch 1 instead of 1.0) and #6 (`epochs_run=19`, best_epoch=9).
 
 ## 6-configuration ablation (edge types × edge_attr)
 
-Branches off retrain #5's dataset/checkpoint (same 43,595-row train set, same
-class-weighted loss). Full results/discussion: EXPERIMENT_LOG §10-11,
-`results/ablation_edge_attr_seq_skip_sem.csv`.
+Branches off what is now `best_web_gnn_seed42_PRE_xss_context.pth` (retrain
+#5 in the table above; it was still "current, deployed" and 43,595 rows at
+the time this ablation ran, before the XSS context-distance augmentation
+round added the 64 rows that produced retrain #6) — same 43,595-row train
+set, same class-weighted loss. Full results/discussion: EXPERIMENT_LOG
+§10-11, `results/ablation_edge_attr_seq_skip_sem.csv`.
 
 | config | checkpoint | E_seq | E_skip | E_sem | edge_attr | driver script |
 |---|---|---|---|---|---|---|
@@ -129,6 +138,7 @@ python -m scripts.prepare_data
 python -m scripts.add_train_noise_augmentation       # +2111 rows (comment-split noise)
 python -m scripts.add_missing_sqli_payloads_train     # +6400 rows (16 missing SQLi payloads)
 python -m scripts.add_benign_syntax_diversity_train   # +5000 rows (benign header/JSON syntax)
+python -m scripts.add_xss_context_augmentation        # +64 rows (XSS benign-attribute context padding)
 
 # 3. Build the BAG graphs (sequential + skip + semantic edges; semantic_edges()
 #    already includes the comment-split-survival fix)
@@ -142,6 +152,10 @@ python -m scripts.evaluate
 
 # 6. Evaluate on the 90-sample held-out matrix (unseen evasion techniques)
 python -m scripts.build_heldout_matrix_eval
+
+# 6b. E_sem window-boundary control cells (in-range vs out-of-range token gap
+#     for the XSS context-padding mechanism -- see EXPERIMENT_LOG)
+python -m scripts.build_heldout_window_test
 
 # 7. 6-configuration ablation (edge types x edge_attr)
 python -m scripts.run_ablation_edge_attr_seq_skip_sem   # configs 1-4

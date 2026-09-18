@@ -497,3 +497,148 @@ whitespace-separator noise (already neutralized by the tokenizer before
 reaching the model — no test value) and null-byte/control-character
 insertion (mutates the keyword itself, same category as SQL
 comment-splitting, not "context-only").
+
+## XSS Context-Distance Augmentation: implementation, retrain, and a finding that revises the pre-registered hypothesis (2026-09-18)
+
+### Step 1 — `scripts/add_xss_context_augmentation.py` implemented and applied
+
+Implements the feasibility check above as a real augmentation, IN-RANGE only
+(gap always kept <15/window by construction — the gap≥15 case is Step 2's
+architectural-limit question, not something data can address, so no rows
+target it). Targets only `('img','onerror')`, `('script','src')`,
+`('svg','onload')` — `('script','eval')`/`('onerror','eval')` excluded (see
+feasibility check above, `eval` sits in JS-expression context, not
+tag-attribute-list context).
+
+**Eligibility (train-only XSS rows, `source` is `NaN` = mechanism-1
+original):** 10000 XSS rows total → 8549 train-only → only **186** contain
+at least one target pair as whole words (`img`/`onerror`: 11,
+`script`/`src`: 23, `svg`/`onload`: 152 — most of this dataset's XSS
+payloads use other event handlers/tags not in E_sem's 9-pair vocabulary at
+all, so the eligible pool is inherently small; not an implementation
+shortfall).
+
+**Two independently-seeded random streams (seed=42 both), matching the
+SQLi noise script's convention:** stream A (`DataFrame.sample`) selects
+`round(186 × 0.35) = 65` rows; stream B (`random.Random(42)`) picks 1-2
+random benign attributes (`data-*`/`class`/`id`/`style`, random values) per
+row and inserts them immediately before the pair's second keyword.
+**Per-row gap check enforced before accepting** (not just designed to
+usually work): 60/65 accepted with 2 attributes, 4/65 downgraded to 1
+attribute because 2 didn't fit under window=15, **1/65 skipped entirely**
+(neither 1 nor 2 attributes kept the gap under 15 for that particular row).
+**64 new rows appended**, `source='xss_pool_context'`. Verified append-only
+byte-identical on the prior 43595 rows (diff against
+`data/augmented_web_attack_PRE_xss_context.csv`, 0 lines). Full report:
+`data/xss_context_augmentation_report.txt`.
+
+Dataset: 43595 → **43659** rows. Rebuilt `web_graphs.pkl` (43659 graphs,
+`use_seq=True use_skip=True use_sem=True use_edge_attr=False`, matching the
+deployed checkpoint) and retrained (checkpoint/log backed up first to
+`*_PRE_xss_context.*`, per the working-rules backup discipline):
+epochs_run=19, best_epoch=9 (val_acc=1.0). **Frozen test split: macro F1 =
+1.0 exactly, confusion matrix `[[1550,0,0],[0,1214,0],[0,0,1451]]` — zero
+errors**, an actual (marginal) improvement over the pre-retrain state (which
+had 1 SQLi→XSS error).
+
+### New held-out cells (`scripts/build_heldout_window_test.py`, kept separate from the 9-cell matrix — see script docstring for why)
+
+Two cells, `('svg','onload')`, 10 held-out tag names never used in the
+training augmentation (`article/aside/details/figcaption/marquee/summary/
+template/tfoot/bdi/ruby`): **`attribute_spacing_in_range`** (2 inserted
+attributes, gap=12, the case this augmentation targets) and
+**`attribute_spacing_out_of_range`** (6 inserted attributes, gap=34, the
+Step-2 architectural-limit anchor). Every row's gap asserted programmatically
+before evaluating anything (not assumed).
+
+| checkpoint | `attribute_spacing_in_range` (gap=12) | `attribute_spacing_out_of_range` (gap=34) |
+|---|---|---|
+| PRE (before this augmentation/retrain) | **10/10 (1.0)** | **10/10 (1.0)** |
+| POST (after this augmentation/retrain) | **10/10 (1.0)** | **10/10 (1.0)** |
+
+**Original 9-cell held-out matrix re-run against the POST checkpoint**
+(`scripts/build_heldout_matrix_eval.py`, `results/heldout_matrix_full.csv`,
+PRE state backed up to `results/heldout_matrix_full_PRE_xss_context.csv`):
+**8/9 unchanged** — `SQLi/comment_splitting` still 0.0 (the known
+architectural limit from §9, untouched by this round), all other 8 cells
+still 1.0, including the 3 existing XSS cells
+(`data_uri_base64`/`event_handler_focus`/`svg_script_variant`, all still
+10/10). **No regression** from adding the 64 XSS context-distance rows.
+
+### Step 2 — the actual finding (revises, does not confirm, the pre-registered hypothesis)
+
+**The pre-registered hypothesis for this step — "E_sem has a hard
+distance threshold independent of training data; any evasion technique
+producing a token gap past window=15 will completely neutralize E_sem,
+regardless of how much similar data the model has seen" — is only PARTIALLY
+supported, and its strongest, paper-relevant implication (that this
+neutralizes *classification*, not just the *edge*) is
+**empirically CONTRADICTED** by the test above. Reporting the actual result
+rather than the pre-registered claim:**
+
+**What IS confirmed, exactly as hypothesized:** `semantic_edges()`'s
+`window` parameter is a hard, deterministic, data-independent cutoff on
+**edge construction**. Directly verified, not estimated: for all three XSS
+target pairs, `E_sem` edge count drops to exactly 0 the moment token gap
+≥ window (confirmed via `data/attention_weights_comment_split.txt`-style
+direct inspection: `img`/`onerror` and `script`/`src` at gap=34 both produce
+`E_sem_edges=0`, same as `svg`/`onload`). This holds regardless of training
+— it is a property of the graph-construction code, not something a
+retrained checkpoint can influence, since the edge is simply never added to
+the graph the model receives.
+
+**What is NOT confirmed — the critical correction:** losing the `E_sem`
+edge does **not** translate into a classification failure here. Both the
+PRE and POST checkpoints classify **every** out-of-range sample correctly
+(10/10, `probs(Benign/SQLi/XSS) ≈ [0.0, 0.0, 1.0]` — checked directly, not
+just via argmax) across all three target pairs, with **zero** `E_sem`
+edges present in the graph. The in-range cell was already at 10/10 on the
+PRE checkpoint too, so this augmentation round produced **no measurable
+accuracy change on this specific test** (ceiling effect — nothing here was
+broken to begin with).
+
+**Root-cause reconciliation with §9's attention-weight finding:** this
+mechanism (benign attribute padding) removes only the long-range `E_sem`
+bridge between the two keyword tokens — it leaves the raw keyword tokens
+themselves (`svg`, `onload`, `img`, `onerror`, `script`, `src`) perfectly
+intact and lexically unambiguous. The model still has two other signal
+paths available: (a) each keyword token's own node features, and (b) local
+`E_seq`/`E_skip` n-gram structure immediately around each keyword (e.g.
+`onload=alert(`) — and empirically, these alone are already sufficient for
+a correct prediction, independent of the long-range bridge. **This is
+categorically different from SQLi's `comment_splitting` failure**, where
+the evasion technique fragments the keyword at the *character* level
+(`union` → `uni`+`on`) — destroying the raw lexical signal *and* the
+`E_sem` edge simultaneously. It is that **double** removal (not `E_sem`
+loss alone) that causes the `comment_splitting` failure documented in §§3-9.
+`E_sem`'s measured contribution (§9's attention-weight analysis, §11's
+ablation) is real for cases where the lexical signal is *also* destroyed,
+but this result shows it is not a generically necessary signal whenever two
+related keywords happen to be far apart with their own identities intact.
+
+**Corrected framing for the paper (weaker, more precise, and more honest
+than the pre-registered claim):** `E_sem`'s `window` parameter is a
+provable, data-independent hard limit on the *semantic-edge mechanism*
+itself — this part is now confirmed across all three XSS pairs in addition
+to the original SQLi case, strengthening that specific, narrower claim. It
+is **not**, by itself, evidence of a data-independent hard limit on overall
+*model accuracy* — that depends on whether the evasion technique also
+destroys the underlying lexical tokens (as SQL comment-splitting does) or
+merely dilutes their proximity (as this XSS mechanism does). Recommend
+citing this as a **refinement** of §9's finding — E_sem is necessary
+specifically when lexical signal is unavailable, not unconditionally —
+rather than as a new, stronger, standalone limit.
+
+**Trade-off note on increasing `window` (order-of-magnitude estimate, not
+load-bearing for the above conclusion):** `semantic_edges()`'s nested loop
+only scans forward from each keyword hit until the *next* hit's index gap
+reaches `window` (`if idx_j - idx_i >= window: break`), so its cost scales
+with keyword-hit density × `window`, not with total graph size directly —
+and `E_sem` is already the smallest edge category by far relative to
+`E_seq`/`E_skip` (mean graph in the current `web_graphs.pkl`: 21.6 nodes,
+80.6 edges total, of which `E_sem` is typically single digits per graph per
+§9/§11). Raising `window` mainly risks **more false semantic connections
+between unrelated keyword occurrences** that happen to co-occur within a
+larger window (a precision/noise trade-off for `E_sem` specifically), not a
+meaningful compute-cost increase relative to the `E_seq`+`E_skip` edges that
+already dominate the graph.

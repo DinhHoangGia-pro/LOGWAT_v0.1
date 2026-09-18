@@ -1,0 +1,50 @@
+=== Train-only XSS context-distance (benign attribute padding) augmentation ===
+Mechanism: insert 1-2 random benign HTML attributes (data-*/class/id/style) immediately before the pair's second keyword, keeping the token gap <15 (E_sem's window) -- verified per-row via the real tokenizer before accepting.
+Seed: 42, target fraction of eligible rows: 0.35
+Target pairs: [('img', 'onerror'), ('script', 'src'), ('svg', 'onload')] (script/eval and onerror/eval excluded -- see script docstring)
+
+dataset rows before: 43595
+dataset rows after:  43659
+
+XSS rows (source=NaN, mechanism-1 original): 10000
+  train-only (source_uid/index in train_idx): 8549
+  eligible (contains >=1 target pair as whole words): 186
+    by pair: {('img', 'onerror'): 11, ('script', 'src'): 23, ('svg', 'onload'): 152}
+
+sampled for augmentation: 65
+  accepted with 2 attributes: 60
+  accepted with 1 attribute (2 didn't fit under window=15): 4
+  skipped (neither 1 nor 2 attributes kept gap <15): 1
+new rows appended: 64
+
+=== Sample before/after (first 10) ===
+pair=svg/onload  n_attrs=2  resulting_gap=14
+  before: <svg><blink onload=alert(1)></blink>
+  after:  <svg><blink data-brpo=ig8f1c data-fno6=b9m80o onload=alert(1)></blink>
+pair=svg/onload  n_attrs=2  resulting_gap=12
+  before: <svg><menu onload=alert(1)></menu>
+  after:  <svg><menu style=opacity:red id=gfygww onload=alert(1)></menu>
+pair=svg/onload  n_attrs=2  resulting_gap=10
+  before: <svg><nobr onload=alert(1)></nobr>
+  after:  <svg><nobr id=c38hyf id=xmecos onload=alert(1)></nobr>
+pair=svg/onload  n_attrs=2  resulting_gap=12
+  before: <svg><source onload=alert(1)></source>
+  after:  <svg><source data-ogyr=3xkxwn id=ek8pk3 onload=alert(1)></source>
+pair=svg/onload  n_attrs=2  resulting_gap=14
+  before: <svg><sup onload=alert(1)></sup>
+  after:  <svg><sup style=opacity:0 style=opacity:10px onload=alert(1)></sup>
+pair=svg/onload  n_attrs=2  resulting_gap=12
+  before: <svg><ol onload=alert(1)></ol>
+  after:  <svg><ol class=qip98q style=width:none onload=alert(1)></ol>
+pair=svg/onload  n_attrs=2  resulting_gap=14
+  before: <svg><q onload=alert(1)></q>
+  after:  <svg><q data-jk1e=yy37q9 data-h8rv=hs1k3a onload=alert(1)></q>
+pair=svg/onload  n_attrs=2  resulting_gap=10
+  before: <svg><abbr onload=alert(1)></abbr>
+  after:  <svg><abbr id=6l6gt6 class=jxk87a onload=alert(1)></abbr>
+pair=svg/onload  n_attrs=2  resulting_gap=12
+  before: <svg><section onload=alert(1)></section>
+  after:  <svg><section id=5bhxtp data-pff5=e8ii49 onload=alert(1)></section>
+pair=svg/onload  n_attrs=2  resulting_gap=10
+  before: <svg><col onload=alert(1)></col>
+  after:  <svg><col class=q71n8m id=zx272h onload=alert(1)></col>
