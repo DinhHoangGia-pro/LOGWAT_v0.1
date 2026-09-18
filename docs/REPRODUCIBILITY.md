@@ -47,10 +47,64 @@ pip install torch_scatter==2.1.2+pt26cu124 torch_sparse==0.6.18+pt26cu124 \
 Global seed = **42**, set in `configs/config.yaml` (`seed: 42`) and applied via
 `src/utils/seed.py::set_seed()` at the top of `src/training/train.py::train()`.
 The same seed was used for every retrain and every ablation configuration below —
-**these are single-seed runs, not averaged over repeated seeds.** The one place
-this matters most: the `case_mixing` regressions in ablation configs (3)-(6)
-(`docs/EXPERIMENT_LOG_semantic_edge_investigation.md` §10-11) are flagged there as
-a preliminary single-run signal, not a variance-checked causal claim.
+**these are single-seed runs, not averaged over repeated seeds** (see
+"5-seed statistics" in EXPERIMENT_LOG for the one exception, and its caveats).
+
+**Same seed does NOT currently guarantee a bit-identical rerun on this
+codebase/hardware — verified empirically, not just theoretically.**
+Three independent `seed=42` training runs on identical code/config/data
+(the originally-deployed checkpoint, the first iteration of
+`scripts/run_5seed_stats.py`'s loop, and a standalone rerun) each produced a
+**different** training trajectory (`epochs_run` 11 / 20 / 13; different
+per-epoch loss/accuracy from epoch 2 onward — epoch 1 alone matched
+bit-for-bit across all three, then diverged). Root cause: `torch`/CUDA
+scatter-gather operations used by `GATv2Conv`/`global_max_pool` are not
+deterministic by default on GPU.
+
+**Attempted fix (2026-09-18, `src/utils/seed.py::set_seed()`):** added
+`os.environ['CUBLAS_WORKSPACE_CONFIG'] = ':4096:8'` (required for
+deterministic cuBLAS GEMM) and `torch.use_deterministic_algorithms(True)`
+in a `try/except` (falls back with a printed `[!]` warning, not a silent
+crash, if some op lacks a deterministic kernel on this torch/torch_geometric
+version — no such fallback was triggered in the test below, i.e. every op
+used claims to have a deterministic implementation available).
+
+**Verified result: the fix did NOT eliminate the nondeterminism.** Two
+`seed=42` runs after the fix (`epochs_run=13` both times, `best_epoch=3`
+both times, epoch 1 bit-identical: `Loss: 0.0159 | Acc: 0.9993` both) still
+diverge starting at epoch 2 (`Loss: 0.0013/Acc: 0.9995` vs.
+`Loss: 0.0014/Acc: 0.9993`), and the resulting checkpoints differ
+(`8a4cb7a0...` vs. `23f78313...`, md5). **This is the same divergence point
+and a similar magnitude of divergence as the PRE-fix runs** (re-checked
+against the saved pre-fix log: epoch 1 was `Loss: 0.0159 | Acc: 0.9993`
+there too, epoch 2 was `Loss: 0.0015 | Acc: 0.9993` — a third distinct
+value, different from either post-fix run) — i.e. `torch.use_deterministic_algorithms`
++ `CUBLAS_WORKSPACE_CONFIG` measurably changed nothing here. The fix is
+still worth keeping (it's the documented, standard first step, fails loudly
+via the warning instead of silently if it ever does matter, and costs
+~40-60% more wall-clock time per epoch, which is the expected trade-off for
+attempting determinism), but **do not claim it fixed reproducibility** — it
+did not, on this codebase/torch/torch_geometric version combination.
+
+**Most likely additional cause (hypothesis, not confirmed — out of scope to
+chase further here):** `src/training/train.py`'s `DataLoader(train_data,
+batch_size=batch_size, shuffle=True)` passes no explicit `generator=`, so
+`RandomSampler` reseeds itself from an implementation-internal draw on
+*each* `__iter__()` call (i.e. every epoch) rather than from a single
+seeded, run-reproducible stream — a classic, easy-to-miss PyTorch gotcha
+distinct from `torch.manual_seed()`/`cuda.manual_seed_all()`, and consistent
+with epoch 1 (before any such re-seeding happens) matching while later
+epochs don't. The `Dropout(0.5)` in `src/models/layers.py`'s classifier head
+is a second plausible contributor. Neither has been tested in isolation;
+fixing this would need its own verification pass, not assumed from this
+one.
+
+**Practical implication for the paper:** report metrics as **mean ± std over
+multiple seeds** (`results/final_stats_5seed.csv`), not as a single seed=42
+number presented as exactly reproducible — the 5-seed spread already
+measured there is a mix of genuine inter-seed variance and this
+intra-seed-same-config nondeterminism, and the two cannot be cleanly
+separated with the evidence collected so far.
 
 ## Frozen dataset and split
 

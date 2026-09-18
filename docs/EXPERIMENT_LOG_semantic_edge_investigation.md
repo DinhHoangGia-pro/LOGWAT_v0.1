@@ -669,12 +669,20 @@ methodological finding, not a script bug: `torch`/`torch_geometric`/CUDA
 operations (notably scatter/gather ops used by `GATv2Conv` and
 `global_max_pool`) are not deterministic by default on GPU unless
 `torch.use_deterministic_algorithms(True)` plus specific `cuDNN` flags are
-set, which this codebase does not do. **Consequence for the paper:** citing
-a single seed=42 result as *the* number, or describing seeds as fully
-controlling reproducibility, overstates precision on this hardware/software
-stack — the 5-seed spread reported below already reflects a mix of
-genuine inter-seed variance and this intra-seed GPU nondeterminism, and the
-two cannot be cleanly separated post hoc.
+set, which this codebase did not do at the time of this run. **Consequence
+for the paper:** citing a single seed=42 result as *the* number, or
+describing seeds as fully controlling reproducibility, overstates precision
+on this hardware/software stack — the 5-seed spread reported below already
+reflects a mix of genuine inter-seed variance and this intra-seed GPU
+nondeterminism, and the two cannot be cleanly separated post hoc.
+
+**Follow-up (same day): the fix was attempted and verified NOT sufficient.**
+`torch.use_deterministic_algorithms(True)` + `CUBLAS_WORKSPACE_CONFIG` were
+added to `src/utils/seed.py::set_seed()` and two fresh `seed=42` runs were
+compared line-by-line — they still diverge starting at epoch 2, by the same
+magnitude as before the fix. See `docs/REPRODUCIBILITY.md`'s "Seed" section
+for the full comparison and the leading hypothesis (an unseeded
+`DataLoader(shuffle=True)` `RandomSampler`, not yet confirmed).
 
 ### Test split: essentially saturated, negligible variance
 
