@@ -1,0 +1,82 @@
+method,eval_mode,group,precision,recall,f1_score,support,accuracy,n_correct,n_total
+GATv2,test_split,0,1.0,1.0,1.0,1550.0,,,
+GATv2,test_split,1,1.0,1.0,1.0,1214.0,,,
+GATv2,test_split,2,1.0,1.0,1.0,1451.0,,,
+GATv2,test_split,macro avg,1.0,1.0,1.0,4215.0,,,
+GATv2,test_split,weighted avg,1.0,1.0,1.0,4215.0,,,
+string_matching,test_split,Benign,0.7864028411973617,1.0,0.8804316955410395,1550.0,,,
+string_matching,test_split,SQLi,1.0,0.6705107084019769,0.8027613412228797,1214.0,,,
+string_matching,test_split,XSS,1.0,0.9855272226051,0.992710864283235,1451.0,,,
+string_matching,test_split,macro avg,0.9288009470657872,0.885345977002359,0.891967967015718,4215.0,,,
+string_matching,test_split,weighted avg,0.9214530021010464,0.9001186239620403,0.8967128968939883,4215.0,,,
+GATv2,held_out_matrix,Benign/field_query,,,,,1.0,10.0,10.0
+string_matching,held_out_matrix,Benign/field_query,,,,,1.0,10.0,10.0
+GATv2,held_out_matrix,Benign/header_field,,,,,1.0,10.0,10.0
+string_matching,held_out_matrix,Benign/header_field,,,,,1.0,10.0,10.0
+GATv2,held_out_matrix,Benign/json_field,,,,,1.0,10.0,10.0
+string_matching,held_out_matrix,Benign/json_field,,,,,1.0,10.0,10.0
+GATv2,held_out_matrix,SQLi/sql_new_commands,,,,,1.0,10.0,10.0
+string_matching,held_out_matrix,SQLi/sql_new_commands,,,,,0.0,0.0,10.0
+GATv2,held_out_matrix,SQLi/comment_splitting,,,,,0.0,0.0,10.0
+string_matching,held_out_matrix,SQLi/comment_splitting,,,,,0.0,0.0,10.0
+GATv2,held_out_matrix,SQLi/case_mixing,,,,,1.0,10.0,10.0
+string_matching,held_out_matrix,SQLi/case_mixing,,,,,0.0,0.0,10.0
+GATv2,held_out_matrix,XSS/data_uri_base64,,,,,1.0,10.0,10.0
+string_matching,held_out_matrix,XSS/data_uri_base64,,,,,0.0,0.0,10.0
+GATv2,held_out_matrix,XSS/event_handler_focus,,,,,1.0,10.0,10.0
+string_matching,held_out_matrix,XSS/event_handler_focus,,,,,0.0,0.0,10.0
+GATv2,held_out_matrix,XSS/svg_script_variant,,,,,1.0,10.0,10.0
+string_matching,held_out_matrix,XSS/svg_script_variant,,,,,0.0,0.0,10.0
+GATv2,external_dataset,Benign,0.9741407002891102,0.6287254444617218,0.7642148369822019,19293.0,,,
+GATv2,external_dataset,SQLi,0.6427349302448012,0.9000184297825286,0.7499232186732187,10852.0,,,
+GATv2,external_dataset,XSS,0.1729943875866622,0.9849624060150376,0.2942993541140129,532.0,,,
+GATv2,external_dataset,macro avg,0.5966233393735245,0.8379020934197626,0.6028124699231445,30677.0,,,
+GATv2,external_dataset,weighted avg,0.843012322192212,0.7308732926948528,0.7510099056403183,30677.0,,,
+string_matching,external_dataset,Benign,0.0,0.0,0.0,19293.0,,,
+string_matching,external_dataset,SQLi,1.0,0.7007924806487283,0.8240775857398277,10852.0,,,
+string_matching,external_dataset,XSS,1.0,0.8627819548872181,0.9263370332996972,532.0,,,
+string_matching,external_dataset,micro avg,1.0,0.2628679466701437,0.4163031413747709,30677.0,,,
+string_matching,external_dataset,macro avg,0.6666666666666666,0.5211914785119821,0.5834715396798417,30677.0,,,
+string_matching,external_dataset,weighted avg,0.3710923493170779,0.2628679466701437,0.3075822688712732,30677.0,,,
+RoBERTa,test_split,Benign,1.0,1.0,1.0,1550.0,,,
+RoBERTa,test_split,SQLi,1.0,1.0,1.0,1214.0,,,
+RoBERTa,test_split,XSS,1.0,1.0,1.0,1451.0,,,
+RoBERTa,test_split,macro avg,1.0,1.0,1.0,4215.0,,,
+RoBERTa,test_split,weighted avg,1.0,1.0,1.0,4215.0,,,
+RoBERTa,test_split_duplication_breakdown,duplicate_content,,,,,1.0,1063.0,1063.0
+RoBERTa,test_split_duplication_breakdown,novel_content,,,,,1.0,3152.0,3152.0
+RoBERTa,held_out_matrix,Benign/field_query,,,,,1.0,10.0,10.0
+RoBERTa,held_out_matrix,Benign/header_field,,,,,1.0,10.0,10.0
+RoBERTa,held_out_matrix,Benign/json_field,,,,,1.0,10.0,10.0
+RoBERTa,held_out_matrix,SQLi/sql_new_commands,,,,,1.0,10.0,10.0
+RoBERTa,held_out_matrix,SQLi/comment_splitting,,,,,0.0,0.0,10.0
+RoBERTa,held_out_matrix,SQLi/case_mixing,,,,,0.0,0.0,10.0
+RoBERTa,held_out_matrix,XSS/data_uri_base64,,,,,0.0,0.0,10.0
+RoBERTa,held_out_matrix,XSS/event_handler_focus,,,,,1.0,10.0,10.0
+RoBERTa,held_out_matrix,XSS/svg_script_variant,,,,,1.0,10.0,10.0
+RoBERTa,external_dataset,Benign,0.9464748879981136,0.624164204633805,0.7522488755622189,19293.0,,,
+RoBERTa,external_dataset,SQLi,0.9427307904919844,0.7857537781054184,0.85711413780972,10852.0,,,
+RoBERTa,external_dataset,XSS,0.0594904029632955,0.9962406015037594,0.112276241923525,532.0,,,
+RoBERTa,external_dataset,macro avg,0.6495653604844646,0.8020528614143276,0.5738797517651546,30677.0,,,
+RoBERTa,external_dataset,weighted avg,0.929768342632692,0.687779117905923,0.778246606266463,30677.0,,,
+CodeBERT,test_split,Benign,1.0,1.0,1.0,1550.0,,,
+CodeBERT,test_split,SQLi,0.9991769547325104,1.0,0.9995883079456568,1214.0,,,
+CodeBERT,test_split,XSS,1.0,0.9993108201240524,0.9996552912788692,1451.0,,,
+CodeBERT,test_split,macro avg,0.9997256515775034,0.9997702733746842,0.9997478664081751,4215.0,,,
+CodeBERT,test_split,weighted avg,0.9997629473417006,0.9997627520759194,0.9997627600217476,4215.0,,,
+CodeBERT,test_split_duplication_breakdown,duplicate_content,,,,,1.0,1063.0,1063.0
+CodeBERT,test_split_duplication_breakdown,novel_content,,,,,0.9996827411167512,3151.0,3152.0
+CodeBERT,held_out_matrix,Benign/field_query,,,,,1.0,10.0,10.0
+CodeBERT,held_out_matrix,Benign/header_field,,,,,1.0,10.0,10.0
+CodeBERT,held_out_matrix,Benign/json_field,,,,,1.0,10.0,10.0
+CodeBERT,held_out_matrix,SQLi/sql_new_commands,,,,,1.0,10.0,10.0
+CodeBERT,held_out_matrix,SQLi/comment_splitting,,,,,0.0,0.0,10.0
+CodeBERT,held_out_matrix,SQLi/case_mixing,,,,,0.0,0.0,10.0
+CodeBERT,held_out_matrix,XSS/data_uri_base64,,,,,1.0,10.0,10.0
+CodeBERT,held_out_matrix,XSS/event_handler_focus,,,,,1.0,10.0,10.0
+CodeBERT,held_out_matrix,XSS/svg_script_variant,,,,,1.0,10.0,10.0
+CodeBERT,external_dataset,Benign,0.9272287362739624,0.2582283729850205,0.4039568636990189,19293.0,,,
+CodeBERT,external_dataset,SQLi,0.6820903647250952,0.923700700331736,0.7847189603882887,10852.0,,,
+CodeBERT,external_dataset,XSS,0.0501508295625942,1.0,0.0955116696588869,532.0,,,
+CodeBERT,external_dataset,macro avg,0.5531566435205507,0.7273096911055855,0.4280624979153982,30677.0,,,
+CodeBERT,external_dataset,weighted avg,0.8253006776496264,0.5065032434723082,0.5333025438516612,30677.0,,,
