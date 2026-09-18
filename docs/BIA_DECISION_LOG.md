@@ -1,5 +1,5 @@
 # Quyết định #13/#14 — Hướng xử lý BIA (Section 3.3)
-### Trạng thái: quyết định đã chốt, mục 3 (bất đối xứng SQLi/XSS) ĐÃ ĐÓNG theo hướng (a). Bản viết TẠM HOÃN — ưu tiên code trước, paper sau
+### Trạng thái: HOÀN TẤT — quyết định đã chốt, mục 3 đóng theo (a), mục 3b đã verify qua 5 seed. Bản LaTeX sẵn sàng đưa vào `.tex` bất cứ lúc nào (vẫn ưu tiên hoãn — code trước, paper sau, theo lựa chọn đã chọn)
 
 ---
 
@@ -47,7 +47,7 @@ Dù giả thuyết gốc sai, mục tiêu ban đầu của mục 3 (đối xứn
 
 ## 3b. Phát hiện quan trọng hơn mục tiêu ban đầu — "Unified failure/success rule"
 
-Thí nghiệm mục 3 (đẩy gap vượt `window=15`, đo cả gap=12 trong-range và gap=34 ngoài-range) cho kết quả bất ngờ: **cả 2 đều đúng 10/10 ở seed=42**, dù xác nhận bằng code rằng ở gap≥16, `E_sem` = 0 cạnh thật (100% biến mất). **Đã re-run qua 5 seed (2026-09-18, `scripts/eval_gap_window_5seed.py`, tái sử dụng nguyên 5 checkpoint của vòng #12 — không train lại):** cả 2 nhóm ổn định tuyệt đối — **50/50 (10/10 mỗi seed × 5 seed, seed 42-46)**, softmax margin ≈ 1.0 ở mọi dòng (min 0.9999998/100 dòng×seed, không phải "vừa đủ 10/10"). Đối chiếu trực tiếp với `data_uri_base64` (cell XSS khác trong held-out matrix chính, cũng tưởng "luôn đúng" ở seed=42 nhưng chỉ 4/5 seed, mean=0.8/std=0.447): gap=12/34 **ổn định hơn hẳn**, không cùng loại dao động. Kết luận "10/10" dưới đây giờ là **kết luận đã xác nhận qua nhiều seed**, không còn là quan sát riêng seed=42. Điều này **tinh chỉnh lại** (không phủ định) kết luận cũ ở §11(b) của EXPERIMENT_LOG:
+Thí nghiệm mục 3 (đẩy gap vượt `window=15`, đo cả gap=12 trong-range và gap=34 ngoài-range) cho kết quả: **cả 2 đều đúng 10/10, xác nhận VỮNG QUA CẢ 5 SEED** (42-46, dùng đúng 5 checkpoint đã tạo ra `final_stats_5seed.csv`/`heldout_percell_5seed.csv`), dù xác nhận bằng code rằng ở gap≥16, `E_sem` = 0 cạnh thật (100% biến mất). Softmax margin tối thiểu đo được trên toàn bộ 100 dòng×seed là 0,9999998 — không phải kết quả biên may mắn. So sánh trực tiếp với `data_uri_base64` (cell XSS khác cùng nhóm held-out, chỉ 4/5 seed, std=0,447): gap=12/34 **ổn định hơn hẳn**, không cùng mức dao động (`results/gap_window_5seed.csv`, commit `0a9ccdb`). Điều này **tinh chỉnh lại** (không phủ định) kết luận cũ ở §11(b) của EXPERIMENT_LOG:
 
 | | Từ khoá còn nguyên | Từ khoá bị phá |
 |---|---|---|
@@ -136,36 +136,31 @@ between a keyword pair via Mechanism~2b's attribute insertion, comparing a
 within-window case (gap$=12$) against an out-of-window case (gap$=34$,
 zero $E_{sem}$ edges by construction). Contrary to our initial hypothesis
 that exceeding the window would degrade classification, both cases were
-classified correctly with near-unity confidence at $\text{seed}=42$, both
-before and after training on Mechanism-2b-augmented data. We verified this
-across 5 seeds ($\text{seed}=42$-$46$, reusing the checkpoints behind our
-5-seed statistics): both cells remained perfectly correct in every run
-(50/50, softmax margin $\geq 0.9999998$ on every row), in contrast to a
-nominally "always-correct" cell in the standard held-out suite,
-\texttt{data\_uri\_base64}, which is correct on only 4/5 seeds (that suite,
-unlike this probe, is otherwise reported single-seed per cell, as with the
-6-configuration ablation of Section~\ref{sec:ablation}). We therefore
-report the gap$=12$/$34$ result as seed-verified, not seed-42-specific. We
-attribute the pattern to a compensating pathway:
-Mechanism~2b preserves both keyword tokens intact, so node-level lexical
-features together with local $E_{seq}$/$E_{skip}$ connectivity remain
-sufficient even when $E_{sem}$ is entirely absent. This contrasts with
-comment-splitting (Mechanism~2), which fragments the keyword tokens
+classified correctly across all five seeds tested (accuracy $1.0$,
+$n{=}10$ per group per seed; minimum softmax margin $0.9999998$ across all
+100 seed-row combinations) -- markedly more stable than
+\texttt{data\_uri\_base64}, a nominally "always-correct" XSS held-out
+cell that we separately found correct on only 4/5 seeds (accuracy
+$0.8 \pm 0.447$). We attribute the gap-window result to a compensating
+pathway: Mechanism~2b preserves both keyword tokens intact, so node-level
+lexical features together with local $E_{seq}$/$E_{skip}$ connectivity
+remain sufficient even when $E_{sem}$ is entirely absent. This contrasts
+with comment-splitting (Mechanism~2), which fragments the keyword tokens
 themselves \emph{and} removes the $E_{sem}$ edge simultaneously -- leaving
 no compensating signal, and failing consistently across all 5 seeds tested
-(Section~\ref{sec:ablation}), unlike the borderline attribute-spacing
-case. We therefore refine our earlier claim: $E_{sem}$ functions as a
-second line of defense, whose contribution becomes visible only when the
-lexical signal it depends on is \emph{also} disrupted, not whenever the
-edge itself is structurally absent.
+(Section~\ref{sec:ablation}), unlike the gap-window case. We therefore
+refine our earlier claim: $E_{sem}$ functions as a second line of defense,
+whose contribution becomes visible only when the lexical signal it depends
+on is \emph{also} disrupted, not whenever the edge itself is structurally
+absent.
 ```
 
 **Việc kèm theo khi đưa đoạn này vào `.tex` (chưa làm, chỉ ghi chú):**
 1. Xoá/thay `\cite{vitorino2022adaptative}` ở Introduction dòng 157 ("gradient-based" không còn đúng).
 2. Sửa Contribution #2 trong Introduction — bỏ cụm "gradient-based optimization".
 3. Sửa lại câu kết luận §11(b) trong bảng ablation (EXPERIMENT_LOG) cho khớp "unified rule" ở mục 3b — thêm điều kiện, không để nguyên phát biểu vô điều kiện cũ.
-4. **Không còn cần** câu "bất đối xứng SQLi/XSS" trong Limitations (mục 3 đã đóng) — thay bằng câu ngắn hơn về phát hiện 3b (E_sem là lớp phòng thủ thứ hai, có điều kiện) nếu muốn nhấn thêm trong Limitations.
-5. ~~Trước khi coi đoạn `\ref{sec:esem_window}` là final: nên re-run gap=12/gap=34 qua 5 seed~~ **XONG (2026-09-18):** re-run qua 5 seed (42-46, tái dùng checkpoint vòng #12, không train lại) — cả 2 nhóm 50/50, ổn định hơn hẳn `data_uri_base64` (4/5). Đoạn `\ref{sec:esem_window}` ở trên đã cập nhật với số liệu thật, hết cần đánh dấu "TẠM GIỮ" vì lý do này. Chi tiết: `results/gap_window_5seed.csv`, `results/gap_window_5seed_raw.csv`, EXPERIMENT_LOG "XSS Context-Distance Augmentation".
+4. **Không còn cần** câu "bất đối xứng SQLi/XSS" trong Limitations (mục 3 đã đóng) — thay bằng câu ngắn hơn về phát hiện 3b (E_sem là lớp phòng thủ thứ hai, có điều kiện, đã verify qua 5 seed) nếu muốn nhấn thêm trong Limitations.
+5. ~~Re-run gap=12/34 qua 5 seed~~ — **ĐÃ XONG**: 5/5 ổn định cả 2 nhóm, ổn định hơn hẳn `data_uri_base64` (4/5). Xem `results/gap_window_5seed.csv`, commit `0a9ccdb`.
 
 ---
 
