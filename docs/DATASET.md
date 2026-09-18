@@ -56,3 +56,14 @@ A **full regenerate via `scripts/prepare_data.py` was tested in a dry run and re
 - Row counts: 32195 → **38595** (+6400). `attack_type` counts: `{1: 18595, 0: 10000, 2: 10000}`.
 - Full report: `data/missing_sqli_payloads_train_report.txt`.
 - Consequence: with this addition, **all 41 SQLi payloads now appear somewhere in train**, but the frozen test set (`test_split_indices.pkl`) still only ever evaluates against the original 25 (payload index 0-24) — the held-out/test side of the pipeline has no coverage of Error-based (idx 25-31) or Stacked/other (idx 32-40) payloads. This trade-off was chosen explicitly (over a full dataset-v2 regeneration with a new split) to keep every prior checkpoint/held-out comparison in this session's history valid.
+
+## Train-only Benign syntax diversity: header-style + json-style (2026-09-18)
+
+Motivated by the held-out `Benign header_field`/`Benign json_field` cells staying stuck at 0.0 accuracy across two retrains. Verified before generating anything (not assumed): of the 1689 train Benign rows with `num_nodes<=15`, **0/1689 contained `:` and 0/1689 contained `{`/`}`** — 1685/1689 (99.8%) were `key=value&key=value` query-string style. So the issue isn't that train Benign examples are "too short" relative to the held-out cells; train Benign has essentially **zero syntactic coverage** of header- or JSON-shaped content, at any length.
+
+- Script: `scripts/add_benign_syntax_diversity_train.py`. Append-only (same discipline as the prior two augmentation scripts).
+- 2500 header-style rows (`Name: value` pairs joined with `; `, e.g. `Content-Type: application/json`, `X-Request-ID: req-<hex>`) + 2500 JSON-style rows (`{"field":"value",...}`, e.g. `{"status":"ok","action":"login"}`) = 5000 new rows.
+- Header names and JSON field names are deliberately **disjoint** from what the held-out matrix uses (`build_heldout_matrix_eval.py`: `Authorization`/`X-Trace` for `header_field`, `page`/`user`/`locale` for `json_field`), so those held-out cells stay a genuine test of syntactic generalization rather than something the model was directly trained on.
+- `source='benign_short_synthetic'`, `source_uid='benign_short_synthetic_header_<seq>'` / `'benign_short_synthetic_json_<seq>'` — new, no collisions, appended past the previous 38595-row range so automatically outside `test_split_indices.pkl`'s `test_idx`.
+- Row counts: 38595 → **43595** (+5000). `attack_type` counts: `{0: 15000, 1: 18595, 2: 10000}`.
+- Full report + samples: `data/benign_syntax_diversity_train_report.txt`.
