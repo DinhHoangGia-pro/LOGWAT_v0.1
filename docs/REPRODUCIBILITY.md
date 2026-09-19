@@ -476,3 +476,23 @@ arguments and now returns a run-summary dict. Defaults reproduce the deployed GA
 diff substitutes those names for the module constants, wraps the SQLi family-split step in
 `if write_family_split:` and adds the return value); baselines pass
 `write_family_split=False` so a baseline run never touches `sqli_family_test_indices.pkl`.
+
+### HGT investigation (2026-09-19): controls, interventions, probes
+
+Explains the held-out 9/9 and the seed-unstable external result of typed HGT; findings in `EXPERIMENT_LOG_semantic_edge_investigation.md`,
+"HGT investigation". Venv `hin_web_vulne/web_venv`; run from repo root; typed-HGT and GATv2 checkpoints are the #16/#22 ones (not retrained).
+```bash
+python -m scripts.inspect_attention_weights_hgt                       # -> data/attention_weights_comment_split_hgt.txt
+python -m scripts.investigate_hgt_edge_type_use                       # -> results/hgt_edge_type_intervention.csv, data/hgt_edge_type_intervention.txt
+python -m scripts.train_hgt_control --model hgt_collapsed --seeds 42 43 44 45 46   # one edge type; ckpt data/models_pretrained/hgtctl_hgt_collapsed_seed*.pth
+python -m scripts.train_hgt_control --model hgt_random    --seeds 42 43 44 45 46   # 3 hash-assigned (uninformative) edge types
+python -m scripts.evaluate_hgt_controls                               # -> results/hgt_controls_5seed.csv, data/hgt_controls_report.txt
+python -m scripts.investigate_hgt_generalization                      # -> data/hgt_generalization_report.txt, results/hgt_generalization_external.csv
+python -m scripts.probe_hgt_tiny_graph_channel                        # -> data/hgt_tiny_graph_channel_probe.txt
+python -m scripts.hgt_controls_stats                                  # -> results/hgt_controls_tests.txt
+```
+The control models go through the same `train()` loop, frozen split, LR, class weights and early stopping as every #16 baseline
+(`web_graphs.pkl`; they need no `edge_attr`). Training runs are seed-deterministic in intent but not bit-reproducible on this GPU;
+the 10 control runs shared the GPU with up to 3 other jobs, so their wall times (400–1290 s) are not comparable. `evaluate_hgt_controls`
+on the deployed GATv2 / typed-HGT checkpoints reproduces the #16 numbers exactly (GATv2 external wF1 0.840/0.771/0.784/0.814/0.772; HGT 0.719/0.819/0.328/0.407/0.404).
+The fresh-probe strings live in `scripts/investigate_hgt_generalization.py` (`PROBES`); they are eval-only and were not added to any dataset.

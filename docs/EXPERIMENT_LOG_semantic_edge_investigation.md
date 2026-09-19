@@ -1162,7 +1162,7 @@ Correct out of 50 (5 seeds × 10 rows) per cell; `results/*_5seed.csv` `cell:*` 
   with §11(c)'s diagnosis (E_sem's 4 edges are drowned among ~142 n-gram edges when all edges share one aggregation) and with
   its proposed remedy (a per-relation aggregation path) — HGT's per-edge-type message/attention parameters are exactly
   that. It is **supporting evidence, not isolation**: HGT also differs from GATv2 in attention form and has ~2× the
-  parameters (610K vs 299K), and §10's `edge_attr` on GATv2Conv did not fix the cell.
+  parameters (610K vs 299K), and §10's `edge_attr` on GATv2Conv did not fix the cell. **Update (same day): isolated by controlled retraining and interventions — see "HGT investigation" at the end of this file.**
 - **TextCNN also passes `comment_splitting` 50/50 without any graph** (kernels of 3–5 tokens over `uni / * * / on` style
   fragments), and is joint-worst with StackLSTM on `data_uri_base64` (20/50 each; Bi-LSTM 30/50). So a held-out cell being
   solved is not by itself evidence that graph structure is needed; the matrix cannot separate "graph" from "any model that
@@ -1235,3 +1235,124 @@ it must also build the relation one-hot (pure Python here); its forward pass (4.
 - **Old Table 2 configurations are unrecoverable**, so the old-vs-new comparison is between numbers, not between reproduced configurations.
 - The held-out matrix (90 rows, 9 hand-built cells) and the external set (19,293 benign / 10,852 SQLi / 532 XSS; class-imbalanced, benign-type-4 heavy)
   are single instances, not distributions of held-out attacks.
+
+## HGT investigation: what the held-out 9/9 and the external collapse each come from (2026-09-19)
+
+Follow-up to Finding 2/3 of the #16 re-run, which called HGT's held-out result "supporting evidence, not isolation" and left
+its bimodal external result unexplained. This section isolates both. Scripts: `scripts/inspect_attention_weights_hgt.py`,
+`investigate_hgt_edge_type_use.py`, `train_hgt_control.py` + `evaluate_hgt_controls.py` (+ `src/models/hgt_controls.py`),
+`investigate_hgt_generalization.py`, `probe_hgt_tiny_graph_channel.py`, `hgt_controls_stats.py`. Raw output:
+`data/attention_weights_comment_split_hgt.txt`, `data/hgt_edge_type_intervention.txt`, `data/hgt_controls_report.txt`,
+`data/hgt_generalization_report.txt`, `data/hgt_tiny_graph_channel_probe.txt`, `results/hgt_*.csv`, `results/hgt_controls_tests.txt`.
+The 5 typed-HGT checkpoints are the #16 ones (unchanged); `real` conditions reproduce the published 90/90 and external wF1 exactly.
+
+### 1. Attention weights (same probe string as GATv2's, 5 seeds) — descriptive only, and it does not show what HGT does
+
+`HGTConv` has no `return_attention_weights`; alpha was recorded by wrapping the `softmax` inside `HGTConv.message` for one forward
+pass (hooked output bit-identical to the plain forward). Probe graph: 37 nodes, 146 edges = 72 seq + 70 skip + 4 sem (the same 4 E_sem edges as the GATv2 probe).
+
+| | layer 1 | layer 2 |
+|---|---|---|
+| raw alpha_sem / alpha_(seq+skip) (GATv2 analogue; GATv2 was 0.761 / 0.824 with edge_attr) | 0.737 (0.731–0.751) | 1.32 (1.05–1.85) |
+| relative alpha (= alpha × in-degree; 1.0 = uniform over neighbours) on sem edges | **1.03** (1.02–1.05) | 1.79 (1.43–2.47) |
+| share of attention mass on sem edges vs share of edges (2.7%) | 2.0% | 3.6% |
+
+Layer-1 attention on E_sem is **uniform** (all 8 heads ≈ equal, 0.17–0.22); the raw 0.74 ratio is just the 1/in-degree effect GATv2's 0.76 also
+had. Layer 2 tilts toward sem edges by ~1.8× but they still carry <4% of the mass. So attention is **not** where HGT separates the relation:
+the type-specific value/message transform is. That is why the following causal tests, not attention, are the evidence.
+
+### 2. Does the trained HGT use edge types? Yes — and it is the 4 E_sem edges that carry the held-out result
+
+Same 5 checkpoints, edge labels edited at inference (matrix: /450 = 9 cells × 10 rows × 5 seeds; `cs` = SQLi/comment_splitting /50 and mean SQLi logit margin; test = frozen test split):
+
+| condition | matrix /450 | cs /50 | cs margin | case_mixing /50 | test acc |
+|---|---|---|---|---|---|
+| real | 450 | 50 | **+3.96** | 50 | 1.000 |
+| drop the 4 E_sem edges | 370 | **0** | **−2.35** | 20 | 0.999 |
+| relabel E_sem as seq / as skip | 360 / 370 | 0 / 0 | −2.55 / −2.73 | 10 / 20 | 0.999 |
+| swap seq↔skip labels | 450 | 50 | +6.90 | 50 | 0.949 (seed 43: 0.747; other seeds ≥ 0.9986) |
+| all edges → one type (seq / skip) | 240 / 260 | 10 / 20 | −4.1 / +0.3 | 10 / 20 | 0.511 / 0.753 |
+| all edges → sem | 150 | 50 | +22.5 | 50 | **0.288** (every input → SQLi) |
+| cyclic relabel (seq→skip→sem→seq) | 180 | 50 | +13.0 | 50 | 0.356 |
+| hash-random types | 240 | 50 | +8.9 | 50 | 0.539 |
+| drop skip / drop seq | 220 / 300 | 10 / 40 | −9.0 / +9.6 | 10 / 50 | 0.537 / 0.781 |
+| **GATv2** real / drop_sem / drop_skip / **drop_seq** | 390 / 380 / 400 / 440 | 0 / 0 / 10 / **50** | −2.44 / −2.54 / −2.13 / **+4.38** | 50 / 40 / 50 / 50 | 1.000 / 1.000 / 1.000 / 0.999 |
+
+- Removing or mis-typing **only the 4 sem edges (2.7% of the probe's edges)** returns HGT's comment_splitting margin to GATv2's (−2.35 vs −2.44) and 50/50 → 0/50.
+  GATv2 is unaffected by dropping them (−2.44 → −2.54). So the sem *type* is what HGT reads; the sem edges' existence alone is not.
+- The sem channel is a strong SQLi channel: with every edge typed sem, every input (Benign, XSS included) is predicted SQLi at all 5 seeds.
+- seq/skip: merging them (all→seq or all→skip) wrecks test accuracy (0.51 / 0.75), but swapping the two labels is harmless at 4/5 seeds: the network needs
+  two *distinguishable* neighbour channels, not which is which. The near-orthogonality of the per-type W_msg/W_att matrices (cos ≈ 0, relative distance ≈ √2 at every seed and layer) is consistent with that, but parameters alone do not show the roles.
+- GATv2's failure is dilution, causally: deleting its 72 seq edges (E_sem share 2.7% → 5.4%) makes it pass comment_splitting at all 5 seeds (+4.38 margin) — the information is in the model and drowned by the seq edges, as §11(c) hypothesised. (Off-distribution input; read as a probe, not as a fix.)
+
+### 3. Isolation by controlled retraining: same HGT, no relation information
+
+Same `HGTBaseline` skeleton, same `train()` loop, split, LR, early stopping, seeds 42–46; only the edge typing differs (`src/models/hgt_controls.py`): **collapsed** = one edge type (544,789 params);
+**random** = 3 edge types assigned by a hash of the node indices, 35.6% agreement with the true type on 200 sample graphs ≈ chance (610,357 params = typed HGT's). All 10 runs converged (best test acc 0.9998).
+
+| 5-seed | typed HGT | HGT-collapsed | HGT-random | GATv2 |
+|---|---|---|---|---|
+| held-out correct /90 | **90.0 ± 0.0** | 80.0 ± 0.0 | 81.6 ± 4.8 | 78.0 ± 4.5 |
+| comment_splitting: seeds passing (10/10 rows) | **5/5** | 1/5 | 1/5 | 0/5 |
+| comment_splitting SQLi margin | +3.96 ± 2.84 | −2.48 ± 2.32 | −5.21 ± 6.54 | −2.44 ± 2.25 |
+| external weighted F1 | 0.535 ± 0.218 | 0.754 ± 0.034 | 0.737 ± 0.039 | 0.796 ± 0.030 |
+| external Benign recall | 0.310 ± 0.314 | 0.633 ± 0.058 | 0.607 ± 0.069 | 0.674 ± 0.038 |
+| seeds with external Benign recall < 0.2 | **3/5** | 0/5 | 0/5 | 0/5 |
+| test acc | 1.000 | 1.000 | 1.000 | 1.000 |
+
+Typed 5/5 vs controls 2/10 on comment_splitting: Fisher one-sided p = 0.007. Collapse on external Benign: typed 3/5 vs controls 0/10: p = 0.022 (n tiny; indicative).
+External wF1 typed vs pooled controls: Mann–Whitney p = 0.129 (typed is bimodal, so the mean gap is not significant by itself; the collapse frequency is the sharper signal).
+**Conclusion:** the held-out win is due to the edge typing, not HGT's attention form, K/Q/V, skip gate or parameter count (the random control has the same parameter count and does not win).
+It is not all-or-nothing: an untyped HGT solves comment_splitting at seed 45 in both controls. **The same typing is also what is unstable on external data** (controls at identical size do not collapse).
+
+### 4. What the typed channel is, and its limits
+
+- **E_sem is a rule-derived attack signal.** `src/edges/semantic.py` links reconstructed keyword pairs (union→select, select→from, script→src, …) and merges keywords split by `/ * - #` or by whitespace.
+  Fraction of graphs with ≥1 E_sem edge: Benign **0.0000** in train+test (0/15,000), in external (0/19,293) and in all 3 benign matrix cells; SQLi 0.295 (train) / 0.491 (external); XSS 0.027 / 0.056.
+  "Has E_sem ⇒ attack" therefore has precision 1.000 on both sets (recall 0.20 / 0.47). A typed channel can read that off; a single merged aggregation drowns it.
+- **The comment_splitting result is transfer through the builder, not through HGT alone.** Train has no `/**/`-split SQLi (0 rows), but 2,111 `sqli_pool_noise` rows split keywords with whitespace (`SELE CT`, `FR<tab>OM`), which the builder maps to the same E_sem edges.
+- **Held-out matrix is narrow.** 90 rows = 27 distinct inputs after masking digits (7 of 9 cells are one template ×10; data_uri_base64 and svg_script_variant 10 each). E_sem appears in exactly 2 of 9 cells (comment_splitting, case_mixing). HGT's held-out advantage over GATv2 is comment_splitting (0 → 50 of 50) and data_uri_base64 (40 → 50; that cell has no E_sem edge, and GATv2's 40 is a seed-level miss); case_mixing is 50/50 for both.
+  All 9 cells have ≥10 tokens; the matrix is not used by `train()` (selection is on the test split, HGT ran once per seed at default hyperparameters). But the training-set augmentations
+  were written with the matrix's cells and mechanisms in view (`add_benign_syntax_diversity_train` fills the header/JSON coverage that the held-out benign cells exposed; `add_train_noise_augmentation` is deliberately a different splitting mechanism from the matrix's `/**/`; field names are disjoint by construction), so the matrix is not a pristine hold-out for *any* model.
+- **Fresh probes outside the 9 templates** (hand-written here, eval-only, 6 strings per group × 5 seeds; not added to any dataset):
+
+| group (E_sem edges the builder produced) | typed HGT | HGT-collapsed | HGT-random | GATv2 |
+|---|---|---|---|---|
+| SQLi split by `/**/` in other wordings (4–6) — correct | **25/30** | 8/30 | 7/30 | 7/30 |
+| SQLi obfuscated so the builder cannot rebuild the keyword (`UNI+ON`, `U/*x*/NION`, `uni!on`; 0 edges) — correct | **0/15** | — | — | 0/15 |
+| SQLi obfuscated but rebuilt (`%0a`, `%2f%2a%2a%2f`, plain; 4 edges) — correct | 15/15 | — | — | 9/15 |
+| Benign prose containing keyword pairs (`order by … group by`, `select … from`; 2–6 edges) — correct | **5/30** | 15/30 | 15/30 | 15/30 |
+| Benign short address/number-like | 12/30 | 16/30 | 16/30 | 16/30 |
+| XSS in other wordings | 30/30 | 30/30 | 30/30 | 30/30 |
+
+  So typed HGT does generalise beyond the exact matrix template — but only while the builder emits an E_sem edge; without one it is as blind as GATv2 (0/15), and it flags benign text containing a keyword pair (25 of 30 predictions wrong; all 5 seeds on 5 of 6 strings) because no benign example with an E_sem edge exists in training.
+  (Small hand-written sets: indicative, not a benchmark.)
+
+### 5. The external collapse: not E_sem, not capacity — the seq channel on 1–2-token graphs
+
+- External Benign has 0 E_sem edges, so the sem shortcut cannot cause its false positives; deleting E_sem at inference leaves Benign recall unchanged at every seed (0.571/0.726/0.059/0.083/0.111 before and after).
+- Size regime: 68.3% of external Benign are 1-token graphs and 7.0% are 2-token; **the training set has 0 Benign and 0 SQLi graphs with 1–2 tokens** (Benign: 62 with 3 tokens; XSS: 1 + 1 + 15), and 87.9% of train Benign are ≥13 tokens. All held-out cells are ≥10 tokens.
+  The two signals ("perfect on held-out", "collapses on external") therefore probe **disjoint size regimes**, not one skill.
+- Typed HGT Benign recall on 1-token / 2-token external graphs: seeds 42/43 0.57, 0.84 / 0.96, 0.96; seeds 44/45/46 **0.00 / 0.00 / 0.00 and 0.00 / 0.002 / 0.004** (predicting XSS for 98–99.8% of 2-token inputs, whatever the content).
+  Controls and GATv2 are stable there (2-token recall 0.94–0.99 at every seed, 1-token 0.51–0.69).
+- Those graphs have only seq-typed edges. Relabelling them to skip flips the answer per seed (seed 44 n=2: seq→XSS 98%, skip→Benign 97%; seed 42/43: seq→Benign 96%, skip→SQLi 94–98%); sem→SQLi 100% at every seed (`data/hgt_tiny_graph_channel_probe.txt`).
+  The output on this never-trained input is decided by how each seed's seq channel extrapolates to a lone-seq neighbourhood — a seed lottery. **Not isolated by a controlled experiment**: that HGT has no self-loops (layer-1 nodes see only neighbours) may contribute; untested.
+
+### Answer to the "overfit to the 9 held-out cells" hypothesis
+
+Not supported as stated. (a) The matrix is not used to train or select; HGT's 9/9 holds at 5/5 seeds and on 25/30 fresh comment-split strings, so it is not template memorisation. (b) A same-size, same-architecture HGT without relation information does not reach it (controls: 80.0 / 81.6 vs 90.0),
+so it is not capacity. What is true is narrower: HGT's edge is one channel (E_sem) supplied by a hand-built keyword matcher whose only failure modes are (i) obfuscations the matcher cannot rebuild and (ii) benign text containing keyword pairs; and the external instability comes from a regime (1–2 tokens) that neither training nor the matrix covers.
+
+### Proposed wording for the Discussion (replaces "supports, though does not isolate")
+
+> On the held-out matrix the multi-relational HGT solved every cell at every seed, including comment-splitting, which all single-relation GNNs fail. Two controls with the same architecture and parameter count but no relation information
+> (one edge type; randomly assigned types) solved it in 2 of 10 runs versus 5 of 5, and relabelling or deleting the four semantic edges of the probe returns HGT to GATv2's failure (SQLi margin +3.96 → −2.35 vs GATv2's −2.44). The gain is therefore attributable to typed edges — a separate aggregation path in which
+> the rare, rule-derived semantic edges are not diluted by ~140 n-gram edges — rather than to HGT's attention form or capacity; deleting GATv2's sequential edges lets it solve the cell too. This is a property of our semantic-edge builder as much as of the learner: HGT generalises to other split wordings only when the builder emits a semantic edge (25/30 vs 7/30 for GATv2; 0/15 when it does not), and flags benign text containing keyword pairs (semantic edges never co-occur with benign examples in our data).
+> On the external dataset HGT is seed-unstable (weighted F1 0.33–0.82; 3 of 5 seeds label essentially every 1–2-token benign field an attack, mostly XSS), a failure not seen in the untyped controls; we attribute it to graph sizes absent from training rather than to overfitting the held-out matrix.
+
+### Caveats of this investigation
+
+- Attention was extracted on one graph (the GATv2 probe). Interventions are off-distribution edits of trained models; the controlled retrain (§3) is the isolating evidence, the edits are the mechanism evidence.
+- Controls are n=5 seeds each; Fisher/MWU p-values are uncorrected. The typed-HGT 5 seeds and the GATv2 5 seeds are the #16/#22 checkpoints; the 10 control checkpoints were trained here with up to 4 jobs sharing the GPU (`logs/hgt_*_training.log` are interleaved across concurrent runs; checkpoints are unaffected). Training is not bit-reproducible (see "5-seed statistics").
+- The "seq channel extrapolation" explanation of the external collapse rests on the relabelling probe and the control contrast, not on a controlled retrain; the no-self-loop contribution is untested.
+- Fresh probes are hand-written (6 strings per group), not a benchmark. The matrix contains 27 distinct inputs.
