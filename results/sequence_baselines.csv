@@ -36,8 +36,29 @@ TextCNN,held_out_matrix,SQLi/case_mixing,,,,,1.0,10.0,10.0
 TextCNN,held_out_matrix,XSS/data_uri_base64,,,,,0.0,0.0,10.0
 TextCNN,held_out_matrix,XSS/event_handler_focus,,,,,1.0,10.0,10.0
 TextCNN,held_out_matrix,XSS/svg_script_variant,,,,,1.0,10.0,10.0
-TextCNN,external_dataset,Benign,0.9850427350427351,0.1911574146063339,0.3201805790684551,19293.0,,,
+TextCNN,external_dataset,Benign,0.9850427350427352,0.1911574146063339,0.3201805790684551,19293.0,,,
 TextCNN,external_dataset,SQLi,0.6727491336020935,0.8765204570586067,0.7612340442559321,10852.0,,,
-TextCNN,external_dataset,XSS,0.04111302172893544,0.9887218045112782,0.07894341888038421,532.0,,,
-TextCNN,external_dataset,macro avg,0.566301630124588,0.6854665587254063,0.38678601406825713,30677.0,,,
-TextCNN,external_dataset,weighted avg,0.8581991463503341,0.44743618997946344,0.4720198734908056,30677.0,,,
+TextCNN,external_dataset,XSS,0.0411130217289354,0.9887218045112782,0.0789434188803842,532.0,,,
+TextCNN,external_dataset,macro avg,0.566301630124588,0.6854665587254063,0.3867860140682571,30677.0,,,
+TextCNN,external_dataset,weighted avg,0.8581991463503341,0.4474361899794634,0.4720198734908056,30677.0,,,
+StackLSTM,test_split,Benign,1.0,1.0,1.0,1550.0,,,
+StackLSTM,test_split,SQLi,1.0,1.0,1.0,1214.0,,,
+StackLSTM,test_split,XSS,1.0,1.0,1.0,1451.0,,,
+StackLSTM,test_split,macro avg,1.0,1.0,1.0,4215.0,,,
+StackLSTM,test_split,weighted avg,1.0,1.0,1.0,4215.0,,,
+StackLSTM,test_split_duplication_breakdown,duplicate_content,,,,,1.0,1063.0,1063.0
+StackLSTM,test_split_duplication_breakdown,novel_content,,,,,1.0,3152.0,3152.0
+StackLSTM,held_out_matrix,Benign/field_query,,,,,0.7,7.0,10.0
+StackLSTM,held_out_matrix,Benign/header_field,,,,,1.0,10.0,10.0
+StackLSTM,held_out_matrix,Benign/json_field,,,,,1.0,10.0,10.0
+StackLSTM,held_out_matrix,SQLi/sql_new_commands,,,,,0.3,3.0,10.0
+StackLSTM,held_out_matrix,SQLi/comment_splitting,,,,,0.2,2.0,10.0
+StackLSTM,held_out_matrix,SQLi/case_mixing,,,,,0.2,2.0,10.0
+StackLSTM,held_out_matrix,XSS/data_uri_base64,,,,,1.0,10.0,10.0
+StackLSTM,held_out_matrix,XSS/event_handler_focus,,,,,1.0,10.0,10.0
+StackLSTM,held_out_matrix,XSS/svg_script_variant,,,,,1.0,10.0,10.0
+StackLSTM,external_dataset,Benign,0.922740524781341,0.098429482195615,0.17788393986230153,19293.0,,,
+StackLSTM,external_dataset,SQLi,0.7595712098009189,0.7769996314043495,0.7681865804218102,10852.0,,,
+StackLSTM,external_dataset,XSS,0.029797922137230277,0.981203007518797,0.0578393351800554,532.0,,,
+StackLSTM,external_dataset,macro avg,0.5707032189064967,0.6188773737062538,0.33463661848805576,30677.0,,,
+StackLSTM,external_dataset,weighted avg,0.8495339246974277,0.3537829644358966,0.3846219039937627,30677.0,,,
