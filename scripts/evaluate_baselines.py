@@ -14,6 +14,7 @@ results/transformer_baselines.csv so they merge into final_baseline_comparison.c
 
   --group graph     GCN / GraphSAGE / GIN / HGT      -> results/graph_baselines.csv
   --group sequence  Bi-LSTM / TextCNN / StackLSTM    -> results/sequence_baselines.csv
+  --group reference GATv2 (evaluation only, --seeds)   -> results/gatv2_reference_5seed.csv
 
   method, eval_mode, group, precision, recall, f1_score, support,
   accuracy, n_correct, n_total
@@ -64,6 +65,11 @@ GROUPS = {
     'graph': {'out': RESULTS_DIR / 'graph_baselines.csv',
               'out_seeds': RESULTS_DIR / 'graph_baselines_5seed.csv',
               'methods': {'GCN': 'gcn', 'GraphSAGE': 'graphsage', 'GIN': 'gin', 'HGT': 'hgt'}},
+    # GATv2 itself, evaluated with this exact code path at seeds 42..46 (deployed
+    # checkpoint + the 5-seed run's checkpoints), so the baselines' 5-seed mean+-std
+    # has a same-method GATv2 reference. Only meaningful with --seeds; writes no canonical CSV.
+    'reference': {'out': None, 'out_seeds': RESULTS_DIR / 'gatv2_reference_5seed.csv',
+                  'methods': {'GATv2': 'gatv2'}},
     'sequence': {'out': RESULTS_DIR / 'sequence_baselines.csv',
                  'out_seeds': RESULTS_DIR / 'sequence_baselines_5seed.csv',
                  'methods': {'Bi-LSTM': 'bilstm', 'TextCNN': 'textcnn', 'StackLSTM': 'stacklstm'}},
@@ -239,7 +245,7 @@ def main():
             if seed == 42:
                 canonical_rows += rows
 
-    if canonical_rows:
+    if canonical_rows and cfg['out'] is not None:
         df = write_merged(cfg['out'], canonical_rows, list(cfg['methods']))
         print(df[df['eval_mode'].isin(['held_out_matrix'])].pivot_table(
             index='group', columns='method', values='n_correct', sort=False).to_string())

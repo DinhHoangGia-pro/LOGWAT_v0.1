@@ -18,6 +18,7 @@ from pathlib import Path
 from src.baselines.sequence_data import SEQ_PKL, VOCAB_JSON
 from src.models.baselines_graph import GRAPH_BASELINES
 from src.models.baselines_seq import SEQ_BASELINES
+from src.models.logwat import HeavyWebGNN
 from src.training.train import train
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -44,6 +45,8 @@ def sequence_spec(name):
 
 def baseline_spec(name):
     """-> (model_factory(use_edge_attr), data_pkl_path)"""
+    if name == 'gatv2':  # evaluation-only reference: the deployed model, never trained here
+        return (lambda use_edge_attr: HeavyWebGNN(use_edge_attr=use_edge_attr)), GRAPHS_PKL
     if name in GRAPH_BASELINES:
         return graph_spec(name)
     if name in SEQ_BASELINES:
@@ -52,6 +55,8 @@ def baseline_spec(name):
 
 
 def ckpt_path(name, seed):
+    if name == 'gatv2':  # deployed seed-42 checkpoint + the 5-seed run's seed-43..46 checkpoints
+        return MODEL_DIR / f'best_web_gnn_seed{seed}.pth'
     return MODEL_DIR / f'baseline_{name}_seed{seed}.pth'
 
 
