@@ -211,7 +211,7 @@ def write_merged(out_csv, new_rows, method_order):
         backup = out_csv.with_name(f"{out_csv.stem}_PRE_{time.strftime('%Y%m%d_%H%M%S')}.csv")
         shutil.copy(out_csv, backup)
         print(f"[*] backed up existing {out_csv.name} -> {backup.name}")
-        old = pd.read_csv(out_csv)
+        old = pd.read_csv(out_csv, float_precision='round_trip')
         new_df = pd.concat([old[~old['method'].isin(new_df['method'].unique())], new_df], ignore_index=True)
     new_df['_o'] = new_df['method'].map({m: i for i, m in enumerate(method_order)})
     new_df = new_df.sort_values('_o', kind='stable').drop(columns='_o')
