@@ -1,0 +1,37 @@
+payload: 'p=0;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=0;--'  (4 E_sem edges: [(9, 16), (16, 9), (16, 23), (23, 16)])
+
+config 1 = ablation_1 ckpt, no edge_attr (source of 0.7614)
+  raw ratio 0.7614 | raw ratio if attention were uniform 0.7647 | mean in-degree of destination: E_sem 6.50 vs other 5.01
+  relative alpha (1.0 = uniform): E_sem 0.996, other 1.000, self-loop 1.000
+  E_sem share of attention mass at its destination nodes: observed 0.205 vs uniform 0.206
+  per-head relative alpha on E_sem: [0.965, 1.016, 1.02, 0.991, 0.992, 0.969, 1.012, 0.999]  (min 0.965, max 1.020)
+config 2 = ablation_2 ckpt, +edge_attr (source of 0.8241)
+  raw ratio 0.8241 | raw ratio if attention were uniform 0.7647 | mean in-degree of destination: E_sem 6.50 vs other 5.01
+  relative alpha (1.0 = uniform): E_sem 1.074, other 0.997, self-loop 1.005
+  E_sem share of attention mass at its destination nodes: observed 0.222 vs uniform 0.206
+  per-head relative alpha on E_sem: [1.03, 1.057, 1.015, 1.069, 1.19, 1.09, 1.168, 0.974]  (min 0.974, max 1.190)
+current seed 42 (no edge_attr)
+  raw ratio 0.7683 | raw ratio if attention were uniform 0.7647 | mean in-degree of destination: E_sem 6.50 vs other 5.01
+  relative alpha (1.0 = uniform): E_sem 1.004, other 1.000, self-loop 1.000
+  E_sem share of attention mass at its destination nodes: observed 0.207 vs uniform 0.206
+  per-head relative alpha on E_sem: [0.973, 1.022, 1.016, 0.995, 1.009, 0.981, 1.033, 1.007]  (min 0.973, max 1.033)
+current seed 43 (no edge_attr)
+  raw ratio 0.7710 | raw ratio if attention were uniform 0.7647 | mean in-degree of destination: E_sem 6.50 vs other 5.01
+  relative alpha (1.0 = uniform): E_sem 1.008, other 1.000, self-loop 1.000
+  E_sem share of attention mass at its destination nodes: observed 0.208 vs uniform 0.206
+  per-head relative alpha on E_sem: [1.028, 0.989, 0.994, 1.013, 1.025, 1.008, 1.017, 0.989]  (min 0.989, max 1.028)
+current seed 44 (no edge_attr)
+  raw ratio 0.7666 | raw ratio if attention were uniform 0.7647 | mean in-degree of destination: E_sem 6.50 vs other 5.01
+  relative alpha (1.0 = uniform): E_sem 1.002, other 1.000, self-loop 1.001
+  E_sem share of attention mass at its destination nodes: observed 0.207 vs uniform 0.206
+  per-head relative alpha on E_sem: [0.998, 1.009, 1.022, 1.0, 0.985, 0.994, 1.026, 0.983]  (min 0.983, max 1.026)
+current seed 45 (no edge_attr)
+  raw ratio 0.7701 | raw ratio if attention were uniform 0.7647 | mean in-degree of destination: E_sem 6.50 vs other 5.01
+  relative alpha (1.0 = uniform): E_sem 1.007, other 1.000, self-loop 1.000
+  E_sem share of attention mass at its destination nodes: observed 0.208 vs uniform 0.206
+  per-head relative alpha on E_sem: [0.985, 1.01, 0.99, 1.015, 1.037, 0.993, 1.011, 1.012]  (min 0.985, max 1.037)
+current seed 46 (no edge_attr)
+  raw ratio 0.7664 | raw ratio if attention were uniform 0.7647 | mean in-degree of destination: E_sem 6.50 vs other 5.01
+  relative alpha (1.0 = uniform): E_sem 1.002, other 1.000, self-loop 0.999
+  E_sem share of attention mass at its destination nodes: observed 0.207 vs uniform 0.206
+  per-head relative alpha on E_sem: [0.989, 0.968, 1.021, 1.022, 0.99, 1.01, 0.995, 1.024]  (min 0.968, max 1.024)
