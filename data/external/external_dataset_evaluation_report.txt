@@ -1,21 +1,21 @@
 === External dataset (HttpParamsDataset) evaluation -- NO training/fine-tuning ===
 n=30677 (Benign=19293, SQLi=10852, XSS=532)
 
-[1] GATv2 (checkpoint: best_web_gnn_seed42.pth) overall accuracy: 0.7309
+[1] GATv2 (checkpoint: best_web_gnn_seed42.pth) overall accuracy: 0.7829
               precision    recall  f1-score   support
 
-      Benign     0.9741    0.6287    0.7642     19293
-        SQLi     0.6427    0.9000    0.7499     10852
-         XSS     0.1730    0.9850    0.2943       532
+      Benign     0.9908    0.6954    0.8172     19293
+        SQLi     0.8990    0.9283    0.9134     10852
+         XSS     0.0889    0.9906    0.1631       532
 
-    accuracy                         0.7309     30677
-   macro avg     0.5966    0.8379    0.6028     30677
-weighted avg     0.8430    0.7309    0.7510     30677
+    accuracy                         0.7829     30677
+   macro avg     0.6595    0.8714    0.6312     30677
+weighted avg     0.9427    0.7829    0.8399     30677
 
 Confusion matrix (rows=true, cols=pred, order Benign/SQLi/XSS):
-[[12130  5422  1741]
- [  321  9767   764]
- [    1     7   524]]
+[[13416  1127  4750]
+ [  125 10074   653]
+ [    0     5   527]]
 
 [2] String-matching baseline (classify_request()) overall accuracy: 0.2629
   (22613/30677 rows returned Unknown(-1)/Other(3), counted as wrong)
@@ -50,4 +50,4 @@ Confusion matrix:
  [ 1288  3652  5912]
  [  133    89   310]]
 
-Decision Tree size-only accuracy (0.1783) is well below GATv2 (0.7309), i.e. graph size alone does not explain GATv2's external performance here.
+Decision Tree size-only accuracy (0.1783) is well below GATv2 (0.7829), i.e. graph size alone does not explain GATv2's external performance here.
