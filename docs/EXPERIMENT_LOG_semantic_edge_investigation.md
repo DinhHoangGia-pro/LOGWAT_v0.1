@@ -1088,3 +1088,150 @@ sequence-only Transformer has an analogue for. This is a genuine
 architectural trade-off, not a deficiency of the rollout method: the
 comparison exists to make the trade-off legible, not to declare one
 approach's interpretability "better" in the abstract.
+
+## Baseline fairness re-run (#16 / RQF-06): the old Table 2 does not reproduce, and only the held-out/external modes can rank architectures (2026-09-19)
+
+Setup and exact hyperparameters: `docs/REPRODUCIBILITY.md`, section "Graph & Sequence Baselines". In one
+line: GCN / GraphSAGE / GIN / HGT (same graphs as GATv2, only the conv operator swapped) and Bi-LSTM /
+TextCNN / StackLSTM (raw `web_security_tokenizer` tokens, embedding learned from scratch) were trained on the
+current 43,659-row dataset and frozen split through **the same `train()` loop and protocol as GATv2** — same
+optimizer/scheduler/class weights/early stopping, default LR for all (none needed a per-baseline LR), seeds 42–46 —
+and evaluated on the same three modes. GATv2 was re-evaluated through the same code (deployed seed-42 checkpoint +
+the 5-seed run's seeds 43–46) as the reference. Raw data: `results/{graph,sequence}_baselines{,_5seed}.csv`,
+`results/gatv2_reference_5seed.csv`, `results/final_baseline_comparison.csv`,
+`results/latency_breakdown_graph_baselines.csv`, `results/table2_old_vs_new.csv`.
+
+### Finding 1 — test split: the old 2–10-point gaps vanish; every model is at the ceiling
+
+Old Table 2 numbers are transcribed from `hin_web_vulne/sn-article_v1.tex` (30k-row dataset; the baseline
+configurations behind them are not recoverable from this repo). New = mean test accuracy over 5 seeds
+(std ≤ 0.13 pp for every model; seed-42 values in `final_baseline_comparison.csv`).
+
+| method | old acc (Table 2) | new test acc, 5-seed mean | Δ (pp) | old margin of Proposed over it (pp) | new margin (pp) |
+|---|---|---|---|---|---|
+| TextCNN | 89.54 | 100.000 | +10.46 | +8.30 | −0.02 |
+| Bi-LSTM | 91.20 | 100.000 | +8.80 | +6.64 | −0.02 |
+| Stack-LSTM | 92.15 | 99.938 | +7.79 | +5.69 | +0.04 |
+| GCN | 93.45 | 99.991 | +6.54 | +4.39 | −0.01 |
+| GraphSAGE | 93.88 | 99.991 | +6.11 | +3.96 | −0.01 |
+| GIN | 94.12 | 99.991 | +5.87 | +3.72 | −0.01 |
+| GATv2 (vanilla) | 95.30 | *not re-run* ("vanilla" undefined here) | — | +2.54 | — |
+| HGT | 95.87 | 99.991 | +4.12 | +1.97 | −0.01 |
+| **Proposed (LOGWAT)** | 97.84 | 99.981 | +2.14 | — | — |
+
+Every re-run baseline is **+4.1 to +10.5 points above its old Table-2 figure**, and is now indistinguishable from
+the proposed model on the test split (margins within ±0.04 pp ≈ ±2 of 4,215 samples; the split's saturation was
+already documented in §1/§4/§10 and the 5-seed section). The reported 2–8-point advantage of LOGWAT over the GNN and
+sequence baselines is **not reproduced** under identical inputs and protocol.
+
+**What this does and does not establish about RQF-06.** It is consistent with the suspicion that the old baselines were
+configured more weakly than GATv2 — under the current, like-for-like setup no baseline is weaker. It does **not**
+prove it: (i) the old configurations cannot be recovered, and the old dataset/split differ from the current ones
+(the proposed model itself moved +2.14 pp between the two), so "weaker configuration" and "different, easier dataset"
+are not separable from these numbers; (ii) baselines that started lower also have more room to move, so a larger Δ is
+partly ceiling arithmetic. The defensible statement is narrower: **the old table's ordering and margins cannot be
+carried over; on the standard split, architectures are not distinguishable at all.** The old Table 2 should be replaced,
+not patched.
+
+### Finding 2 — held-out matrix (90 rows, 9 cells): GATv2 is not distinguishable from GCN/GraphSAGE/GIN/TextCNN; only HGT is separated
+
+Correct out of 50 (5 seeds × 10 rows) per cell; `results/*_5seed.csv` `cell:*` columns.
+
+| cell | GATv2 | GCN | GraphSAGE | GIN | HGT | Bi-LSTM | TextCNN | StackLSTM |
+|---|---|---|---|---|---|---|---|---|
+| Benign/field_query | 50 | 50 | 50 | 50 | 50 | 10 | 43 | 7 |
+| Benign/header_field | 50 | 50 | 50 | 50 | 50 | 50 | 50 | 40 |
+| Benign/json_field | 50 | 50 | 50 | 50 | 50 | 50 | 50 | 50 |
+| SQLi/sql_new_commands | 50 | 50 | 50 | 50 | 50 | 41 | 50 | 20 |
+| SQLi/comment_splitting | **0** | 10 | **0** | **0** | **50** | 40 | **50** | 12 |
+| SQLi/case_mixing | 50 | 40 | 40 | 40 | 50 | 36 | 50 | 4 |
+| XSS/data_uri_base64 | 40 | 50 | 50 | 40 | 50 | 30 | 20 | 20 |
+| XSS/event_handler_focus | 50 | 50 | 50 | 50 | 50 | 50 | 50 | 50 |
+| XSS/svg_script_variant | 50 | 50 | 50 | 50 | 50 | 50 | 50 | 50 |
+| **mean cells/9 (5 seeds)** | **7.8** | 8.0 | 7.8 | 7.6 | **9.0** | 6.8 | 8.0 | 4.6 |
+| mean correct/90 ± std | 78.0±4.5 | 80.0±7.1 | 78.0±4.5 | 76.0±5.5 | **90.0±0.0** | 71.4±17.8 | 82.6±5.7 | 50.6±16.0 |
+
+- **GATv2, GCN, GraphSAGE, GIN and TextCNN are within seed noise of each other** (78±4.5 vs 80±7.1 / 78±4.5 /
+  76±5.5 / 82.6±5.7 correct of 90; Welch p = 0.61 / 1.00 / 0.55 / 0.20 vs GATv2, n=5, uncorrected — indicative only). The
+  held-out matrix does not show GATv2 outperforming the single-relation GNNs.
+- **HGT is the one clearly separated model: 9/9 cells at every one of the 5 seeds** (GATv2's per-seed cells: 8, 8, 7, 8, 8
+  — the ranges do not overlap). HGT is the only baseline that consumes the relation type of each edge.
+- **`SQLi/comment_splitting` — previously documented as a stable architectural limit (§9, §11, "5-seed statistics": 0/5 seeds)
+  — is a limit of the *single-relation* GNNs on this graph (GATv2, GraphSAGE, GIN: 0/50; GCN 10/50), not of the graph
+  itself:** HGT passes it 50/50 on the identical E_seq+E_skip+E_sem edges, once the edges are typed. This is consistent
+  with §11(c)'s diagnosis (E_sem's 4 edges are drowned among ~142 n-gram edges when all edges share one aggregation) and with
+  its proposed remedy (a per-relation aggregation path) — HGT's per-edge-type message/attention parameters are exactly
+  that. It is **supporting evidence, not isolation**: HGT also differs from GATv2 in attention form and has ~2× the
+  parameters (610K vs 299K), and §10's `edge_attr` on GATv2Conv did not fix the cell.
+- **TextCNN also passes `comment_splitting` 50/50 without any graph** (kernels of 3–5 tokens over `uni / * * / on` style
+  fragments), and is the worst model on `data_uri_base64` (20/50, base64 tokens are mostly UNK). So a held-out cell being
+  solved is not by itself evidence that graph structure is needed; the matrix cannot separate "graph" from "any model that
+  sees local token n-grams".
+- Sequence models are unstable across seeds (Bi-LSTM 42→89 of 90 correct, StackLSTM 34→71); GATv2/GCN/SAGE/GIN are much steadier.
+
+### Finding 3 — external dataset (n=30,677): GATv2 has the best mean weighted F1, but the margin over GCN/GraphSAGE/GIN is modest
+
+| method | weighted F1, 5-seed mean ± std | range | Δ vs GATv2 | Welch p (n=5) | per-seed Benign recall range |
+|---|---|---|---|---|---|
+| **GATv2** | **0.796 ± 0.030** | 0.771–0.840 | — | — | 0.633–0.719 |
+| GCN | 0.745 ± 0.057 | 0.669–0.800 | −0.051 | 0.13 | 0.506–0.712 |
+| GraphSAGE | 0.715 ± 0.064 | 0.658–0.818 | −0.081 | 0.045 | 0.480–0.725 |
+| GIN | 0.692 ± 0.075 | 0.584–0.785 | −0.104 | 0.032 | 0.411–0.667 |
+| HGT | 0.535 ± 0.218 | 0.328–0.819 | −0.261 | 0.055 | **0.059**–0.726 |
+| TextCNN | 0.509 ± 0.046 | 0.462–0.577 | −0.287 | <0.001 | 0.175–0.302 |
+| Bi-LSTM | 0.444 ± 0.079 | 0.310–0.503 | −0.352 | <0.001 | 0.165–0.244 |
+| StackLSTM | 0.392 ± 0.035 | 0.360–0.440 | −0.404 | <0.001 | 0.085–0.190 |
+
+(Welch p uncorrected for 7 comparisons; with n=5 read as indicative. Mann–Whitney p: GCN 0.22, GraphSAGE 0.095, GIN 0.056, HGT 0.095, sequence models 0.008.)
+
+- GATv2's advantage is **clear over the sequence models** (all learned from scratch, 28% of external benign tokens are UNK,
+  benign requests here average 2.2 tokens), **real but modest over GCN/GraphSAGE/GIN** (ranges overlap; only GIN/GraphSAGE reach
+  p<0.05 uncorrected), and unresolved against HGT because HGT is bimodal.
+- **The 0.840 external weighted F1 used for GATv2 in `final_baseline_comparison.csv` (the deployed seed-42 checkpoint) is the
+  maximum of its five seeds** (mean 0.796). Any table that compares that single number against 5-seed means overstates the gap; use
+  the 5-seed figures above when comparing across methods.
+- **HGT is perfect on the held-out matrix yet collapses on external Benign in 3 of 5 seeds** (seeds 44/45/46: Benign recall
+  0.059/0.083/0.111, weighted F1 0.33/0.41/0.40; seeds 42/43: 0.57/0.73). Held-out perfection did not transfer: the external
+  benign traffic (short address/number-like fields, the "benign-type-4 gap" of §"RoBERTa on the external dataset") is
+  where every learned model is weakest, and HGT's failure there is seed-dependent.
+
+### Finding 4 — latency: the old "Proposed is fastest" claim does not hold for the graph baselines
+
+Same methodology as #11/#21 (`results/latency_breakdown_graph_baselines.csv`, batch 1, N=1000, GATv2 measured in the same run;
+GATv2 1.79 ms CPU / 2.18 ms CUDA agrees with #21's 2.01 / 2.31). End-to-end mean (p95), ms:
+
+| | GATv2 | GCN | GraphSAGE | GIN | HGT |
+|---|---|---|---|---|---|
+| CPU | 1.785 (2.59) | 1.411 (2.06) | 1.137 (1.79) | 1.152 (1.82) | 5.602 (7.84) |
+| CUDA | 2.177 (2.69) | 1.793 (2.28) | 1.364 (1.83) | 1.342 (1.81) | 8.093 (9.64) |
+| old Table 2 (device unspecified) | 3.7 (Proposed) / 4.1 (GATv2) | 5.8 | 4.5 | 4.9 | 6.2 |
+
+GCN/GraphSAGE/GIN are 1.3–1.6× **faster** than GATv2 (attention costs more than plain aggregation); HGT is ~3× slower. The old
+table's ordering (Proposed fastest of all GNNs) is not reproduced — the paper's latency argument should be "GATv2 meets the
+real-time budget" (§LATENCY), not "GATv2 is faster than other GNNs". HGT's BAG-construction stage is 0.63 ms vs 0.03 ms because
+it must also build the relation one-hot (pure Python here); its forward pass (4.5 ms CPU) dominates regardless. Group-B latency was not measured.
+
+### Proposed wording for the paper's Discussion (replaces the claim that LOGWAT outperforms GNN/sequence baselines by 2.5–8%)
+
+> When all baselines are re-trained on the same dataset, split and protocol as LOGWAT, the standard test split no longer
+> separates them (all ≥ 99.9% accuracy; the gaps in the earlier comparison do not reproduce), which we attribute to the split's
+> saturation rather than to equal capability. Discrimination comes from the held-out obfuscation matrix and an external dataset.
+> There, LOGWAT's GATv2 is not distinguishable from GCN, GraphSAGE, GIN or a token-level TextCNN on the held-out matrix (78±4.5 vs
+> 76–83 of 90 correct over five seeds), while the multi-relational HGT — the only baseline that consumes edge types — solves it at
+> every seed (90/90), including the comment-splitting cell that all single-relation GNNs fail; this supports, though does not isolate,
+> the value of relation-aware aggregation. On the external dataset LOGWAT attains the highest mean weighted F1 (0.796±0.030), clearly
+> above the from-scratch sequence models (≤0.51) and modestly above GCN/GraphSAGE/GIN (0.69–0.75); HGT's external performance is
+> seed-unstable (0.33–0.82). LOGWAT is 1.3–1.6× slower than GCN/GraphSAGE/GIN and 3× faster than HGT.
+
+### Limitations of this comparison (all carried into the numbers above)
+
+- **Selection on the test split.** `train()` picks the best checkpoint and stops on test-split accuracy for GATv2 and for every
+  baseline alike (like-for-like, but test numbers are selected numbers). The Transformer baselines use a train-only validation loss.
+- **No per-baseline hyperparameter search.** All baselines ran at GATv2's LR/weight-decay/batch size; none failed to converge, so no
+  override was made, but a tuned baseline (LR, hidden size, regularization) might do better — "baseline at its best" was not explored beyond
+  the defaults. The from-scratch sequence models carry 1.5M embedding parameters against GATv2's 299K, and see no engineered node features.
+- **Training is not bit-reproducible** even at a fixed seed on this GPU (see "5-seed statistics"); the seed-42 rows in the canonical CSVs
+  are one draw. n=5 seeds; p-values are uncorrected and indicative.
+- **Old Table 2 configurations are unrecoverable**, so the old-vs-new comparison is between numbers, not between reproduced configurations.
+- The held-out matrix (90 rows, 9 hand-built cells) and the external set (19,293 benign / 10,852 SQLi / 532 XSS; class-imbalanced, benign-type-4 heavy)
+  are single instances, not distributions of held-out attacks.
