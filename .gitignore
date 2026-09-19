@@ -38,3 +38,4 @@ data/external/*.pkl
 # from the already-frozen augmented_web_attack.csv/test_split_indices.pkl,
 # same reasoning as web_graphs.pkl above.
 data/transformer_baseline/
+data/sequence_baseline/*.pkl
