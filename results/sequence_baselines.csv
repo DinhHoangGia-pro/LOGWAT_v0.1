@@ -15,8 +15,29 @@ Bi-LSTM,held_out_matrix,SQLi/case_mixing,,,,,0.1,1.0,10.0
 Bi-LSTM,held_out_matrix,XSS/data_uri_base64,,,,,0.0,0.0,10.0
 Bi-LSTM,held_out_matrix,XSS/event_handler_focus,,,,,1.0,10.0,10.0
 Bi-LSTM,held_out_matrix,XSS/svg_script_variant,,,,,1.0,10.0,10.0
-Bi-LSTM,external_dataset,Benign,0.9418914912540765,0.16467112424195304,0.2803317744639548,19293.0,,,
-Bi-LSTM,external_dataset,SQLi,0.5282797858099063,0.29091411721341687,0.3752079866888519,10852.0,,,
-Bi-LSTM,external_dataset,XSS,0.024615528882220555,0.9868421052631579,0.04803293687099726,532.0,,,
-Bi-LSTM,external_dataset,macro avg,0.4982622686487344,0.4808091155728426,0.23452423267460132,30677.0,,,
-Bi-LSTM,external_dataset,weighted avg,0.7796688149994896,0.22358770414316914,0.3098657469340506,30677.0,,,
+Bi-LSTM,external_dataset,Benign,0.9418914912540765,0.164671124241953,0.2803317744639548,19293.0,,,
+Bi-LSTM,external_dataset,SQLi,0.5282797858099063,0.2909141172134168,0.3752079866888519,10852.0,,,
+Bi-LSTM,external_dataset,XSS,0.0246155288822205,0.986842105263158,0.0480329368709972,532.0,,,
+Bi-LSTM,external_dataset,macro avg,0.4982622686487344,0.4808091155728426,0.2345242326746013,30677.0,,,
+Bi-LSTM,external_dataset,weighted avg,0.7796688149994896,0.2235877041431691,0.3098657469340506,30677.0,,,
+TextCNN,test_split,Benign,1.0,1.0,1.0,1550.0,,,
+TextCNN,test_split,SQLi,1.0,1.0,1.0,1214.0,,,
+TextCNN,test_split,XSS,1.0,1.0,1.0,1451.0,,,
+TextCNN,test_split,macro avg,1.0,1.0,1.0,4215.0,,,
+TextCNN,test_split,weighted avg,1.0,1.0,1.0,4215.0,,,
+TextCNN,test_split_duplication_breakdown,duplicate_content,,,,,1.0,1063.0,1063.0
+TextCNN,test_split_duplication_breakdown,novel_content,,,,,1.0,3152.0,3152.0
+TextCNN,held_out_matrix,Benign/field_query,,,,,1.0,10.0,10.0
+TextCNN,held_out_matrix,Benign/header_field,,,,,1.0,10.0,10.0
+TextCNN,held_out_matrix,Benign/json_field,,,,,1.0,10.0,10.0
+TextCNN,held_out_matrix,SQLi/sql_new_commands,,,,,1.0,10.0,10.0
+TextCNN,held_out_matrix,SQLi/comment_splitting,,,,,1.0,10.0,10.0
+TextCNN,held_out_matrix,SQLi/case_mixing,,,,,1.0,10.0,10.0
+TextCNN,held_out_matrix,XSS/data_uri_base64,,,,,0.0,0.0,10.0
+TextCNN,held_out_matrix,XSS/event_handler_focus,,,,,1.0,10.0,10.0
+TextCNN,held_out_matrix,XSS/svg_script_variant,,,,,1.0,10.0,10.0
+TextCNN,external_dataset,Benign,0.9850427350427351,0.1911574146063339,0.3201805790684551,19293.0,,,
+TextCNN,external_dataset,SQLi,0.6727491336020935,0.8765204570586067,0.7612340442559321,10852.0,,,
+TextCNN,external_dataset,XSS,0.04111302172893544,0.9887218045112782,0.07894341888038421,532.0,,,
+TextCNN,external_dataset,macro avg,0.566301630124588,0.6854665587254063,0.38678601406825713,30677.0,,,
+TextCNN,external_dataset,weighted avg,0.8581991463503341,0.44743618997946344,0.4720198734908056,30677.0,,,
