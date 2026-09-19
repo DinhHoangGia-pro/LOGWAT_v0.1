@@ -1,0 +1,22 @@
+method,eval_mode,group,precision,recall,f1_score,support,accuracy,n_correct,n_total
+Bi-LSTM,test_split,Benign,1.0,1.0,1.0,1550.0,,,
+Bi-LSTM,test_split,SQLi,1.0,1.0,1.0,1214.0,,,
+Bi-LSTM,test_split,XSS,1.0,1.0,1.0,1451.0,,,
+Bi-LSTM,test_split,macro avg,1.0,1.0,1.0,4215.0,,,
+Bi-LSTM,test_split,weighted avg,1.0,1.0,1.0,4215.0,,,
+Bi-LSTM,test_split_duplication_breakdown,duplicate_content,,,,,1.0,1063.0,1063.0
+Bi-LSTM,test_split_duplication_breakdown,novel_content,,,,,1.0,3152.0,3152.0
+Bi-LSTM,held_out_matrix,Benign/field_query,,,,,0.0,0.0,10.0
+Bi-LSTM,held_out_matrix,Benign/header_field,,,,,1.0,10.0,10.0
+Bi-LSTM,held_out_matrix,Benign/json_field,,,,,1.0,10.0,10.0
+Bi-LSTM,held_out_matrix,SQLi/sql_new_commands,,,,,0.1,1.0,10.0
+Bi-LSTM,held_out_matrix,SQLi/comment_splitting,,,,,0.0,0.0,10.0
+Bi-LSTM,held_out_matrix,SQLi/case_mixing,,,,,0.1,1.0,10.0
+Bi-LSTM,held_out_matrix,XSS/data_uri_base64,,,,,0.0,0.0,10.0
+Bi-LSTM,held_out_matrix,XSS/event_handler_focus,,,,,1.0,10.0,10.0
+Bi-LSTM,held_out_matrix,XSS/svg_script_variant,,,,,1.0,10.0,10.0
+Bi-LSTM,external_dataset,Benign,0.9418914912540765,0.16467112424195304,0.2803317744639548,19293.0,,,
+Bi-LSTM,external_dataset,SQLi,0.5282797858099063,0.29091411721341687,0.3752079866888519,10852.0,,,
+Bi-LSTM,external_dataset,XSS,0.024615528882220555,0.9868421052631579,0.04803293687099726,532.0,,,
+Bi-LSTM,external_dataset,macro avg,0.4982622686487344,0.4808091155728426,0.23452423267460132,30677.0,,,
+Bi-LSTM,external_dataset,weighted avg,0.7796688149994896,0.22358770414316914,0.3098657469340506,30677.0,,,
