@@ -106,7 +106,7 @@ def main():
         train_graphs = pickle.load(f)['graphs']
     with open(TRAIN_SPLIT_PKL, 'rb') as f:
         split = pickle.load(f)
-    train_idx = split['train_idx']
+    train_idx = [i for i in range(len(train_graphs)) if i not in set(split['test_idx'])]
 
     def features_labels(graphs, idx_list=None):
         gs = graphs if idx_list is None else [graphs[i] for i in idx_list]

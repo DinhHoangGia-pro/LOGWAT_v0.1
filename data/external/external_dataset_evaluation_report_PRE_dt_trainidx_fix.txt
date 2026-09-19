@@ -34,20 +34,20 @@ Confusion matrix:
  [   0 7605    0]
  [   0    0  459]]
 
-[3] Decision Tree size-only baseline ([num_nodes, num_edges], trained on train_idx n=39444) overall accuracy: 0.2020
+[3] Decision Tree size-only baseline ([num_nodes, num_edges], trained on train_idx n=25869) overall accuracy: 0.1783
               precision    recall  f1-score   support
 
-      Benign     0.4018    0.1269    0.1929     19293
-        SQLi     0.6377    0.3320    0.4367     10852
-         XSS     0.0077    0.2726    0.0149       532
+      Benign     0.5149    0.0782    0.1357     19293
+        SQLi     0.6386    0.3365    0.4408     10852
+         XSS     0.0141    0.5827    0.0275       532
 
-    accuracy                         0.2020     30677
-   macro avg     0.3491    0.2438    0.2148     30677
-weighted avg     0.4784    0.2020    0.2761     30677
+    accuracy                         0.1783     30677
+   macro avg     0.3892    0.3325    0.2013     30677
+weighted avg     0.5499    0.1783    0.2418     30677
 
 Confusion matrix:
-[[ 2449  1937 14907]
- [ 3369  3603  3880]
- [  277   110   145]]
+[[ 1508  1978 15807]
+ [ 1288  3652  5912]
+ [  133    89   310]]
 
-Decision Tree size-only accuracy (0.2020) is well below GATv2 (0.7829), i.e. graph size alone does not explain GATv2's external performance here.
+Decision Tree size-only accuracy (0.1783) is well below GATv2 (0.7829), i.e. graph size alone does not explain GATv2's external performance here.
