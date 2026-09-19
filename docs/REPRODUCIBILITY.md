@@ -358,3 +358,120 @@ wide margin (13GB inference requirement vs. 8GB total capacity). Not run.
 This is a hardware constraint, not a scope decision: RoBERTa/CodeBERT
 (125M/125M params) were feasible on this GPU precisely because they are
 roughly 50x smaller than TrafficLLM's backbone.
+
+## Graph & Sequence Baselines — baseline-fairness re-run (#16 / RQF-06, 2026-09-19)
+
+The paper's original Table 2 (TextCNN / Bi-LSTM / Stack-LSTM / GCN / GraphSAGE / GIN /
+GATv2 / HGT / Proposed) was measured on the original 30k-row dataset/split, with baseline
+configurations for which no code or hyperparameters survive in this repo. #16 re-runs
+seven of those baselines on the **current** dataset (43,659 rows), the **frozen** split
+(`test_split_indices.pkl`), and the **same training loop and protocol as GATv2**
+(`src/training/train.py::train()`, parameterized rather than copied). Narrative, tables and
+findings: `docs/EXPERIMENT_LOG_semantic_edge_investigation.md`, section "Baseline fairness
+re-run (#16)". This section is setup/reproducibility only. ("GATv2 (vanilla)" from the old
+Table 2 was **not** re-run: "vanilla" has no definition in this repo.)
+
+**Scope:** both groups, 7 baselines, seed 42 for the canonical tables plus seeds 42–46 for
+all of them (and for GATv2, through the same evaluation code, as the reference).
+
+**Group A — graph** (`src/models/baselines_graph.py`): each is `GATBackbone`'s skeleton — 2
+conv layers at `hidden_dim=256`, BatchNorm, ELU, `JumpingKnowledge('cat')`, and the identical
+`Classifier` head (global max-pool → MLP) — with **only the conv operator swapped**, on the
+same graphs (same node features, same E_seq+E_skip+E_sem `edge_index`, same split).
+
+| model | conv | params | edge types seen |
+|---|---|---|---|
+| GATv2 (reference) | `GATv2Conv`, 8 heads × 32 | 299,011 | none (edge_index merged) |
+| GCN | `GCNConv` | 215,555 | none |
+| GraphSAGE | `SAGEConv` (mean aggr) | 297,475 | none |
+| GIN | `GINConv`, 2-layer MLP update net, `train_eps=True` | 347,141 | none |
+| HGT | `HGTConv`, 8 heads, 1 node type × 3 edge types (seq/skip/sem) | 610,357 | **yes** — from the `edge_attr` one-hot |
+
+HGT needs relation types, so it trains on `data/web_graphs_edge_attr.pkl` (same graphs +
+`edge_attr`, built by `scripts/build_edge_attr_graphs.py`, which **asserts** per graph that
+`x`/`edge_index`/`y`/`source_uid` are identical to `web_graphs.pkl` for all 43,659 train
+graphs; same for `external_dataset_graphs_edge_attr.pkl`). `web_graphs.pkl` itself is never
+overwritten. GCN/GraphSAGE/GIN ignore `edge_attr` by construction.
+
+**Group B — sequence** (`src/models/baselines_seq.py`): input is the raw token sequence
+`web_security_tokenizer(content)`, embedding (dim 128) **learned from scratch** (no pretrained
+vectors — like GATv2, unlike RoBERTa/CodeBERT). Vocabulary = tokens with frequency ≥ 2 in the
+**train** rows only (11,918 tokens + PAD/UNK = 11,920); everything else is UNK (test-split UNK
+rate 6.8%). Sequences are stored as `Data` objects (`x` = token ids, empty `edge_index`) in
+`data/sequence_baseline/web_sequences.pkl`, so they run through the same DataLoader/train loop
+(`to_dense_batch` re-pads them). `prepare_sequence_baseline_data.py` asserts label and
+per-row node-count parity with `web_graphs.pkl` for all rows. Max sequence length is 106
+tokens; nothing is truncated.
+
+| model | architecture | params |
+|---|---|---|
+| Bi-LSTM | embedding → 1-layer BiLSTM (128/dir) → [masked mean ; masked max] pool → MLP head | 1,922,051 |
+| TextCNN (Kim 2014) | embedding → Conv1d k=3,4,5 × 100 filters → max-over-time → dropout 0.5 → linear | 1,680,563 |
+| StackLSTM | embedding → 2 stacked unidirectional LSTM layers (256) → last hidden state → MLP head | 2,513,923 |
+
+Note the parameter counts: ~1.5M of each sequence model's parameters is the embedding table,
+so they are 6–8× larger than GATv2. They also see none of the hand-crafted per-token features
+(danger-char / SQL-keyword flags, entropy) that the graph models' node features contain.
+
+**Training protocol — identical for all 7, and to GATv2** (`configs/config.yaml`): AdamW
+`lr=5e-4`, `weight_decay=0.1`, `batch_size=64`, class-weighted CrossEntropy (balanced weights
+from train), `ReduceLROnPlateau(mode='max', factor=0.5, patience=5)`, max 100 epochs, early
+stopping `patience=10`/`min_delta=0` on test-split accuracy, `seed` via `set_seed()` (including
+its `use_deterministic_algorithms(True)`), `DataLoader` generator seeded. **No baseline needed
+or received a learning-rate override** — every run converged at the default LR (best test acc
+≥ 0.9972 within the first ≤ 11 epochs) and every run stopped by early stopping (12–21 epochs),
+none reaching the 100-epoch cap. **Inherited methodology weakness:** this loop selects the best
+checkpoint and stops on *test-split* accuracy (unlike the Transformer baselines, which use a
+validation loss from a train-only split). The same protocol applies to every graph/sequence
+baseline and GATv2, so the comparison is like-for-like, but the absolute test-split numbers
+are selected on the test split.
+
+**Commands** (venv `hin_web_vulne/web_venv`; run from repo root):
+```bash
+python -m scripts.build_edge_attr_graphs            # HGT's graphs (train + external), ~2 min, verifies parity
+python -m scripts.prepare_sequence_baseline_data    # vocab + token-id sequences, verifies parity
+python -m scripts.train_baseline --model gcn --seed 42        # also: graphsage gin hgt bilstm textcnn stacklstm
+python -m scripts.evaluate_baselines --group graph            # -> results/graph_baselines.csv    (seed 42)
+python -m scripts.evaluate_baselines --group sequence         # -> results/sequence_baselines.csv (seed 42)
+python -m scripts.evaluate_baselines --group graph --seeds 42 43 44 45 46     # + results/graph_baselines_5seed.csv
+python -m scripts.evaluate_baselines --group sequence --seeds 42 43 44 45 46  # + results/sequence_baselines_5seed.csv
+python -m scripts.evaluate_baselines --group reference --seeds 42 43 44 45 46 # GATv2 -> results/gatv2_reference_5seed.csv
+python -m scripts.benchmark_latency_graph_baselines           # -> results/latency_breakdown_graph_baselines.csv (GPU idle!)
+python -m scripts.build_final_baseline_comparison             # 11 methods x 3 modes
+python -m scripts.build_table2_old_vs_new                     # -> results/table2_old_vs_new.csv
+```
+Outputs: checkpoints `data/models_pretrained/baseline_<model>_seed<seed>.pth`; training logs
+`logs/<model>_training.log` (all seeds, one session header each; `logs/` and `data/*.pkl` are
+gitignored, regenerable); results CSVs in the same long schema as `transformer_baselines.csv`.
+`evaluate_baselines` backs up any existing output CSV to `_PRE_<timestamp>.csv` and only
+replaces the rows of the methods it re-evaluates. The GATv2 reference reuses the deployed
+`best_web_gnn_seed42.pth` and the 5-seed run's `best_web_gnn_seed43..46.pth` (never retrained).
+
+**Evaluation pipeline check:** the same `predict`/held-out/external code on the *deployed GATv2
+checkpoint* reproduces the previously committed numbers exactly (external weighted F1
+0.839892 / macro F1 0.631240, held-out 80/90, test 5-seed mean 0.99981±0.00011, per-seed held-out
+cells 8/7/8/8 for seeds 43–46) — verified, not assumed.
+
+**Training runs, seed 42** (epochs_run / best_epoch / wall time; wall times for seeds 43–46 are
+inflated because 3 training streams shared the GPU, so they are not comparable to these):
+
+| model | epochs_run | best_epoch | best test acc | wall time |
+|---|---|---|---|---|
+| GCN | 18 | 8 | 1.0000 | 182 s |
+| GraphSAGE | 12 | 2 | 0.9998 | 93 s |
+| GIN | 15 | 5 | 0.9998 | 111 s |
+| HGT | 16 | 6 | 1.0000 | 701 s |
+| Bi-LSTM | 13 | 3 | 1.0000 | 140 s |
+| TextCNN | 14 | 4 | 1.0000 | 195 s |
+| StackLSTM | 16 | 6 | 1.0000 | 291 s |
+
+**Latency** (Group A only; `docs/LATENCY.md` methodology, GATv2 measured in the same run): the
+script deliberately does **not** call `set_seed()` — a first attempt that did (deterministic
+algorithms on) inflated GPU forward times ~2× (GATv2 CUDA 4.0 ms vs 2.18 ms). Run with the GPU
+idle. Group B latency was not measured (not required; architecture too different to compare).
+
+**Code change to shared training code:** `src/training/train.py::train()` gained optional
+`model_factory`, `model_save_path`, `log_path`, `data_path`, `run_tag`, `write_family_split`
+arguments and now returns a run-summary dict. Defaults reproduce the deployed GATv2 run (the
+diff is confined to substituting those names for the module constants); baselines pass
+`write_family_split=False` so a baseline run never touches `sqli_family_test_indices.pkl`.
