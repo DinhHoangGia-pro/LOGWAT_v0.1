@@ -180,8 +180,11 @@ def evaluate_method(method, model_key, seed, device):
             rows.append(row)
             n_correct_total += row['n_correct']
             n_total += row['n_total']
+    heldout_rows = [r_ for r_ in rows if r_['eval_mode'] == 'held_out_matrix']
     summary.update(heldout_correct=n_correct_total, heldout_total=n_total,
-                   heldout_full_cells=sum(1 for r_ in rows if r_['eval_mode'] == 'held_out_matrix' and r_['accuracy'] == 1.0))
+                   heldout_full_cells=sum(1 for r_ in heldout_rows if r_['accuracy'] == 1.0))
+    # per-cell correct-out-of-10, so per-cell seed stability can be read from the 5-seed CSV
+    summary.update({f"cell:{r_['group']}": r_['n_correct'] for r_ in heldout_rows})
 
     # --- c) external dataset ---
     ext = pd.read_csv(EXTERNAL_CSV)
