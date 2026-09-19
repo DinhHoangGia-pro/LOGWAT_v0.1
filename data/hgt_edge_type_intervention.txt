@@ -1,0 +1,27 @@
+Causal edge-type interventions on TRAINED checkpoints (5 seeds, matrix = 10 rows/cell/seed -> /50).
+cs_margin = mean over the 10 comment_splitting rows of logit[SQLi] - max(other logits); >0 means SQLi wins.
+
+--- hgt ---
+cell           Benign/field_query  Benign/header_field  Benign/json_field  SQLi/sql_new_commands  SQLi/comment_splitting  SQLi/case_mixing  XSS/data_uri_base64  XSS/event_handler_focus  XSS/svg_script_variant  total/450  cs_margin_mean  cs_margin_sd  test_acc
+cond                                                                                                                                                                                                                                                               
+real                           50                   50                 50                     50                      50                50                   50                       50                      50        450           3.959         2.838     1.000
+all_seq                         0                   20                 40                     10                      10                10                   50                       50                      50        240          -4.115         4.390     0.511
+all_skip                       30                   20                 20                     20                      20                20                   40                       40                      50        260           0.344         9.615     0.753
+all_sem                         0                    0                  0                     50                      50                50                    0                        0                       0        150          22.493        14.710     0.288
+cyclic                          0                    0                  0                     50                      50                50                   10                       10                      10        180          13.048        10.158     0.356
+swap_seq_skip                  50                   50                 50                     50                      50                50                   50                       50                      50        450           6.898         4.022     0.949
+sem_as_seq                     50                   50                 50                     50                       0                10                   50                       50                      50        360          -2.547         1.538     0.999
+sem_as_skip                    50                   50                 50                     50                       0                20                   50                       50                      50        370          -2.734         1.814     0.999
+random                          0                    0                  0                     50                      50                50                   30                       20                      40        240           8.874         8.913     0.539
+drop_sem                       50                   50                 50                     50                       0                20                   50                       50                      50        370          -2.352         1.745     0.999
+drop_skip                       0                   10                 40                      0                      10                10                   50                       50                      50        220          -8.979         5.999     0.537
+drop_seq                       30                   20                 20                     20                      40                50                   30                       40                      50        300           9.649        11.738     0.781
+
+--- gatv2 ---
+cell       Benign/field_query  Benign/header_field  Benign/json_field  SQLi/sql_new_commands  SQLi/comment_splitting  SQLi/case_mixing  XSS/data_uri_base64  XSS/event_handler_focus  XSS/svg_script_variant  total/450  cs_margin_mean  cs_margin_sd  test_acc
+cond                                                                                                                                                                                                                                                           
+real                       50                   50                 50                     50                       0                50                   40                       50                      50        390          -2.436         2.251     1.000
+drop_sem                   50                   50                 50                     50                       0                40                   40                       50                      50        380          -2.537         2.283     1.000
+drop_skip                  50                   50                 50                     50                      10                50                   40                       50                      50        400          -2.130         2.874     1.000
+drop_seq                   50                   50                 50                     50                      50                50                   40                       50                      50        440           4.375         3.037     0.999
+

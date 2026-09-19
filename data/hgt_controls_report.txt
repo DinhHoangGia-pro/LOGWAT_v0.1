@@ -1,0 +1,43 @@
+5-seed mean/std per model (cs/cm = correct out of 10 rows of that cell, per seed):
+              n_seeds test_acc      heldout_correct        heldout_full_cells        cs_correct        cm_correct        cs_margin        ext_wF1        ext_benign_recall        ext_sqli_recall        ext_xss_recall       
+                          mean  std            mean    std               mean    std       mean    std       mean    std      mean    std    mean    std              mean    std            mean    std           mean    std
+model                                                                                                                                                                                                                         
+gatv2               5      1.0  0.0            78.0  4.472                7.8  0.447        0.0  0.000       10.0  0.000    -2.436  2.251   0.796  0.030             0.674  0.038           0.948  0.027          0.988  0.002
+hgt                 5      1.0  0.0            90.0  0.000                9.0  0.000       10.0  0.000       10.0  0.000     3.959  2.838   0.535  0.218             0.310  0.314           0.908  0.039          0.985  0.001
+hgt_collapsed       5      1.0  0.0            80.0  0.000                8.0  0.000        2.0  4.472       10.0  0.000    -2.476  2.324   0.754  0.034             0.633  0.058           0.915  0.031          0.983  0.002
+hgt_random          5      1.0  0.0            81.6  4.775                8.0  0.707        2.0  4.472        9.6  0.894    -5.213  6.537   0.737  0.039             0.607  0.069           0.914  0.042          0.989  0.005
+
+per-seed:
+        model  seed  test_acc  heldout_correct  heldout_full_cells  cs_correct  cm_correct  cs_margin  ext_wF1  ext_benign_recall  ext_sqli_recall  ext_xss_recall
+        gatv2    42     1.000               80                   8           0          10     -1.386    0.840              0.695            0.928           0.991
+        gatv2    43     1.000               80                   8           0          10     -5.270    0.771              0.636            0.969           0.989
+        gatv2    44     1.000               70                   7           0          10     -0.976    0.784              0.688            0.910           0.987
+        gatv2    45     1.000               80                   8           0          10     -4.388    0.814              0.719            0.965           0.985
+        gatv2    46     1.000               80                   8           0          10     -0.157    0.772              0.633            0.967           0.991
+          hgt    42     1.000               90                   9          10          10      0.309    0.719              0.571            0.875           0.983
+          hgt    43     1.000               90                   9          10          10      7.559    0.819              0.726            0.923           0.987
+          hgt    44     1.000               90                   9          10          10      2.225    0.328              0.059            0.962           0.985
+          hgt    45     1.000               90                   9          10          10      5.667    0.407              0.083            0.914           0.985
+          hgt    46     1.000               90                   9          10          10      4.036    0.404              0.111            0.866           0.985
+hgt_collapsed    42     1.000               80                   8           0          10     -4.213    0.788              0.682            0.947           0.981
+hgt_collapsed    43     1.000               80                   8           0          10     -4.457    0.761              0.650            0.892           0.985
+hgt_collapsed    44     1.000               80                   8           0          10     -0.124    0.782              0.686            0.888           0.985
+hgt_collapsed    45     1.000               80                   8          10          10      0.232    0.708              0.552            0.949           0.981
+hgt_collapsed    46     1.000               80                   8           0          10     -3.818    0.732              0.593            0.899           0.985
+   hgt_random    42     1.000               80                   8           0          10     -7.667    0.727              0.586            0.945           0.981
+   hgt_random    43     1.000               80                   8           0          10     -4.709    0.690              0.544            0.888           0.991
+   hgt_random    44     1.000               80                   8           0          10     -7.269    0.799              0.723            0.888           0.992
+   hgt_random    45     1.000               90                   9          10          10      5.520    0.734              0.573            0.973           0.994
+   hgt_random    46     0.999               78                   7           0           8    -11.939    0.734              0.609            0.877           0.987
+
+per-cell correct out of 10, summed over seeds (/10 x n_seeds):
+model                    gatv2  hgt  hgt_collapsed  hgt_random
+Benign/field_query          50   50             50          50
+Benign/header_field         50   50             50          50
+Benign/json_field           50   50             50          50
+SQLi/sql_new_commands       50   50             50          50
+SQLi/comment_splitting       0   50             10          10
+SQLi/case_mixing            50   50             50          48
+XSS/data_uri_base64         40   50             40          50
+XSS/event_handler_focus     50   50             50          50
+XSS/svg_script_variant      50   50             50          50

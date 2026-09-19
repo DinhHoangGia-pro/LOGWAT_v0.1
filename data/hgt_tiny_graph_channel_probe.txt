@@ -1,0 +1,14 @@
+External Benign graphs with 1 or 2 tokens (only seq-typed edges exist: n=2 -> 2 directed seq edges, n=1 -> builder's typed-seq self-loop).
+Typed HGT, predictions when those edges keep their real type (seq) vs are relabelled skip / sem. cols = % predicted Benign/SQLi/XSS
+--- n=1 tokens (13173 benign graphs)
+  seed 42: real: B/S/X= 56.5/ 31.2/ 12.3 | all_skip: B/S/X=  0.0/ 83.2/ 16.8 | all_sem: B/S/X=  0.0/100.0/  0.0
+  seed 43: real: B/S/X= 83.8/ 15.9/  0.3 | all_skip: B/S/X=  0.2/ 97.0/  2.8 | all_sem: B/S/X=  0.0/100.0/  0.0
+  seed 44: real: B/S/X=  0.0/ 42.8/ 57.2 | all_skip: B/S/X= 85.2/ 14.4/  0.4 | all_sem: B/S/X=  0.0/100.0/  0.0
+  seed 45: real: B/S/X=  0.0/  1.3/ 98.7 | all_skip: B/S/X=  0.0/100.0/  0.0 | all_sem: B/S/X=  0.0/100.0/  0.0
+  seed 46: real: B/S/X=  0.0/ 18.7/ 81.3 | all_skip: B/S/X=  3.8/ 96.0/  0.2 | all_sem: B/S/X=  0.0/100.0/  0.0
+--- n=2 tokens (1359 benign graphs)
+  seed 42: real: B/S/X= 95.8/  1.1/  3.1 | all_skip: B/S/X=  0.0/ 93.6/  6.4 | all_sem: B/S/X=  0.0/100.0/  0.0
+  seed 43: real: B/S/X= 95.8/  1.4/  2.8 | all_skip: B/S/X=  0.0/ 98.5/  1.5 | all_sem: B/S/X=  0.0/100.0/  0.0
+  seed 44: real: B/S/X=  0.0/  2.0/ 98.0 | all_skip: B/S/X= 97.2/  1.8/  1.0 | all_sem: B/S/X=  0.0/100.0/  0.0
+  seed 45: real: B/S/X=  0.2/  0.0/ 99.8 | all_skip: B/S/X=  0.0/ 99.0/  1.0 | all_sem: B/S/X=  0.0/100.0/  0.0
+  seed 46: real: B/S/X=  0.4/  0.1/ 99.4 | all_skip: B/S/X= 95.6/  3.0/  1.4 | all_sem: B/S/X=  0.0/100.0/  0.0

