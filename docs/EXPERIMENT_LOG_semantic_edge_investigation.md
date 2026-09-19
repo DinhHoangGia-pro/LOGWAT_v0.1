@@ -1164,7 +1164,7 @@ Correct out of 50 (5 seeds × 10 rows) per cell; `results/*_5seed.csv` `cell:*` 
   that. It is **supporting evidence, not isolation**: HGT also differs from GATv2 in attention form and has ~2× the
   parameters (610K vs 299K), and §10's `edge_attr` on GATv2Conv did not fix the cell.
 - **TextCNN also passes `comment_splitting` 50/50 without any graph** (kernels of 3–5 tokens over `uni / * * / on` style
-  fragments), and is the worst model on `data_uri_base64` (20/50, base64 tokens are mostly UNK). So a held-out cell being
+  fragments), and is joint-worst with StackLSTM on `data_uri_base64` (20/50 each; Bi-LSTM 30/50). So a held-out cell being
   solved is not by itself evidence that graph structure is needed; the matrix cannot separate "graph" from "any model that
   sees local token n-grams".
 - Sequence models are unstable across seeds (Bi-LSTM 42→89 of 90 correct, StackLSTM 34→71); GATv2/GCN/SAGE/GIN are much steadier.
@@ -1206,7 +1206,7 @@ GATv2 1.79 ms CPU / 2.18 ms CUDA agrees with #21's 2.01 / 2.31). End-to-end mean
 | CUDA | 2.177 (2.69) | 1.793 (2.28) | 1.364 (1.83) | 1.342 (1.81) | 8.093 (9.64) |
 | old Table 2 (device unspecified) | 3.7 (Proposed) / 4.1 (GATv2) | 5.8 | 4.5 | 4.9 | 6.2 |
 
-GCN/GraphSAGE/GIN are 1.3–1.6× **faster** than GATv2 (attention costs more than plain aggregation); HGT is ~3× slower. The old
+GCN/GraphSAGE/GIN are 1.2–1.6× **faster** than GATv2 (attention costs more than plain aggregation); HGT is 3.1× (CPU) to 3.7× (CUDA) slower. The old
 table's ordering (Proposed fastest of all GNNs) is not reproduced — the paper's latency argument should be "GATv2 meets the
 real-time budget" (§LATENCY), not "GATv2 is faster than other GNNs". HGT's BAG-construction stage is 0.63 ms vs 0.03 ms because
 it must also build the relation one-hot (pure Python here); its forward pass (4.5 ms CPU) dominates regardless. Group-B latency was not measured.
@@ -1221,7 +1221,7 @@ it must also build the relation one-hot (pure Python here); its forward pass (4.
 > every seed (90/90), including the comment-splitting cell that all single-relation GNNs fail; this supports, though does not isolate,
 > the value of relation-aware aggregation. On the external dataset LOGWAT attains the highest mean weighted F1 (0.796±0.030), clearly
 > above the from-scratch sequence models (≤0.51) and modestly above GCN/GraphSAGE/GIN (0.69–0.75); HGT's external performance is
-> seed-unstable (0.33–0.82). LOGWAT is 1.3–1.6× slower than GCN/GraphSAGE/GIN and 3× faster than HGT.
+> seed-unstable (0.33–0.82). LOGWAT is 1.2–1.6× slower than GCN/GraphSAGE/GIN and 3–4× faster than HGT.
 
 ### Limitations of this comparison (all carried into the numbers above)
 
