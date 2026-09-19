@@ -1,0 +1,21 @@
+External recall by stratum (mean ± std over 5 seeds); n per stratum: Benign (no E_sem anywhere)=19293, SQLi with E_sem=5323, SQLi without E_sem=5529, XSS with E_sem=30, XSS without E_sem=502
+
+                   stratum stock GATv2     placebo        semW semW-stock p(semW vs stock) semW-placebo p(semW vs placebo) placebo-stock p(placebo vs stock)
+Benign (no E_sem anywhere) 0.674±0.038 0.637±0.072 0.577±0.061     -0.097            0.021       -0.060              0.195        -0.037               0.349
+           SQLi with E_sem 0.995±0.005 0.992±0.006 0.994±0.011     -0.001            0.882       +0.002              0.712        -0.003               0.404
+        SQLi without E_sem 0.903±0.049 0.918±0.045 0.778±0.122     -0.125            0.084       -0.140              0.060        +0.015               0.623
+            XSS with E_sem 1.000±0.000 1.000±0.000 1.000±0.000     +0.000              nan       +0.000                nan        +0.000                 nan
+         XSS without E_sem 0.988±0.003 0.986±0.003 0.988±0.002     +0.000            1.000       +0.002              0.227        -0.002               0.260
+
+per-seed recall, SQLi with E_sem:
+  gatv2        [0.995, 0.995, 0.986, 0.997, 1.0]
+  gat_placebo  [0.985, 1.0, 0.995, 0.99, 0.987]
+  gat_semW     [1.0, 0.974, 0.998, 0.998, 0.999]
+per-seed recall, SQLi without E_sem:
+  gatv2        [0.865, 0.944, 0.837, 0.934, 0.935]
+  gat_placebo  [0.868, 0.972, 0.949, 0.876, 0.926]
+  gat_semW     [0.85, 0.612, 0.686, 0.869, 0.876]
+per-seed recall, Benign:
+  gatv2        [0.695, 0.636, 0.688, 0.719, 0.633]
+  gat_placebo  [0.696, 0.522, 0.676, 0.681, 0.612]
+  gat_semW     [0.58, 0.537, 0.584, 0.673, 0.513]
