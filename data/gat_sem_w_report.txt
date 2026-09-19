@@ -1,0 +1,31 @@
+5-seed mean/std (cs_correct = of 10 rows per seed):
+            n_seeds test_acc      heldout_correct        cs_correct      cm_correct        cs_margin        ext_wF1        ext_benign_recall        attn_raw_ratio        attn_rel_sem       
+                        mean  std            mean    std       mean  std       mean    std      mean    std    mean    std              mean    std           mean    std         mean    std
+model                                                                                                                                                                                        
+gatv2             5      1.0  0.0            78.0  4.472        0.0  0.0       10.0  0.000    -2.436  2.251   0.796  0.030             0.674  0.038          0.768  0.002        1.005  0.003
+gat_semW          5      1.0  0.0            90.0  0.000       10.0  0.0       10.0  0.000     8.513  6.800   0.725  0.043             0.577  0.061          0.767  0.003        1.003  0.004
+gat_placebo       5      1.0  0.0            78.0  4.472        0.0  0.0        8.0  4.472    -3.461  1.556   0.767  0.037             0.637  0.072          0.768  0.003        1.004  0.004
+
+comment_splitting all-10-pass seeds: gatv2=0/5, gat_semW=5/5, gat_placebo=0/5
+
+Fisher one-sided, semW 5/5 vs (gatv2+placebo) 0/10: p = 0.0003
+
+edits on trained gat_semW (mean over seeds): sem_as_seq: cs_correct=0.0/10 margin=-4.34, drop_sem: cs_correct=0.0/10 margin=-4.44
+
+per-seed:
+      model  seed  test_acc  heldout_correct  cs_correct  cm_correct  cs_margin  ext_wF1  ext_benign_recall  attn_raw_ratio  attn_rel_sem P_split_pred  P_split_margin P_intact_pred
+      gatv2    42       1.0               80           0          10     -1.386    0.840              0.695           0.768         1.004            B          -1.386             S
+      gatv2    43       1.0               80           0          10     -5.270    0.771              0.636           0.771         1.008            B          -5.270             S
+      gatv2    44       1.0               70           0          10     -0.976    0.784              0.688           0.767         1.002            B          -0.976             S
+      gatv2    45       1.0               80           0          10     -4.388    0.814              0.719           0.770         1.007            B          -4.388             S
+      gatv2    46       1.0               80           0          10     -0.157    0.772              0.633           0.766         1.002            B          -0.157             S
+   gat_semW    42       1.0               90          10          10     11.498    0.750              0.580           0.763         0.998            S          11.498             S
+   gat_semW    43       1.0               90          10          10      0.324    0.675              0.537           0.769         1.006            S           0.324             S
+   gat_semW    44       1.0               90          10          10     18.373    0.715              0.584           0.771         1.008            S          18.373             S
+   gat_semW    45       1.0               90          10          10      6.864    0.783              0.673           0.769         1.005            S           6.864             S
+   gat_semW    46       1.0               90          10          10      5.506    0.699              0.513           0.765         1.000            S           5.506             S
+gat_placebo    42       1.0               80           0          10     -4.714    0.794              0.696           0.765         0.999            B          -4.714             S
+gat_placebo    43       1.0               80           0          10     -4.622    0.708              0.522           0.770         1.007            B          -4.622             S
+gat_placebo    44       1.0               70           0           0     -4.099    0.791              0.676           0.767         1.003            B          -4.099             S
+gat_placebo    45       1.0               80           0          10     -2.857    0.787              0.681           0.772         1.010            B          -2.857             S
+gat_placebo    46       1.0               80           0          10     -1.012    0.756              0.612           0.766         1.002            B          -1.012             S

@@ -1,0 +1,14 @@
+per-cell correct, summed over 5 seeds (/50):
+model                    gatv2  gat_semW  gat_placebo
+Benign/field_query          50        50           50
+Benign/header_field         50        50           50
+Benign/json_field           50        50           50
+SQLi/sql_new_commands       50        50           50
+SQLi/comment_splitting       0        50            0
+SQLi/case_mixing            50        50           40
+XSS/data_uri_base64         40        50           50
+XSS/event_handler_focus     50        50           50
+XSS/svg_script_variant      50        50           50
+ext_wF1: semW 0.725±0.043 vs gatv2 0.796±0.030: Welch p=0.018, MWU p=0.032 | vs placebo 0.767: Welch p=0.132
+ext_benign_recall: semW 0.577±0.061 vs gatv2 0.674±0.038: Welch p=0.021, MWU p=0.032 | vs placebo 0.637: Welch p=0.195
+ext SQLi/XSS recall semW 0.884 0.988 | gatv2 0.948 0.988
