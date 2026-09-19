@@ -17,6 +17,27 @@ GCN,held_out_matrix,XSS/event_handler_focus,,,,,1.0,10.0,10.0
 GCN,held_out_matrix,XSS/svg_script_variant,,,,,1.0,10.0,10.0
 GCN,external_dataset,Benign,0.9372059529524724,0.5059347950033691,0.65712939275616,19293.0,,,
 GCN,external_dataset,SQLi,0.5984938813931597,0.8788241798746774,0.7120618210325904,10852.0,,,
-GCN,external_dataset,XSS,0.12133117633464294,0.9868421052631579,0.21609384647046717,532.0,,,
+GCN,external_dataset,XSS,0.1213311763346429,0.986842105263158,0.2160938464704671,532.0,,,
 GCN,external_dataset,macro avg,0.5523436702267585,0.7905336933804015,0.5284283534197393,30677.0,,,
 GCN,external_dataset,weighted avg,0.8032375472504042,0.6461844378524627,0.668913328637499,30677.0,,,
+GraphSAGE,test_split,Benign,0.9993552546744036,1.0,0.999677523379555,1550.0,,,
+GraphSAGE,test_split,SQLi,1.0,1.0,1.0,1214.0,,,
+GraphSAGE,test_split,XSS,1.0,0.9993108201240524,0.9996552912788693,1451.0,,,
+GraphSAGE,test_split,macro avg,0.9997850848914679,0.9997702733746842,0.9997776048861414,4215.0,,,
+GraphSAGE,test_split,weighted avg,0.9997629050404093,0.9997627520759194,0.9997627494386596,4215.0,,,
+GraphSAGE,test_split_duplication_breakdown,duplicate_content,,,,,1.0,1063.0,1063.0
+GraphSAGE,test_split_duplication_breakdown,novel_content,,,,,0.9996827411167513,3151.0,3152.0
+GraphSAGE,held_out_matrix,Benign/field_query,,,,,1.0,10.0,10.0
+GraphSAGE,held_out_matrix,Benign/header_field,,,,,1.0,10.0,10.0
+GraphSAGE,held_out_matrix,Benign/json_field,,,,,1.0,10.0,10.0
+GraphSAGE,held_out_matrix,SQLi/sql_new_commands,,,,,1.0,10.0,10.0
+GraphSAGE,held_out_matrix,SQLi/comment_splitting,,,,,0.0,0.0,10.0
+GraphSAGE,held_out_matrix,SQLi/case_mixing,,,,,1.0,10.0,10.0
+GraphSAGE,held_out_matrix,XSS/data_uri_base64,,,,,1.0,10.0,10.0
+GraphSAGE,held_out_matrix,XSS/event_handler_focus,,,,,1.0,10.0,10.0
+GraphSAGE,held_out_matrix,XSS/svg_script_variant,,,,,1.0,10.0,10.0
+GraphSAGE,external_dataset,Benign,0.994244297591132,0.7252371326387809,0.838698075885632,19293.0,,,
+GraphSAGE,external_dataset,SQLi,0.6712717882504842,0.9581643936601548,0.789461696150634,10852.0,,,
+GraphSAGE,external_dataset,XSS,0.46947935368043087,0.9830827067669173,0.6354799513973268,532.0,,,
+GraphSAGE,external_dataset,macro avg,0.711665146507349,0.8888280776886176,0.7545465744778643,30677.0,,,
+GraphSAGE,external_dataset,weighted avg,0.8708921894474021,0.8121067901033348,0.8177564833207797,30677.0,,,
