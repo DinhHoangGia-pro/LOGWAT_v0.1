@@ -80,3 +80,150 @@ CodeBERT,external_dataset,SQLi,0.6820903647250952,0.923700700331736,0.7847189603
 CodeBERT,external_dataset,XSS,0.0501508295625942,1.0,0.0955116696588869,532.0,,,
 CodeBERT,external_dataset,macro avg,0.5531566435205507,0.7273096911055855,0.4280624979153982,30677.0,,,
 CodeBERT,external_dataset,weighted avg,0.8253006776496264,0.5065032434723082,0.5333025438516612,30677.0,,,
+GCN,test_split,Benign,1.0,1.0,1.0,1550.0,,,
+GCN,test_split,SQLi,1.0,1.0,1.0,1214.0,,,
+GCN,test_split,XSS,1.0,1.0,1.0,1451.0,,,
+GCN,test_split,macro avg,1.0,1.0,1.0,4215.0,,,
+GCN,test_split,weighted avg,1.0,1.0,1.0,4215.0,,,
+GCN,test_split_duplication_breakdown,duplicate_content,,,,,1.0,1063.0,1063.0
+GCN,test_split_duplication_breakdown,novel_content,,,,,1.0,3152.0,3152.0
+GCN,held_out_matrix,Benign/field_query,,,,,1.0,10.0,10.0
+GCN,held_out_matrix,Benign/header_field,,,,,1.0,10.0,10.0
+GCN,held_out_matrix,Benign/json_field,,,,,1.0,10.0,10.0
+GCN,held_out_matrix,SQLi/sql_new_commands,,,,,1.0,10.0,10.0
+GCN,held_out_matrix,SQLi/comment_splitting,,,,,0.0,0.0,10.0
+GCN,held_out_matrix,SQLi/case_mixing,,,,,0.0,0.0,10.0
+GCN,held_out_matrix,XSS/data_uri_base64,,,,,1.0,10.0,10.0
+GCN,held_out_matrix,XSS/event_handler_focus,,,,,1.0,10.0,10.0
+GCN,held_out_matrix,XSS/svg_script_variant,,,,,1.0,10.0,10.0
+GCN,external_dataset,Benign,0.9372059529524724,0.5059347950033691,0.65712939275616,19293.0,,,
+GCN,external_dataset,SQLi,0.5984938813931597,0.8788241798746774,0.7120618210325904,10852.0,,,
+GCN,external_dataset,XSS,0.1213311763346429,0.986842105263158,0.2160938464704671,532.0,,,
+GCN,external_dataset,macro avg,0.5523436702267585,0.7905336933804015,0.5284283534197393,30677.0,,,
+GCN,external_dataset,weighted avg,0.8032375472504042,0.6461844378524627,0.668913328637499,30677.0,,,
+GraphSAGE,test_split,Benign,0.9993552546744036,1.0,0.999677523379555,1550.0,,,
+GraphSAGE,test_split,SQLi,1.0,1.0,1.0,1214.0,,,
+GraphSAGE,test_split,XSS,1.0,0.9993108201240524,0.9996552912788692,1451.0,,,
+GraphSAGE,test_split,macro avg,0.999785084891468,0.9997702733746842,0.9997776048861414,4215.0,,,
+GraphSAGE,test_split,weighted avg,0.9997629050404092,0.9997627520759194,0.9997627494386596,4215.0,,,
+GraphSAGE,test_split_duplication_breakdown,duplicate_content,,,,,1.0,1063.0,1063.0
+GraphSAGE,test_split_duplication_breakdown,novel_content,,,,,0.9996827411167512,3151.0,3152.0
+GraphSAGE,held_out_matrix,Benign/field_query,,,,,1.0,10.0,10.0
+GraphSAGE,held_out_matrix,Benign/header_field,,,,,1.0,10.0,10.0
+GraphSAGE,held_out_matrix,Benign/json_field,,,,,1.0,10.0,10.0
+GraphSAGE,held_out_matrix,SQLi/sql_new_commands,,,,,1.0,10.0,10.0
+GraphSAGE,held_out_matrix,SQLi/comment_splitting,,,,,0.0,0.0,10.0
+GraphSAGE,held_out_matrix,SQLi/case_mixing,,,,,1.0,10.0,10.0
+GraphSAGE,held_out_matrix,XSS/data_uri_base64,,,,,1.0,10.0,10.0
+GraphSAGE,held_out_matrix,XSS/event_handler_focus,,,,,1.0,10.0,10.0
+GraphSAGE,held_out_matrix,XSS/svg_script_variant,,,,,1.0,10.0,10.0
+GraphSAGE,external_dataset,Benign,0.994244297591132,0.7252371326387809,0.838698075885632,19293.0,,,
+GraphSAGE,external_dataset,SQLi,0.6712717882504842,0.9581643936601548,0.789461696150634,10852.0,,,
+GraphSAGE,external_dataset,XSS,0.4694793536804308,0.9830827067669172,0.6354799513973268,532.0,,,
+GraphSAGE,external_dataset,macro avg,0.711665146507349,0.8888280776886176,0.7545465744778643,30677.0,,,
+GraphSAGE,external_dataset,weighted avg,0.8708921894474021,0.8121067901033348,0.8177564833207797,30677.0,,,
+GIN,test_split,Benign,1.0,1.0,1.0,1550.0,,,
+GIN,test_split,SQLi,0.9991769547325104,1.0,0.9995883079456568,1214.0,,,
+GIN,test_split,XSS,1.0,0.9993108201240524,0.9996552912788692,1451.0,,,
+GIN,test_split,macro avg,0.9997256515775034,0.9997702733746842,0.9997478664081751,4215.0,,,
+GIN,test_split,weighted avg,0.9997629473417006,0.9997627520759194,0.9997627600217476,4215.0,,,
+GIN,test_split_duplication_breakdown,duplicate_content,,,,,1.0,1063.0,1063.0
+GIN,test_split_duplication_breakdown,novel_content,,,,,0.9996827411167512,3151.0,3152.0
+GIN,held_out_matrix,Benign/field_query,,,,,1.0,10.0,10.0
+GIN,held_out_matrix,Benign/header_field,,,,,1.0,10.0,10.0
+GIN,held_out_matrix,Benign/json_field,,,,,1.0,10.0,10.0
+GIN,held_out_matrix,SQLi/sql_new_commands,,,,,1.0,10.0,10.0
+GIN,held_out_matrix,SQLi/comment_splitting,,,,,0.0,0.0,10.0
+GIN,held_out_matrix,SQLi/case_mixing,,,,,1.0,10.0,10.0
+GIN,held_out_matrix,XSS/data_uri_base64,,,,,1.0,10.0,10.0
+GIN,held_out_matrix,XSS/event_handler_focus,,,,,1.0,10.0,10.0
+GIN,held_out_matrix,XSS/svg_script_variant,,,,,1.0,10.0,10.0
+GIN,external_dataset,Benign,0.9648619576909286,0.557922562587467,0.7070182928831817,19293.0,,,
+GIN,external_dataset,SQLi,0.5498365527488855,0.8524695908588279,0.6684973082342739,10852.0,,,
+GIN,external_dataset,XSS,0.1962166172106824,0.9943609022556392,0.3277571251548947,532.0,,,
+GIN,external_dataset,macro avg,0.5703050425501656,0.8015843519006447,0.5677575754241168,30677.0,,,
+GIN,external_dataset,weighted avg,0.8047167343781358,0.6696873879453662,0.6868143398681738,30677.0,,,
+HGT,test_split,Benign,1.0,1.0,1.0,1550.0,,,
+HGT,test_split,SQLi,1.0,1.0,1.0,1214.0,,,
+HGT,test_split,XSS,1.0,1.0,1.0,1451.0,,,
+HGT,test_split,macro avg,1.0,1.0,1.0,4215.0,,,
+HGT,test_split,weighted avg,1.0,1.0,1.0,4215.0,,,
+HGT,test_split_duplication_breakdown,duplicate_content,,,,,1.0,1063.0,1063.0
+HGT,test_split_duplication_breakdown,novel_content,,,,,1.0,3152.0,3152.0
+HGT,held_out_matrix,Benign/field_query,,,,,1.0,10.0,10.0
+HGT,held_out_matrix,Benign/header_field,,,,,1.0,10.0,10.0
+HGT,held_out_matrix,Benign/json_field,,,,,1.0,10.0,10.0
+HGT,held_out_matrix,SQLi/sql_new_commands,,,,,1.0,10.0,10.0
+HGT,held_out_matrix,SQLi/comment_splitting,,,,,1.0,10.0,10.0
+HGT,held_out_matrix,SQLi/case_mixing,,,,,1.0,10.0,10.0
+HGT,held_out_matrix,XSS/data_uri_base64,,,,,1.0,10.0,10.0
+HGT,held_out_matrix,XSS/event_handler_focus,,,,,1.0,10.0,10.0
+HGT,held_out_matrix,XSS/svg_script_variant,,,,,1.0,10.0,10.0
+HGT,external_dataset,Benign,0.9612700628053036,0.5711916239050433,0.7165848424748837,19293.0,,,
+HGT,external_dataset,SQLi,0.6547561564461613,0.8746774788057501,0.7489052822596552,10852.0,,,
+HGT,external_dataset,XSS,0.1108990670059372,0.9830827067669172,0.1993140243902439,532.0,,,
+HGT,external_dataset,macro avg,0.5756417620858006,0.8096506031592369,0.5549347163749276,30677.0,,,
+HGT,external_dataset,weighted avg,0.8380935370180795,0.6856928643609219,0.7190477083784373,30677.0,,,
+Bi-LSTM,test_split,Benign,1.0,1.0,1.0,1550.0,,,
+Bi-LSTM,test_split,SQLi,1.0,1.0,1.0,1214.0,,,
+Bi-LSTM,test_split,XSS,1.0,1.0,1.0,1451.0,,,
+Bi-LSTM,test_split,macro avg,1.0,1.0,1.0,4215.0,,,
+Bi-LSTM,test_split,weighted avg,1.0,1.0,1.0,4215.0,,,
+Bi-LSTM,test_split_duplication_breakdown,duplicate_content,,,,,1.0,1063.0,1063.0
+Bi-LSTM,test_split_duplication_breakdown,novel_content,,,,,1.0,3152.0,3152.0
+Bi-LSTM,held_out_matrix,Benign/field_query,,,,,0.0,0.0,10.0
+Bi-LSTM,held_out_matrix,Benign/header_field,,,,,1.0,10.0,10.0
+Bi-LSTM,held_out_matrix,Benign/json_field,,,,,1.0,10.0,10.0
+Bi-LSTM,held_out_matrix,SQLi/sql_new_commands,,,,,0.1,1.0,10.0
+Bi-LSTM,held_out_matrix,SQLi/comment_splitting,,,,,0.0,0.0,10.0
+Bi-LSTM,held_out_matrix,SQLi/case_mixing,,,,,0.1,1.0,10.0
+Bi-LSTM,held_out_matrix,XSS/data_uri_base64,,,,,0.0,0.0,10.0
+Bi-LSTM,held_out_matrix,XSS/event_handler_focus,,,,,1.0,10.0,10.0
+Bi-LSTM,held_out_matrix,XSS/svg_script_variant,,,,,1.0,10.0,10.0
+Bi-LSTM,external_dataset,Benign,0.9418914912540765,0.164671124241953,0.2803317744639548,19293.0,,,
+Bi-LSTM,external_dataset,SQLi,0.5282797858099063,0.2909141172134168,0.3752079866888519,10852.0,,,
+Bi-LSTM,external_dataset,XSS,0.0246155288822205,0.986842105263158,0.0480329368709972,532.0,,,
+Bi-LSTM,external_dataset,macro avg,0.4982622686487344,0.4808091155728426,0.2345242326746013,30677.0,,,
+Bi-LSTM,external_dataset,weighted avg,0.7796688149994896,0.2235877041431691,0.3098657469340506,30677.0,,,
+TextCNN,test_split,Benign,1.0,1.0,1.0,1550.0,,,
+TextCNN,test_split,SQLi,1.0,1.0,1.0,1214.0,,,
+TextCNN,test_split,XSS,1.0,1.0,1.0,1451.0,,,
+TextCNN,test_split,macro avg,1.0,1.0,1.0,4215.0,,,
+TextCNN,test_split,weighted avg,1.0,1.0,1.0,4215.0,,,
+TextCNN,test_split_duplication_breakdown,duplicate_content,,,,,1.0,1063.0,1063.0
+TextCNN,test_split_duplication_breakdown,novel_content,,,,,1.0,3152.0,3152.0
+TextCNN,held_out_matrix,Benign/field_query,,,,,1.0,10.0,10.0
+TextCNN,held_out_matrix,Benign/header_field,,,,,1.0,10.0,10.0
+TextCNN,held_out_matrix,Benign/json_field,,,,,1.0,10.0,10.0
+TextCNN,held_out_matrix,SQLi/sql_new_commands,,,,,1.0,10.0,10.0
+TextCNN,held_out_matrix,SQLi/comment_splitting,,,,,1.0,10.0,10.0
+TextCNN,held_out_matrix,SQLi/case_mixing,,,,,1.0,10.0,10.0
+TextCNN,held_out_matrix,XSS/data_uri_base64,,,,,0.0,0.0,10.0
+TextCNN,held_out_matrix,XSS/event_handler_focus,,,,,1.0,10.0,10.0
+TextCNN,held_out_matrix,XSS/svg_script_variant,,,,,1.0,10.0,10.0
+TextCNN,external_dataset,Benign,0.9850427350427352,0.1911574146063339,0.3201805790684551,19293.0,,,
+TextCNN,external_dataset,SQLi,0.6727491336020935,0.8765204570586067,0.7612340442559321,10852.0,,,
+TextCNN,external_dataset,XSS,0.0411130217289354,0.9887218045112782,0.0789434188803842,532.0,,,
+TextCNN,external_dataset,macro avg,0.566301630124588,0.6854665587254063,0.3867860140682571,30677.0,,,
+TextCNN,external_dataset,weighted avg,0.8581991463503341,0.4474361899794634,0.4720198734908056,30677.0,,,
+StackLSTM,test_split,Benign,1.0,1.0,1.0,1550.0,,,
+StackLSTM,test_split,SQLi,1.0,1.0,1.0,1214.0,,,
+StackLSTM,test_split,XSS,1.0,1.0,1.0,1451.0,,,
+StackLSTM,test_split,macro avg,1.0,1.0,1.0,4215.0,,,
+StackLSTM,test_split,weighted avg,1.0,1.0,1.0,4215.0,,,
+StackLSTM,test_split_duplication_breakdown,duplicate_content,,,,,1.0,1063.0,1063.0
+StackLSTM,test_split_duplication_breakdown,novel_content,,,,,1.0,3152.0,3152.0
+StackLSTM,held_out_matrix,Benign/field_query,,,,,0.7,7.0,10.0
+StackLSTM,held_out_matrix,Benign/header_field,,,,,1.0,10.0,10.0
+StackLSTM,held_out_matrix,Benign/json_field,,,,,1.0,10.0,10.0
+StackLSTM,held_out_matrix,SQLi/sql_new_commands,,,,,0.3,3.0,10.0
+StackLSTM,held_out_matrix,SQLi/comment_splitting,,,,,0.2,2.0,10.0
+StackLSTM,held_out_matrix,SQLi/case_mixing,,,,,0.2,2.0,10.0
+StackLSTM,held_out_matrix,XSS/data_uri_base64,,,,,1.0,10.0,10.0
+StackLSTM,held_out_matrix,XSS/event_handler_focus,,,,,1.0,10.0,10.0
+StackLSTM,held_out_matrix,XSS/svg_script_variant,,,,,1.0,10.0,10.0
+StackLSTM,external_dataset,Benign,0.922740524781341,0.098429482195615,0.1778839398623015,19293.0,,,
+StackLSTM,external_dataset,SQLi,0.7595712098009189,0.7769996314043495,0.7681865804218102,10852.0,,,
+StackLSTM,external_dataset,XSS,0.0297979221372302,0.981203007518797,0.0578393351800554,532.0,,,
+StackLSTM,external_dataset,macro avg,0.5707032189064967,0.6188773737062538,0.3346366184880557,30677.0,,,
+StackLSTM,external_dataset,weighted avg,0.8495339246974277,0.3537829644358966,0.3846219039937627,30677.0,,,

@@ -1,7 +1,8 @@
-"""Assemble the final 4-method (GATv2 / RoBERTa / CodeBERT / string-matching)
-comparison across all 3 evaluation modes (test split, held-out 9-cell
-matrix, external dataset) -- the table intended to replace Table 2 in the
-paper (Reviewer #3).
+"""Assemble the final comparison -- GATv2 / RoBERTa / CodeBERT / string-matching,
+plus (#16) the re-run graph baselines (GCN / GraphSAGE / GIN / HGT) and sequence
+baselines (Bi-LSTM / TextCNN / StackLSTM) -- across all 3 evaluation modes (test
+split, held-out 9-cell matrix, external dataset). The table intended to replace
+Table 2 in the paper (Reviewer #3).
 
 Pulls from results already on disk rather than recomputing anything:
   - GATv2 test split:      results/main_results.csv
@@ -11,6 +12,10 @@ Pulls from results already on disk rather than recomputing anything:
   - GATv2 + string-matching external:  results/external_dataset_evaluation.csv
   - string-matching test split:        results/string_matching_test_split.csv
   - RoBERTa + CodeBERT (all 3 modes):  results/transformer_baselines.csv
+  - GCN/GraphSAGE/GIN/HGT (all 3 modes):    results/graph_baselines.csv
+  - Bi-LSTM/TextCNN/StackLSTM (all 3 modes): results/sequence_baselines.csv
+    (both in the same schema as transformer_baselines.csv; skipped, with a
+    message, if the file doesn't exist yet)
 
 Writes results/final_baseline_comparison.csv, long format:
   method, eval_mode, group, precision, recall, f1_score, support,
@@ -91,6 +96,15 @@ def transformer_rows():
     return df[COLUMNS].to_dict('records')
 
 
+def baseline_csv_rows(name):
+    """Rows of a results/<name>.csv already in this table's schema (#16 baselines)."""
+    path = RESULTS_DIR / name
+    if not path.exists():
+        print(f"[!] {name} not found, skipping")
+        return []
+    return pd.read_csv(path)[COLUMNS].to_dict('records')
+
+
 def main():
     rows = []
     rows.extend(gatv2_test_split_rows())
@@ -98,6 +112,8 @@ def main():
     rows.extend(heldout_matrix_rows())
     rows.extend(external_rows())
     rows.extend(transformer_rows())
+    rows.extend(baseline_csv_rows('graph_baselines.csv'))
+    rows.extend(baseline_csv_rows('sequence_baselines.csv'))
 
     if OUT_CSV.exists():
         backup = RESULTS_DIR / f"final_baseline_comparison_PRE_{time.strftime('%Y%m%d_%H%M%S')}.csv"
