@@ -80,13 +80,70 @@ All results use one dataset family in which SQLi and XSS are partly template-gen
 We represented HTTP requests as multi-relational token graphs whose semantic edges normalize different obfuscations of the same keyword pair, and classified them with a GATv2 network. Under a like-for-like protocol the standard test split no longer separates architectures, so we compared on a held-out obfuscation matrix and an external dataset. On both, LOGWAT is competitive: on the external dataset it has the best mean weighted F1 (0.796), and on the held-out matrix it matches the single-relation GNNs and a TextCNN, at about 2~ms per request. Its main systematic weakness, comment splitting, is a dilution effect that a relation-typed aggregation removes, and controlled experiments attribute the removal to edge typing; the benefit, however, depends on the semantic-edge builder and comes with false alarms on benign keyword pairs and, for HGT, seed-unstable behaviour on very short requests. Aggregating semantic edges through a dedicated typed path while keeping a stable shared path for dense edges is the most direct next step.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% CASE STUDY (replaces \subsection{Visual explainability and case Study: obfuscation resilience} and Fig.~6)
+%% Numbers: data/case_study_fig6.txt (scripts/case_study_fig6.py), 5 seeds 42--46.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Case study: edge existence versus edge processing}
+\label{sec:case_study}
+
+We follow one payload through three models. The illustration used in an earlier version of this section, \texttt{UNION/**/SELECT/**/schema}, keeps both keywords intact. LOGWAT classifies it as SQLi at all five seeds (mean SQLi logit margin $+8.66$) and still does so with its semantic edge deleted ($+5.85$), so it cannot show what the semantic edge contributes; it is the case described in Section~\ref{sec:esem_window}, in which lexical node features and local $E_{seq}$/$E_{skip}$ connectivity suffice. We therefore use the held-out payload whose keywords are themselves fragmented, \texttt{p=0;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=0;--} (37 tokens, 146 edges), and keep the original as its intact-keyword counterpart (Table~\ref{tab:case_study}).
+
+\paragraph{(a) LOGWAT: the edge is built, but not used.}
+The graph builder does what the method intends. It merges \texttt{uni}+\texttt{on}, \texttt{sel}+\texttt{ect} and \texttt{fr}+\texttt{om} back into \texttt{union}, \texttt{select} and \texttt{from} and adds $E_{sem}$ edges for the pairs union--select and select--from: four directed edges, 2.7\% of the 146 (36 sequential or skip edges for every semantic one). LOGWAT's GATv2 layer does not favour them. Its first-layer attention on these edges is 0.77 of that on the other edges at every seed, which is uniform attention once in-degree is accounted for (1.005 against 1.000). LOGWAT labels the payload Benign at all five seeds (mean margin $-2.44$). Two edits on the same checkpoints show that the edge is inert and where the signal is lost: deleting the four semantic edges leaves the decision unchanged ($-2.54$), whereas deleting the 72 sequential edges, which raises the semantic share to 5.4\%, makes LOGWAT classify the payload as SQLi at all five seeds ($+4.37$). The information is in the model; a single shared aggregation dilutes it.
+
+\paragraph{(b) HGT, same graph: a different treatment of edge types.}
+A comparison model that receives exactly the same graph but keeps the three edge types apart (HGT, which applies a separate message transformation per edge type instead of one shared aggregation; it is a baseline, not part of LOGWAT) classifies the payload as SQLi at all five seeds (mean margin $+3.96$; the narrowest seed is $+0.31$). This is not explained by HGT's extra capacity or its attention form: the same architecture, with the same parameter count, trained with randomly assigned edge types or with a single edge type, labels this payload SQLi in only 1 of 5 runs each. Over the whole held-out comment-splitting cell the result is 50/50 for typed HGT against 0/50 for LOGWAT.
+
+\paragraph{(c) The typed semantic edges decide.}
+On the trained HGT checkpoints themselves, deleting the four $E_{sem}$ edges makes all five seeds answer Benign (margin $+3.96 \rightarrow -2.35$), and so does re-typing them as sequential or skip edges ($-2.55$, $-2.73$); the other 142 edges, the node features and the weights are unchanged. HGT's first-layer attention on these edges is as uniform as LOGWAT's (1.03), so the mechanism is not attention: the edge type acts through the type-specific message transformation.
+
+\begin{table}[t]
+\centering
+\caption{Payloads classified as SQLi (of five seeds) and mean SQLi logit margin, with the semantic edges present or deleted at inference on the same trained models.}
+\label{tab:case_study}
+\footnotesize
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+ & \multicolumn{2}{c|}{\textbf{LOGWAT (GATv2)}} & \multicolumn{2}{c|}{\textbf{HGT (typed edges)}} \\
+\textbf{Payload} & $E_{sem}$ present & $E_{sem}$ deleted & $E_{sem}$ present & $E_{sem}$ deleted \\
+\hline
+keywords intact (\texttt{UNION/**/SELECT/**/schema}) & 5/5 ($+8.66$) & 5/5 ($+5.85$) & 5/5 ($+6.59$) & 0/5 ($-1.83$) \\
+keywords fragmented (held-out cell)                   & 0/5 ($-2.44$) & 0/5 ($-2.54$) & 5/5 ($+3.96$) & 0/5 ($-2.35$) \\
+\hline
+\end{tabular}
+\end{table}
+
+\paragraph{What the example shows.}
+For fragmented keywords, building the semantic edge is necessary (without it even HGT fails) but not sufficient: LOGWAT builds it and does not benefit. What decides is how the architecture processes the edge, through a shared attention-weighted aggregation that treats it as one of 146 neighbours, or through a relation-specific message transformation. LOGWAT as implemented (GATv2 over a homogeneous edge set) does not exploit the advantage of the multi-relational graph it constructs. We therefore present this payload not as evidence of obfuscation resilience but as a limitation together with the change that removes it. Two qualifications apply. The intact-keyword row shows that the shared aggregation is enough when the keywords survive, and that the typed model pays for its advantage with a dependence on the builder: without its semantic edge it fails even on the intact payload, where LOGWAT is unaffected. And this is one illustrative payload, backed by the ten-row held-out cell (0/50 against 50/50) and the limits discussed above, not a general statement about obfuscation.
+
+\paragraph{Relation to Section~\ref{sec:esem_window}.}
+The two sections describe two different conditions of sufficiency and do not compete. Section~\ref{sec:esem_window} concerns the data: when the keyword tokens survive, $E_{sem}$ may be absent without harm, because lexical features and local edges carry the signal (first row of Table~\ref{tab:case_study}, LOGWAT columns). This section concerns the architecture: when the keywords are fragmented and the lexical signal is gone, the edge must both exist and be processed through a path that keeps it distinct (second row). The second-line-of-defense role therefore has a second condition, stated below.
+
+\begin{figure}[H]
+\centering
+% TODO: regenerate. Panel (a): BAG of the fragmented payload with the four E_sem edges in red. Panel (b): SQLi margin, LOGWAT vs HGT, E_sem present/deleted, 5 seeds (points) + mean (bar); values in data/case_study_fig6.txt.
+\includegraphics[width=0.9\textwidth]{Fig/Fig.6_new.png}
+\caption{Case study: edge existence versus edge processing. (a) Behavioral attack graph of the fragmented payload \texttt{p=0;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=0;--}: the builder reconstructs \texttt{union}, \texttt{select} and \texttt{from} and adds four semantic edges (red) among 146 edges. (b) SQLi logit margin ($>0$ means SQLi) of LOGWAT and of typed HGT with the semantic edges present and deleted; points are the five seeds, bars their mean. The edge is built in every case, but only the model with a relation-specific message transformation uses it.}\label{fig6}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% REPLACEMENT SENTENCES for sec:esem_window (LOGWAT_Quyet_Dinh_BIA_13_14.md / docs/BIA_DECISION_LOG.md).
+%% The existing text says comment splitting "removes the E_sem edge simultaneously"; with the current builder
+%% (semantic.py::_reconstruct_keywords) the edge is emitted (4 edges on the probe), so that sentence is factually wrong.
+%% Replace from "This contrasts with comment-splitting" to the end of the paragraph with:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+This contrasts with comment-splitting (Mechanism~2), which fragments the keyword tokens themselves. There the builder still reconstructs the keyword pair and emits the $E_{sem}$ edge, but LOGWAT's shared aggregation does not exploit it: its decision is the same with the edge deleted, and, unlike the gap-window case, the lexical signal that would otherwise compensate is gone, so the payload is misclassified at all five seeds (Section~\ref{sec:case_study}). We therefore refine our earlier claim: $E_{sem}$ functions as a second line of defense whose contribution becomes visible only when the lexical signal it depends on is also disrupted and, for fragmented keywords, only in an architecture that processes the edge through a relation-specific path (Section~\ref{sec:case_study}), not whenever the edge is structurally absent.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% AUTHOR NOTES -- NOT FOR SUBMISSION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Statements elsewhere in sn-article_v1.tex that contradict the measurements and must change with this text:
 %  1. Contribution 4 and Abstract: "97.84% accuracy", "state-of-the-art", "outperforming Bi-LSTM and vanilla GNN by 8-12%": not reproduced (all >= 99.9% on the test split; margins within 0.04 pp).
 %  2. Old Table 2 numbers (89.5-97.8%) and latencies (3.7 / 4.1 / 5.8 ...): replaced above. LOGWAT is 1.2-1.6x SLOWER than GCN/GraphSAGE/GIN and 3-4x faster than HGT, not "faster than vanilla GCN/GIN". Independent LOGWAT latency: 2.01 ms CPU / 2.31 ms CUDA (docs/LATENCY.md); 1.79 ms in the same-run comparison.
 %  3. Old Discussion bullets ("2.54% over GATv2", "F1 0.98 proves resistance", "faster than GCN/GIN due to sparse adjacency"): remove.
-%  4. Section "Visual explainability and case study" (Fig. 6): says GATv2 aggregates UNION and SELECT through the E_sem "shortcut". Measured: LOGWAT's attention on E_sem edges is NOT higher than on other edges (raw ratio 0.76-0.82, not degree-corrected) and it fails the comment-splitting cell 0/50. Rewrite as: the graph builder makes the two obfuscations map to one edge, but a shared aggregation does not exploit it; HGT does.
+%  4. DONE in the case-study block above (Fig. 6). Old text also contained claims that the measurements contradict: "Bi-LSTM failed" and "GCNs struggled" on UNION/**/SELECT/**/schema (Bi-LSTM, GCN, GraphSAGE, GIN are all correct 5/5 seeds on it; TextCNN and StackLSTM are inconsistent, 3/5), and "10-token distance between UNION and SELECT" (they are tokens 0 and 5). The figure itself must be regenerated (old panel (b) shows the intact payload).
+%  4b. sec:esem_window (BIA_DECISION_LOG.md, hin_web_vulne/LOGWAT_Quyet_Dinh_BIA_13_14.md, checklist item #20) says comment splitting "removes the E_sem edge simultaneously": wrong under the current builder (edge emitted). Replacement sentences are in the block above; those files are NOT edited.
+%  4c. Attention wording: LOGWAT raw sem/other ratio is 0.77 (0.766-0.771) on this payload, but degree-corrected it is uniform (1.005 vs 1.000) -- write "not favoured", never "lower than average".
 %  5. Conclusion paragraphs "decisive max-pooling", "effectively neutralized evasion tactics", "robust inductive generalization ... without re-training": not supported at this strength (external Benign recall 0.67).
 %  6. "Skip edges provide robustness against junk-code injection": not re-evaluated here; earlier ablation (log section 11) shows case_mixing regresses when skip edges are removed, but verify wording before keeping the claim.
 %  7. Dataset description: SQLi pool is 41 templates (16 train-only), 25.2% of the test split duplicates training content; state both in the setup section. Check docs/DATASET.md for the known inaccuracy about "8 payloads per family".
