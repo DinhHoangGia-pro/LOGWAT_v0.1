@@ -97,3 +97,19 @@ number:
   and N — all now available in this file and `results/latency_breakdown.csv`.
 - Do not claim the number holds under batched/high-throughput serving
   without a separate batched-inference measurement — not done here.
+
+## Graph baselines (GCN / GraphSAGE / GIN / HGT), #16 (2026-09-19)
+
+`scripts/benchmark_latency_graph_baselines.py` → `results/latency_breakdown_graph_baselines.csv`. Same methodology as above
+(batch 1, N=1000 from the frozen test split, 20 warm-up, CPU and CUDA), with GATv2 measured **in the same run** as the
+reference. It deliberately does not call `set_seed()` (deterministic-algorithms mode roughly doubled GPU forward times in a first
+attempt: GATv2 CUDA 4.0 ms vs 2.18 ms). End-to-end mean (p95), ms:
+
+| | GATv2 | GCN | GraphSAGE | GIN | HGT |
+|---|---|---|---|---|---|
+| CPU | 1.785 (2.59) | 1.411 (2.06) | 1.137 (1.79) | 1.152 (1.82) | 5.602 (7.84) |
+| CUDA | 2.177 (2.69) | 1.793 (2.28) | 1.364 (1.83) | 1.342 (1.81) | 8.093 (9.64) |
+
+GCN/GraphSAGE/GIN are 1.2–1.6× faster than GATv2; HGT is 3.1–3.7× slower (its BAG-construction stage also includes building the
+relation one-hot: 0.63 ms vs 0.03 ms). The original Table 2's ordering (Proposed fastest among GNNs, 3.7 ms vs 4.1–6.2 ms) is not
+reproduced. Sequence baselines (Bi-LSTM/TextCNN/StackLSTM) were not measured.
