@@ -132,9 +132,32 @@ def _fixed_family_group_split(graphs):
     return train_idx, test_idx
 
 
-def train(num_epochs=None, batch_size=None, lr=None, target_metric='acc', seed=None):
+def train(num_epochs=None, batch_size=None, lr=None, target_metric='acc', seed=None,
+          model_factory=None, model_save_path=None, log_path=None, data_path=None,
+          run_tag='', write_family_split=True):
+    """Train on the frozen global split.
+
+    Defaults reproduce the deployed GATv2 run exactly. The keyword-only extras
+    exist so baseline models (src/models/baselines_graph.py,
+    src/models/baselines_seq.py) can reuse this exact loop -- same split, class
+    weights, AdamW/scheduler, early stopping -- instead of a copy of it:
+
+      model_factory(use_edge_attr) -> nn.Module   (default: HeavyWebGNN)
+      model_save_path / log_path / data_path      (default: the GATv2 paths)
+      run_tag                                     (appended to the log session header)
+      write_family_split                          (False for baselines: the SQLi
+                                                   family-split pkl is a GATv2 report
+                                                   artifact, not something a baseline
+                                                   run should touch)
+    Returns a dict summarising the run (best_acc, best_epoch, epochs_run, ...).
+    """
     seed = seed if seed is not None else DEFAULT_SEED
     set_seed(seed)
+    model_save_path = model_save_path or MODEL_SAVE_PATH
+    log_path = log_path or LOG_PATH
+    data_path = data_path or DATA_PATH
+    if model_factory is None:
+        model_factory = lambda use_edge_attr: HeavyWebGNN(use_edge_attr=use_edge_attr)
 
     # fill defaults from config if not provided
     training_cfg = config_cfg.get('training', {})
@@ -149,9 +172,9 @@ def train(num_epochs=None, batch_size=None, lr=None, target_metric='acc', seed=N
     early_stop_min_delta = float(training_cfg.get('early_stopping_min_delta', 0.0))
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(f"[*] seed={seed} | model_save={MODEL_SAVE_PATH} | early_stop_patience={early_stop_patience} | early_stop_min_delta={early_stop_min_delta}")
+    print(f"[*] seed={seed} | model_save={model_save_path} | early_stop_patience={early_stop_patience} | early_stop_min_delta={early_stop_min_delta}")
     start_wall = time.time()
-    with open(DATA_PATH, 'rb') as f:
+    with open(data_path, 'rb') as f:
         data_pkl = pickle.load(f)
 
     graphs = list(data_pkl['graphs'])
@@ -180,11 +203,11 @@ def train(num_epochs=None, batch_size=None, lr=None, target_metric='acc', seed=N
     class_weights_tensor = torch.tensor(class_weights, dtype=torch.float).to(device)
     class_weight_line = f"[*] Computed class weights (balanced): {class_weights.tolist()}"
     print(class_weight_line)
-    os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
-    with open(LOG_PATH, 'a') as _cw_log:
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    with open(log_path, 'a') as _cw_log:
         _cw_log.write(class_weight_line + "\n")
 
-    model = HeavyWebGNN(use_edge_attr=use_edge_attr).to(device)
+    model = model_factory(use_edge_attr).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=training_cfg.get('weight_decay', 0.1))
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=5)
     criterion = nn.CrossEntropyLoss(weight=class_weights_tensor)
@@ -195,10 +218,10 @@ def train(num_epochs=None, batch_size=None, lr=None, target_metric='acc', seed=N
     early_stop_reason = 'reached max epoch'
     first_epoch_stats = None
     last_epoch_stats = None
-    os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
 
-    with open(LOG_PATH, 'a') as log_f:
-        log_f.write(f"\n--- NEW SESSION: {time.ctime()} ---\n")
+    with open(log_path, 'a') as log_f:
+        log_f.write(f"\n--- NEW SESSION: {time.ctime()}{run_tag} ---\n")
 
         print(f"[DEBUG] ACTUAL EPOCH LOOP BOUND = {num_epochs}", flush=True)
         for epoch in range(1, num_epochs + 1):
@@ -240,8 +263,8 @@ def train(num_epochs=None, batch_size=None, lr=None, target_metric='acc', seed=N
                 best_acc = acc
                 best_epoch = epoch
                 epochs_without_improvement = 0
-                os.makedirs(os.path.dirname(MODEL_SAVE_PATH), exist_ok=True)
-                torch.save(model.state_dict(), MODEL_SAVE_PATH)
+                os.makedirs(os.path.dirname(model_save_path), exist_ok=True)
+                torch.save(model.state_dict(), model_save_path)
                 print(f"   [V] Saved Best: {best_acc:.4f}")
             else:
                 epochs_without_improvement += 1
@@ -259,16 +282,22 @@ def train(num_epochs=None, batch_size=None, lr=None, target_metric='acc', seed=N
         if last_epoch_stats is not None:
             print(f"[*] Final epoch summary: epoch={last_epoch_stats['epoch']} loss={last_epoch_stats['loss']:.4f} val_acc={last_epoch_stats['val_acc']:.4f}")
             log_f.write(f"[*] Final epoch summary: epoch={last_epoch_stats['epoch']} loss={last_epoch_stats['loss']:.4f} val_acc={last_epoch_stats['val_acc']:.4f}\n")
-        print(f"[*] TRAINING COMPLETE | epochs_run={last_epoch_stats['epoch'] if last_epoch_stats else 0} | wall_time={total_time:.1f}s | best_acc={best_acc:.4f} | best_epoch={best_epoch} | early_stop_reason={early_stop_reason} | model={MODEL_SAVE_PATH}")
-        log_f.write(f"[*] TRAINING COMPLETE | epochs_run={last_epoch_stats['epoch'] if last_epoch_stats else 0} | wall_time={total_time:.1f}s | best_acc={best_acc:.4f} | best_epoch={best_epoch} | early_stop_reason={early_stop_reason} | model={MODEL_SAVE_PATH}\n")
+        print(f"[*] TRAINING COMPLETE | epochs_run={last_epoch_stats['epoch'] if last_epoch_stats else 0} | wall_time={total_time:.1f}s | best_acc={best_acc:.4f} | best_epoch={best_epoch} | early_stop_reason={early_stop_reason} | model={model_save_path}")
+        log_f.write(f"[*] TRAINING COMPLETE | epochs_run={last_epoch_stats['epoch'] if last_epoch_stats else 0} | wall_time={total_time:.1f}s | best_acc={best_acc:.4f} | best_epoch={best_epoch} | early_stop_reason={early_stop_reason} | model={model_save_path}\n")
 
-    # SQLi family-breakdown split (for evaluate.py's family report only) is
-    # computed as a separate post-training step, not used for early stopping
-    # or best-checkpoint selection above.
-    print('[*] Computing SQLi family-breakdown split (post-training, report-only)')
-    fam_train_idx, fam_test_idx = _fixed_family_group_split(graphs)
-    print(f'[*] SQLi family-breakdown split written to {SQLI_FAMILY_TEST_INDEX_PATH}: '
-          f'train={len(fam_train_idx)}, test={len(fam_test_idx)}')
+    if write_family_split:
+        # SQLi family-breakdown split (for evaluate.py's family report only) is
+        # computed as a separate post-training step, not used for early stopping
+        # or best-checkpoint selection above.
+        print('[*] Computing SQLi family-breakdown split (post-training, report-only)')
+        fam_train_idx, fam_test_idx = _fixed_family_group_split(graphs)
+        print(f'[*] SQLi family-breakdown split written to {SQLI_FAMILY_TEST_INDEX_PATH}: '
+              f'train={len(fam_train_idx)}, test={len(fam_test_idx)}')
+
+    return {'best_acc': best_acc, 'best_epoch': best_epoch,
+            'epochs_run': last_epoch_stats['epoch'] if last_epoch_stats else 0,
+            'early_stop_reason': early_stop_reason, 'wall_time': total_time,
+            'model_save_path': model_save_path}
 
 
 if __name__ == '__main__':
