@@ -419,7 +419,7 @@ from train), `ReduceLROnPlateau(mode='max', factor=0.5, patience=5)`, max 100 ep
 stopping `patience=10`/`min_delta=0` on test-split accuracy, `seed` via `set_seed()` (including
 its `use_deterministic_algorithms(True)`), `DataLoader` generator seeded. **No baseline needed
 or received a learning-rate override** — every run converged at the default LR (best test acc
-≥ 0.9972 within the first ≤ 11 epochs) and every run stopped by early stopping (12–21 epochs),
+≥ 0.9972 within the first ≤ 11 epochs) and every run stopped by early stopping (11–21 epochs),
 none reaching the 100-epoch cap. **Inherited methodology weakness:** this loop selects the best
 checkpoint and stops on *test-split* accuracy (unlike the Transformer baselines, which use a
 validation loss from a train-only split). The same protocol applies to every graph/sequence
@@ -473,5 +473,6 @@ idle. Group B latency was not measured (not required; architecture too different
 **Code change to shared training code:** `src/training/train.py::train()` gained optional
 `model_factory`, `model_save_path`, `log_path`, `data_path`, `run_tag`, `write_family_split`
 arguments and now returns a run-summary dict. Defaults reproduce the deployed GATv2 run (the
-diff is confined to substituting those names for the module constants); baselines pass
+diff substitutes those names for the module constants, wraps the SQLi family-split step in
+`if write_family_split:` and adds the return value); baselines pass
 `write_family_split=False` so a baseline run never touches `sqli_family_test_indices.pkl`.
