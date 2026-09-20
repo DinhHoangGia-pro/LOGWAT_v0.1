@@ -2,8 +2,7 @@
 
 Nothing is typed in; every entry is computed from the results files and cross-checked against results/table2_old_vs_new.csv:
   results/sequence_baselines_5seed.csv, graph_baselines_5seed.csv, gatv2_reference_5seed.csv   5 seeds (42-46) -> mean +- sample std
-  results/final_baseline_comparison.csv       RoBERTa / CodeBERT (single run, seed 42) and string matching (deterministic)
-  results/string_matching_external_unknown_as_benign.csv   string matching, external, 'no rule fired' -> Benign (scripts/evaluate_string_matching_external_consistent.py)
+  results/final_baseline_comparison.csv       RoBERTa / CodeBERT (single run, seed 42) and string matching (deterministic; 'no rule fired' -> Benign in all three modes)
   results/latency_breakdown_graph_baselines.csv   CPU end-to-end mean, GATv2 measured in the same run as GCN/GraphSAGE/GIN/HGT
   results/latency_breakdown.csv               CPU end-to-end mean of the run that also holds LOGWAT's own breakdown (2.01 ms)
 Usage: PYTHONPATH=. python -m scripts.build_table2_latex [out.tex]
@@ -71,11 +70,6 @@ def main():
         rows[name]['lat'] = float(x.mean_ms.iloc[0])
         rows[name]['lat_sep'] = True
     rows['String matching'] = single('string_matching', '$^{\\ddagger}$')
-    # external column of the rule baseline: same 'no rule fired -> Benign' convention as its test-split and held-out numbers
-    sm = pd.read_csv(R / 'string_matching_external_unknown_as_benign.csv')
-    e_sm = float(sm[sm.group == 'weighted avg'].f1_score.iloc[0])
-    rows['String matching']['ext'] = f"{e_sm:.3f}"
-    rows['String matching']['ext_v'] = e_sm
     rows['String matching']['lat'] = None
     logwat_lat_sep = float(lat_m[(lat_m.method == 'GATv2') & (lat_m.device == 'cpu') & (lat_m.stage == 'end_to_end_ms')].mean_ms.iloc[0])
 

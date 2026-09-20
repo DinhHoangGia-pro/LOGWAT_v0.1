@@ -17,22 +17,22 @@ Confusion matrix (rows=true, cols=pred, order Benign/SQLi/XSS):
  [  125 10074   653]
  [    0     5   527]]
 
-[2] String-matching baseline (classify_request()) overall accuracy: 0.8918
-  (22613/30677 rows matched no rule (Unknown(-1)/Other(3)) and are labelled Benign, as in the test-split and held-out evaluations)
+[2] String-matching baseline (classify_request()) overall accuracy: 0.2629
+  (22613/30677 rows returned Unknown(-1)/Other(3), counted as wrong)
               precision    recall  f1-score   support
 
-      Benign     0.8532    1.0000    0.9208     19293
+      Benign     0.0000    0.0000    0.0000     19293
         SQLi     1.0000    0.7008    0.8241     10852
          XSS     1.0000    0.8628    0.9263       532
 
-    accuracy                         0.8918     30677
-   macro avg     0.9511    0.8545    0.8904     30677
-weighted avg     0.9077    0.8918    0.8867     30677
+   micro avg     1.0000    0.2629    0.4163     30677
+   macro avg     0.6667    0.5212    0.5835     30677
+weighted avg     0.3711    0.2629    0.3076     30677
 
 Confusion matrix:
-[[19293     0     0]
- [ 3247  7605     0]
- [   73     0   459]]
+[[   0    0    0]
+ [   0 7605    0]
+ [   0    0  459]]
 
 [3] Decision Tree size-only baseline ([num_nodes, num_edges], trained on train_idx n=39444) overall accuracy: 0.2020
               precision    recall  f1-score   support

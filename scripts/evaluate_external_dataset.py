@@ -91,10 +91,12 @@ def main():
 
     # --- 2. String-matching baseline ---
     y_pred_str = [classify_request(c) for c in df['content'].tolist()]
-    # classify_request() can return -1 (unknown) or 3 (other); map anything
-    # outside {0,1,2} to a value guaranteed wrong for every true label so it
-    # counts as an error in the report rather than crashing classification_report.
-    y_pred_str_mapped = [p if p in (0, 1, 2) else -1 for p in y_pred_str]
+    # classify_request() returns -1 (unknown) or 3 (other) when no rule fires. A rule-based filter lets such a
+    # request through, so it is labelled Benign (0) -- the SAME convention as
+    # scripts/evaluate_string_matching_test_split.py and scripts/build_heldout_matrix_eval.py. (Until 2026-09-20 this
+    # script counted them as wrong (-1), which gave Benign recall 0 and weighted F1 0.308 and was inconsistent with the
+    # other two evaluation modes; the pre-change output is kept as results/external_dataset_evaluation_PRE_string_matching_convention.csv.)
+    y_pred_str_mapped = [p if p in (0, 1, 2) else 0 for p in y_pred_str]
     cm_str = confusion_matrix(y_true_all, y_pred_str_mapped, labels=[0, 1, 2])
     rows += report_to_rows('string_matching', y_true_all, y_pred_str_mapped)
     n_unknown_or_other = sum(1 for p in y_pred_str if p not in (0, 1, 2))
@@ -142,7 +144,7 @@ def main():
     lines.append(f"Confusion matrix (rows=true, cols=pred, order Benign/SQLi/XSS):\n{cm_gnn}")
     lines.append("")
     lines.append(f"[2] String-matching baseline (classify_request()) overall accuracy: {acc_str:.4f}")
-    lines.append(f"  ({n_unknown_or_other}/{len(df)} rows returned Unknown(-1)/Other(3), counted as wrong)")
+    lines.append(f"  ({n_unknown_or_other}/{len(df)} rows matched no rule (Unknown(-1)/Other(3)) and are labelled Benign, as in the test-split and held-out evaluations)")
     lines.append(classification_report(y_true_all, y_pred_str_mapped, labels=[0, 1, 2], target_names=CLASS_NAMES, digits=4, zero_division=0))
     lines.append(f"Confusion matrix:\n{cm_str}")
     lines.append("")

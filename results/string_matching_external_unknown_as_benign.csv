@@ -1,6 +1,0 @@
-method,eval_mode,group,precision,recall,f1_score,support
-string_matching,external_dataset_unknown_as_benign,Benign,0.85318179808075,1.0,0.9207750680093543,19293.0
-string_matching,external_dataset_unknown_as_benign,SQLi,1.0,0.7007924806487283,0.8240775857398277,10852.0
-string_matching,external_dataset_unknown_as_benign,XSS,1.0,0.8627819548872181,0.9263370332996973,532.0
-string_matching,external_dataset_unknown_as_benign,macro avg,0.95106059936025,0.8545248118453155,0.8903965623496264,30677.0
-string_matching,external_dataset_unknown_as_benign,weighted avg,0.9076649095534736,0.8917755973530658,0.886664753700444,30677.0
