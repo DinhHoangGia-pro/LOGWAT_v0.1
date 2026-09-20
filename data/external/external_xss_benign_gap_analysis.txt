@@ -1,0 +1,37 @@
+checkpoint best_web_gnn_seed42.pth sha256[:12]=113a6f2cf513, n=30677 (Benign=19293, SQLi=10852, XSS=532)
+
+confusion matrix (rows=true, cols=pred, Benign/SQLi/XSS):
+[[13416  1127  4750]
+ [  125 10074   653]
+ [    0     5   527]]
+
+A. XSS precision at the 3-way argmax operating point
+   TP=527 FP=5403 FN=5 TN=24742  precision=0.0889 recall=0.9906 FPR=0.1792
+   PR-AUC (average precision of the XSS softmax probability) = 0.9640; no-skill baseline (prevalence) = 0.0173
+   pi=0.1%: precision=0.55% ; FPR needed for 50% precision <= 0.000992 (measured 0.1792 = 180.8x higher)
+   pi=1%: precision=5.29% ; FPR needed for 50% precision <= 0.010006 (measured 0.1792 = 17.9x higher)
+   pi=1.73% (this set): precision=8.89% ; FPR needed for 50% precision <= 0.017482 (measured 0.1792 = 10.3x higher)
+   one-vs-rest threshold on the XSS probability reaching precision >= 50%: threshold=0.9872 -> precision=0.5078, recall=0.9831 (argmax: recall 0.9906)
+
+B. External Benign rows misclassified
+   5877 of 19293 (30.5%): 1127 -> SQLi, 4750 -> XSS
+   with '=' (query-string form)      : 0 / 5877  (0.0%)
+   with '&' (query-string form)      : 0 / 5877  (0.0%)
+   with ':' (header-style form)      : 0 / 5877  (0.0%)
+   with '{' or '}' (json form)       : 0 / 5877  (0.0%)
+   pure digit strings                : 4075 / 5877  (69.3%)
+   containing '@'                    : 266 / 5877  (4.5%)
+   containing none of = & : { }        : 5877 / 5877  (100.0%)
+   predicted SQLi: 1127 rows; '@' in 7, pure digits in 218, mean length 13.4
+   predicted XSS: 4750 rows; '@' in 259, pure digits in 3857, mean length 10.6
+   10 examples (seed 0, proportional to the two directions):
+     -> SQLi len= 27  'calle dean miranda 106, 6-f'
+     -> SQLi len= 19  'playa postiguet 81,'
+     -> XSS  len=  5  '05298'
+     -> XSS  len= 16  '9738066615220073'
+     -> XSS  len= 16  '5693419988123325'
+     -> XSS  len= 16  '8412575121393763'
+     -> XSS  len= 16  '5861000706039696'
+     -> XSS  len=  5  '17864'
+     -> XSS  len=  9  '38860881n'
+     -> XSS  len= 16  '3358050293817980'

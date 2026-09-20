@@ -252,6 +252,8 @@ a clean apples-to-apples generalization test.**
 
 ### External Evaluation on HttpParamsDataset
 
+> **Superseded numbers (2026-09-20).** This section was first written for an earlier seed-42 checkpoint and reported GATv2 accuracy 0.7309, string-matching 0.2629 and Decision Tree 0.1783. Those figures are **superseded — see `results/external_dataset_evaluation.csv`**, computed with `data/models_pretrained/best_web_gnn_seed42.pth` (sha256 `113a6f2cf513…`, file dated 2026-09-18 20:31). Three things changed: the checkpoint (staleness fix, 2026-09-19), the Decision Tree's training indices (fix, 2026-09-19) and the string-matching convention (below). Earlier outputs are kept as `results/external_dataset_evaluation_PRE_*.csv`. The XSS-precision and benign-gap analyses below were recomputed for the same checkpoint by `scripts/analyze_external_xss_benign_gap.py` (`data/external/external_xss_benign_gap_analysis.txt`). Everything in this section is for this single seed-42 checkpoint; the 5-seed mean ± std used in the paper (weighted F1 0.796 ± 0.030) is in `results/gatv2_reference_5seed.csv`.
+
 No training/fine-tuning. Checkpoint: `data/models_pretrained/best_web_gnn_seed42.pth`
 (confirmed byte-identical to `best_web_gnn_seed42_ablation_1_full_no_edge_attr.pth`,
 i.e. ablation config (1): full edges, no edge_attr — see
@@ -264,145 +266,61 @@ use_sem=True, use_edge_attr=False`, matching that checkpoint exactly
 
 n=30677 (Benign=19293, SQLi=10852, XSS=532).
 
-| method | overall accuracy | Benign P/R/F1 | SQLi P/R/F1 | XSS P/R/F1 |
-|---|---|---|---|---|
-| **GATv2** (deployed checkpoint) | **0.7309** | 0.974 / 0.629 / 0.764 | 0.643 / 0.900 / 0.750 | 0.173 / 0.985 / 0.294 |
-| String-matching (`classify_request()`) | 0.2629 | 0.000 / 0.000 / 0.000 | 1.000 / 0.701 / 0.824 | 1.000 / 0.863 / 0.926 |
-| Decision Tree, size-only ([num_nodes, num_edges], trained on the same `train_idx` as `scripts/decision_tree_size_baseline.py`) | 0.1783 | 0.515 / 0.078 / 0.136 | 0.639 / 0.337 / 0.441 | 0.014 / 0.583 / 0.028 |
+| method | overall accuracy | Benign P/R/F1 | SQLi P/R/F1 | XSS P/R/F1 | weighted F1 |
+|---|---|---|---|---|---|
+| **GATv2** (deployed seed-42 checkpoint) | 0.7829 | 0.991 / 0.695 / 0.817 | 0.899 / 0.928 / 0.913 | 0.089 / 0.991 / 0.163 | 0.840 |
+| String-matching (`classify_request()`; no rule fired → Benign) | **0.8918** | 0.853 / 1.000 / 0.921 | 1.000 / 0.701 / 0.824 | 1.000 / 0.863 / 0.926 | **0.887** |
+| Decision Tree, size-only ([num_nodes, num_edges], trained on the same `train_idx` as `scripts/decision_tree_size_baseline.py`) | 0.2020 | 0.402 / 0.127 / 0.193 | 0.638 / 0.332 / 0.437 | 0.008 / 0.273 / 0.015 | 0.276 |
 
 GATv2 confusion matrix (rows=true, cols=pred, order Benign/SQLi/XSS):
 ```
-[[12130  5422  1741]
- [  321  9767   764]
- [    1     7   524]]
+[[13416  1127  4750]
+ [  125 10074   653]
+ [    0     5   527]]
 ```
 
-Decision Tree size-only accuracy (0.1783) is **well below** GATv2 (0.7309) —
-unlike the internal frozen test split, where the same size-only baseline
-reaches 0.7877 (`data/decision_tree_size_baseline.txt`), graph size trained on
-this repo's data does **not** transfer to the external set's very different
-size distribution. This rules out "GATv2's external accuracy is just the
-graph-size shortcut in disguise" for this dataset — GATv2 is using signal the
-size-only baseline doesn't have access to. The string-matching baseline
-predicts 0 Benign (every "norm" `payload` value is too generic/keyword-free
-to match any regex, so `classify_request()` returns Unknown(-1) for it, which
-is counted as wrong here) — it only ever fires on SQLi/XSS keyword matches,
-inflating its SQLi/XSS precision to 1.000 at the cost of recall and total
-uselessness on Benign.
+**String-matching convention.** `classify_request()` returns Unknown (-1) or Other (3) when no rule fires; this happens for 22,613 of the 30,677 rows, including every Benign row (the benign values are too generic for any of its regular expressions). A rule-based filter lets such a request through, so it is labelled Benign, exactly as in the same baseline's test-split and held-out evaluations. Until 2026-09-20 `evaluate_external_dataset.py` counted these rows as wrong, which gave Benign recall 0, accuracy 0.2629 and weighted F1 0.308 and was inconsistent with the other two modes; that variant survives only in the `PRE` file.
 
-**Consistency with the internal held-out matrix (8/9 cells, EXPERIMENT_LOG §11):**
-the internal held-out matrix's one remaining known weakness besides
-`comment_splitting` was resolved for short benign header/JSON fragments
-(fixed at retrain #4) — but this external set's Benign recall (0.629) shows
-the *same underlying failure mode reappearing at larger scale*: 5422/19293
-external Benign rows are misclassified as SQLi and 1741 as XSS, i.e. short,
-generic parameter values (`22997112x`, `plaa caudillo 60`) are still
-confused with attacks by this checkpoint often enough to matter, even though
-the specific `header_field`/`json_field` held-out cells pass. This is
-consistent with, not contradicted by, the held-out matrix result — the
-held-out matrix only probes 10 samples per cell, too few to have caught a
-~28% external Benign error rate on this specific short-fragment distribution.
-XSS's catastrophic precision (0.173) is a **new failure mode not previously
-observed internally** (all three internal XSS held-out cells are 1.0): 1741
-Benign and 764 SQLi external rows are wrongly predicted XSS, a
-disproportionate false-positive rate given XSS is only 532/30677 (1.7%) of
-this set.
+**Decision Tree.** Its accuracy (0.2020) is **well below** GATv2's (0.7829) — unlike the internal frozen test split, where the same size-only baseline reaches 0.7877 (`data/decision_tree_size_baseline.txt`), graph size trained on this repo's data does **not** transfer to the external set's very different size distribution. This rules out "GATv2's external accuracy is just the graph-size shortcut in disguise" for this dataset.
 
-**XSS precision deep-dive: base-rate artifact vs. genuine over-prediction.**
-At the current argmax threshold: P=0.1730, R=0.9850 (TP=524, FP=2505, FN=8,
-TN=27640 → measured FPR=0.0831). Using the softmax probability of the XSS
-class (not just the final argmax label), **PR-AUC (average precision) =
-0.9627** — vs. a no-skill baseline of 0.0173 (XSS's own prevalence in this
-set). This gap (0.963 vs. 0.017) shows the model's underlying *ranking*
-signal for XSS is strong; the poor precision is a property of the fixed
-3-way-argmax operating point under extreme imbalance, not an absence of
-discriminative signal. Applying Bayes' rule (precision(π) = π·TPR / (π·TPR +
-(1−π)·FPR)) with the measured TPR/FPR at this same operating point, to three
-assumed base rates: **π=0.1% → precision=1.17%; π=1% → precision=10.69%;
-π=1.7% (this set's own actual rate) → precision=17.30%** (self-consistent
-with the measured 0.1730 above — confirms the formula is correctly
-calibrated to the real confusion matrix). Solving the same formula for the
-FPR that would be *required* to reach a target precision of 50% at each
-base rate, fixed TPR=0.985: **π=0.1% needs FPR≤0.000986 (measured is 84x
-higher); π=1% needs FPR≤0.009950 (8.4x higher); π=1.7% needs FPR≤0.017384
-(4.8x higher).** **Conclusion: both effects are real and compounding, not
-either/or.** The extremely low real-world base rate of XSS mathematically
-caps precision at any fixed FPR (this alone would keep precision under ~2%
-at a plausible web-traffic-wide XSS rate of 0.1%) — but the model's FPR at
-the current fixed threshold (8.3%) is *also* too high even relative to this
-dataset's own inflated 1.7% rate (needs to drop ~4.8x just to hit 50%
-precision there), so it is not purely a base-rate artifact either. Given the
-strong PR-AUC, this reads as a **threshold-calibration problem at extreme
-class imbalance**, not a fundamental lack of signal — unlike the E_sem
-architectural limit in `docs/EXPERIMENT_LOG_semantic_edge_investigation.md`,
-this one is plausibly addressable by threshold tuning or a
-class-imbalance-aware decision rule, without further architecture changes.
+**GATv2 versus the rule.** On this dataset the rule-based matcher is *better* than GATv2 (accuracy 0.8918 versus 0.7829; weighted F1 0.887 versus 0.840). This is a real, measured result: its precision on SQLi and XSS is 1.000 with recall 0.701 and 0.863, i.e. it flags the attacks that carry literal signatures (the external attack payloads come from generators such as sqlmap and XSSYA) and lets every Benign value through. On the held-out matrix, where no attack row carries a literal signature (enforced in `scripts/build_heldout_matrix_eval.py`), the same rule scores 30/90 — all Benign rows right, no attack detected — against 80/90 for the seed-42 GATv2 (`results/final_baseline_comparison.csv`). The two benchmarks test different capabilities (literal-signature detection versus generalization to obfuscated payloads) and no single method dominates both.
 
-Threshold re-calibration (one-vs-rest at threshold ≈0.988 on the XSS softmax
-probability, instead of the 3-way argmax) achieves Precision=50.00% with
-Recall=97.18% (vs. 98.50% at argmax) — confirming, not just hypothesizing,
-that this is a fixable threshold-calibration issue rather than a fundamental
-model limitation.
+**Consistency with the internal held-out matrix (8/9 cells, EXPERIMENT_LOG §11):** the internal held-out matrix's one remaining known weakness besides `comment_splitting` was resolved for short benign header/JSON fragments (fixed at retrain #4) — but this external set's Benign recall (0.695) shows the *same underlying failure mode reappearing at larger scale*: 5877 of 19293 external Benign rows are misclassified, 1127 as SQLi and 4750 as XSS, i.e. short, generic parameter values (`22997112x`, `plaa caudillo 60`) are still confused with attacks by this checkpoint often enough to matter, even though the specific `header_field`/`json_field` held-out cells pass. This is consistent with, not contradicted by, the held-out matrix result — the held-out matrix only probes 10 samples per cell, too few to have caught a ~30% external Benign error rate on this specific short-fragment distribution. XSS's very low precision (0.089) is a **failure mode not observed internally** (all three internal XSS held-out cells are 1.0): 5403 rows are wrongly predicted XSS (4750 Benign and 653 SQLi), a disproportionate false-positive rate given XSS is only 532/30677 (1.7%) of this set.
 
-**Honest conclusion:** GATv2 (0.7309 accuracy) clearly outperforms both
-baselines on this external, differently-formatted dataset, and its
-external-Benign failure pattern is consistent with (an amplified version of)
-a weakness the internal held-out matrix already flagged — this is
-**evidence of partial generalization, not a clean win**. The result should
-be reported as "reduced but non-trivial performance under both attack-content
-and input-format shift," not as confirmation that internal held-out matrix
-performance (8/9) transfers to real-world-shaped external traffic; the
-~89%-shorter external Benign content and the new XSS false-positive mode are
-both genuine, separately-reportable limitations for the paper's Discussion,
-alongside the E_sem architectural limit already documented in
-`docs/EXPERIMENT_LOG_semantic_edge_investigation.md`.
+**XSS precision deep-dive: base-rate artifact vs. genuine over-prediction.** At the current argmax threshold: P=0.0889, R=0.9906 (TP=527, FP=5403, FN=5, TN=24742 → measured FPR=0.1792). Using the softmax probability of the XSS class (not just the final argmax label), **PR-AUC (average precision) = 0.9640** — vs. a no-skill baseline of 0.0173 (XSS's own prevalence in this set). This gap shows the model's underlying *ranking* signal for XSS is strong; the poor precision is a property of the fixed 3-way-argmax operating point under extreme imbalance, not an absence of discriminative signal. Applying Bayes' rule (precision(π) = π·TPR / (π·TPR + (1−π)·FPR)) with the measured TPR/FPR at this same operating point, to three base rates: **π=0.1% → precision=0.55%; π=1% → precision=5.29%; π=1.7% (this set's own actual rate) → precision=8.89%** (self-consistent with the measured 0.0889 above). The FPR that would be *required* to reach 50% precision at fixed TPR=0.9906: **π=0.1% needs FPR≤0.000992 (measured is 181x higher); π=1% needs FPR≤0.010006 (17.9x higher); π=1.7% needs FPR≤0.017482 (10.3x higher).** **Conclusion: both effects are real and compounding.** The extremely low real-world base rate of XSS caps precision at any fixed FPR, but the model's FPR at the current threshold (17.9%) is *also* too high relative to this dataset's own inflated 1.7% rate, so it is not purely a base-rate artifact. Given the strong PR-AUC this reads as a **threshold-calibration problem at extreme class imbalance**, not a fundamental lack of signal — unlike the E_sem architectural limit in `docs/EXPERIMENT_LOG_semantic_edge_investigation.md`, it is plausibly addressable by threshold tuning or a class-imbalance-aware decision rule.
 
-### Root cause of external Benign misclassification: a 4th, un-augmented benign form (2026-09-18)
+Threshold re-calibration (one-vs-rest at threshold ≈0.9872 on the XSS softmax probability, instead of the 3-way argmax) achieves Precision=50.78% with Recall=98.31% (vs. 99.06% at argmax) — confirming, not just hypothesizing, that this is a fixable threshold-calibration issue rather than a fundamental model limitation.
 
-Quick check (documentation only — no training/code change at this stage; this
-is Limitations material, not a bug to patch here). Of the 19293 external
-Benign rows, **7163 (37.1%) are misclassified** (5422 → SQLi, 1741 → XSS).
-10 real examples, verbatim content + length, sampled proportionally across
-both misprediction directions (6 SQLi-side, 4 XSS-side, matching the true
-~76%/24% split):
+**Honest conclusion:** GATv2 (seed 42, accuracy 0.7829) clearly outperforms the size-only Decision Tree (0.2020) but *not* the string-matching rule (0.8918) on this external, differently-formatted, signature-style dataset, and its external-Benign failure pattern is consistent with (an amplified version of) a weakness the internal held-out matrix already flagged — this is **evidence of partial generalization, not a clean win**. The result should be reported as "reduced but non-trivial performance under both attack-content and input-format shift," not as confirmation that internal held-out matrix performance (8/9) transfers to real-world-shaped external traffic; the ~89%-shorter external Benign content and the XSS false-positive mode are both genuine, separately-reportable limitations for the paper's Discussion, alongside the E_sem architectural limit already documented in `docs/EXPERIMENT_LOG_semantic_edge_investigation.md`.
+
+### Root cause of external Benign misclassification: a 4th, un-augmented benign form (2026-09-18; numbers recomputed 2026-09-20)
+
+Quick check (documentation only — no training/code change at this stage; this is Limitations material, not a bug to patch here; numbers recomputed 2026-09-20 for the current checkpoint, `data/external/external_xss_benign_gap_analysis.txt`). Of the 19293 external Benign rows, **5877 (30.5%) are misclassified** (1127 → SQLi, 4750 → XSS). 10 real examples, verbatim content + length (fixed seed, proportional to the two directions):
 
 | predicted as | len | content |
 |---|---|---|
-| SQLi | 16 | `1084102116286517` |
-| SQLi | 16 | `3006162765919932` |
-| SQLi | 16 | `2301580169203669` |
-| SQLi | 5 | `e72i4` |
-| SQLi | 16 | `7008973356777544` |
-| SQLi | 5 | `10860` |
-| XSS | 15 | `mori@itrends.do` |
-| XSS | 18 | `gunther@nik.com.tn` |
-| XSS | 21 | `mullen@menorca.com.bf` |
-| XSS | 34 | `keep_theberge9@aprendeaestudiar.gr` |
+| SQLi | 27 | `calle dean miranda 106, 6-f` |
+| SQLi | 19 | `playa postiguet 81,` |
+| XSS | 5 | `05298` |
+| XSS | 16 | `9738066615220073` |
+| XSS | 16 | `5693419988123325` |
+| XSS | 16 | `8412575121393763` |
+| XSS | 16 | `5861000706039696` |
+| XSS | 5 | `17864` |
+| XSS | 9 | `38860881n` |
+| XSS | 16 | `3358050293817980` |
 
-**This is confirmed to be a 4th benign form, distinct from all three forms
-already covered by train augmentation** (`docs/DATASET.md` §§
-"Train-only Benign syntax diversity"): checked structurally across all 7163
-misclassified rows, not just the 10 samples above —
+**This is confirmed to be a 4th benign form, distinct from all three forms already covered by train augmentation** (`docs/DATASET.md` §§ "Train-only Benign syntax diversity"): checked structurally across all 5877 misclassified rows, not just the 10 samples above —
 
 ```
-with '=' (query-string form):  0 / 7163
-with '&' (query-string form):  0 / 7163
-with ':' (header-style form):  0 / 7163
-with '{' or '}' (json form):   0 / 7163
-pure digit strings:            4075 / 7163 (56.9%)
+with '=' (query-string form):  0 / 5877
+with '&' (query-string form):  0 / 5877
+with ':' (header-style form):  0 / 5877
+with '{' or '}' (json form):   0 / 5877
+pure digit strings:            4075 / 5877 (69.3%)
 ```
 
-**100% of misclassified external Benign rows contain none of `=`, `&`, `:`,
-`{`, `}`** — zero overlap with the query-string (`key=value&key=value`),
-header-style (`Name: value`), or JSON-style (`{"k":"v"}`) forms added by
-`scripts/add_benign_syntax_diversity_train.py`. They are **single bare
-values with no key/delimiter structure at all**: standalone numeric strings
-that look like credit-card numbers or ID/PIN codes (`1084102116286517`,
-`10860`), short alphanumeric tokens (`e72i4`), and — for the XSS-predicted
-half specifically — **email addresses** (`mori@itrends.do`), which the `@`
-and `.`-heavy structure of plausibly resembles the tokenization of
-XSS-relevant special characters (`@`, `.`) closely enough to be a distinct
-sub-pattern worth naming on its own.
+**100% of misclassified external Benign rows contain none of `=`, `&`, `:`, `{`, `}`** — zero overlap with the query-string (`key=value&key=value`), header-style (`Name: value`) or JSON-style (`{"k":"v"}`) forms added by `scripts/add_benign_syntax_diversity_train.py`. They are **single bare values with no key/delimiter structure at all**. With the current checkpoint the errors are dominated by standalone numeric strings that look like credit-card numbers or ID/PIN codes (`1084102116286517`, `10860`): 4075 of 5877 rows (69.3%), and 3857 of the 4750 rows predicted XSS. Address fragments and short alphanumeric tokens form the rest; email addresses (`@`) are a minority (266 rows, 4.5%) — the earlier reading of the XSS-predicted half as mostly emails was an artifact of the superseded checkpoint.
 
 **Gap definition broadened (2026-09-18, RoBERTa baseline, Reviewer #3):**
 the RoBERTa Transformer baseline — a text-only architecture with no
