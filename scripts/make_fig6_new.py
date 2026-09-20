@@ -6,10 +6,15 @@ Panel (b): SQLi logit margin per configuration and payload, 5 seeds (points) + m
 Numbers come from data/case_study_fig6.txt (means, predictions, attention) and data/case_study_fig6_perseed.json
 (per-seed margins, scripts/case_study_fig6_perseed.py); the script asserts that the two agree before drawing.
 Text is kept as <text> objects (svg.fonttype = 'none') so the SVG stays editable in Inkscape/Illustrator.
+Mathtext labels ($E_{sem}$ ...) are post-processed by harden_svg_text(): matplotlib writes each glyph of such a label as its own
+<tspan x= y=> with an absolute position computed from DejaVu Sans metrics, which other SVG->PDF renderers (Inkscape) lay out
+wrongly (subscripts piled up / over the following text). The post-processing rewrites every such label as ONE <text> whose
+subscripts are relative-positioned tspans (dy), so the renderer does its own layout.
 """
 import json
 import re
 import sys
+from html import unescape
 from pathlib import Path
 
 import matplotlib
@@ -166,6 +171,60 @@ def panel_b(ax, seeds):
               bbox_to_anchor=(0.0, 1.0))
 
 
+# ---------------------------------------------------------------- SVG post-processing (renderer-robust subscripts)
+_MATH_BLOCK = re.compile(
+    r'(?P<ind>[ \t]*)<!-- (?P<orig>[^>]*?\$[^>]*?) -->\s*'
+    r'<g(?: style="(?P<gstyle>[^"]*)")? transform="translate\((?P<tx>[-\d.]+) (?P<ty>[-\d.]+)\)">\s*<text>(?P<body>.*?)</text>\s*</g>',
+    re.S)
+_TSPAN = re.compile(r'<tspan x="(?P<x>[-\d.]+)" y="(?P<y>[-\d.]+)" style="(?P<st>[^"]*)">(?P<t>.*?)</tspan>', re.S)
+
+
+def _fs(style):
+    return float(re.search(r'font-size:\s*([\d.]+)px', style).group(1))
+
+
+def _rebuild_math_text(m):
+    tsp = [(float(t['x']), float(t['y']), t['st'], t['t']) for t in (mm.groupdict() for mm in _TSPAN.finditer(m['body']))]
+    if not tsp:
+        return m.group(0)
+    tsp.sort(key=lambda t: t[0])                            # matplotlib emits glyphs grouped by size/level, not in reading order
+    base_style = max((t[2] for t in tsp), key=_fs)          # style of the full-size glyphs
+    base_fs = _fs(base_style)
+    runs = []                                               # [style, y, text]
+    for _, y, st, ch in tsp:
+        if runs and runs[-1][0] == st and abs(runs[-1][1] - y) < 1e-6:
+            runs[-1][2] += ch
+        else:
+            runs.append([st, y, ch])
+    y0 = runs[0][1]
+    parts, prev_y = [], y0
+    for st, y, txt in runs:
+        dy = y - prev_y
+        attrs = f' dy="{dy:.4f}"' if abs(dy) > 1e-6 else ''
+        if st != base_style:                                # subscript: smaller size only; family/fill inherited
+            attrs += f' style="font-size: {_fs(st):.4g}px"'
+        parts.append(f'<tspan{attrs}>{txt}</tspan>' if attrs else txt)
+        prev_y = y
+    style = re.sub(r'\s*fill:\s*#[0-9a-fA-F]+', '', base_style).strip().rstrip(';')
+    fill = re.search(r'fill:\s*(#[0-9a-fA-F]+)', base_style)
+    style += f'; fill: {fill.group(1)}' if fill else ''
+    ind = m['ind']
+    return (f'{ind}<!-- {m["orig"]} -->\n'
+            f'{ind}<g{" style=" + chr(34) + m["gstyle"] + chr(34) if m["gstyle"] else ""} transform="translate({m["tx"]} {m["ty"]})">\n'
+            f'{ind} <text x="0" y="{y0:g}" xml:space="preserve" style="{style}">{"".join(parts)}</text>\n'
+            f'{ind}</g>')
+
+
+def harden_svg_text(path):
+    s = Path(path).read_text(encoding='utf-8')
+    s, n = _MATH_BLOCK.subn(_rebuild_math_text, s)
+    # generic fallbacks, so a viewer without DejaVu falls back to a sans/monospace face instead of an arbitrary serif
+    s = s.replace("font-family: 'DejaVu Sans Mono'", "font-family: 'DejaVu Sans Mono', monospace")
+    s = re.sub(r"font-family: 'DejaVu Sans'(?!,| Mono)", "font-family: 'DejaVu Sans', sans-serif", s)
+    Path(path).write_text(s, encoding='utf-8')
+    return n
+
+
 def main():
     seeds, checks, att, counts = load()
     fig = plt.figure(figsize=(7.4, 7.2))
@@ -178,6 +237,8 @@ def main():
     fig.text(0.005, 0.655, '(b)', fontsize=11, fontweight='bold', va='top')
     out = Path(sys.argv[1]) if len(sys.argv) > 1 else OUT
     fig.savefig(out, format='svg')
+    n_fixed = harden_svg_text(out)
+    print(f"[+] {n_fixed} mathtext labels rewritten as single <text> with relative-positioned subscripts")
     print(f"[+] wrote {out}  ({out.stat().st_size} bytes)")
 
 

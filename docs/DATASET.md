@@ -53,6 +53,10 @@ not "permitted"). Until the original terms page is reachable and re-checked:
   described in the paper, per the attribution norm found above.
 - Re-attempt this check (the CSIC page, then the Wayback Machine) before final
   paper/code submission — a live terms page could change this conclusion.
+- As of 2026-09-18, the derived augmented_web_attack.csv (43,659 rows) IS
+  publicly tracked in this repository (commit 60efca6, tag
+  dataset-v2-frozen-in-git); the caution above applies to the raw CSIC files,
+  which remain untracked.
 
 ## Frozen dataset v1
 
@@ -255,9 +259,16 @@ a clean apples-to-apples generalization test.**
 > **Superseded numbers (2026-09-20).** This section was first written for an earlier seed-42 checkpoint and reported GATv2 accuracy 0.7309, string-matching 0.2629 and Decision Tree 0.1783. Those figures are **superseded — see `results/external_dataset_evaluation.csv`**, computed with `data/models_pretrained/best_web_gnn_seed42.pth` (sha256 `113a6f2cf513…`, file dated 2026-09-18 20:31). Three things changed: the checkpoint (staleness fix, 2026-09-19), the Decision Tree's training indices (fix, 2026-09-19) and the string-matching convention (below). Earlier outputs are kept as `results/external_dataset_evaluation_PRE_*.csv`. The XSS-precision and benign-gap analyses below were recomputed for the same checkpoint by `scripts/analyze_external_xss_benign_gap.py` (`data/external/external_xss_benign_gap_analysis.txt`). Everything in this section is for this single seed-42 checkpoint; the 5-seed mean ± std used in the paper (weighted F1 0.796 ± 0.030) is in `results/gatv2_reference_5seed.csv`.
 
 No training/fine-tuning. Checkpoint: `data/models_pretrained/best_web_gnn_seed42.pth`
-(confirmed byte-identical to `best_web_gnn_seed42_ablation_1_full_no_edge_attr.pth`,
-i.e. ablation config (1): full edges, no edge_attr — see
-`docs/REPRODUCIBILITY.md`). Graphs built with `use_seq=True, use_skip=True,
+(retrain #6 in `docs/REPRODUCIBILITY.md`, trained on the 43,659-row dataset, sha256 `113a6f2cf513…`).
+It has the same architecture and edge configuration as ablation config (1) (full edges,
+no edge_attr, class-weighted loss; both state dicts are 1,209,712 bytes) but is a
+**different training run**: config (1) is `best_web_gnn_seed42_ablation_1_full_no_edge_attr.pth`
+(sha256 `7b477f032935…`, identical to `best_web_gnn_seed42_PRE_xss_context.pth`), i.e. retrain #5,
+trained on the 43,595-row dataset before the 64 XSS context-distance rows were added. The
+two files therefore differ in their training data (and in `epochs_run`, 19 versus 11), not
+only through the GPU non-determinism described in `docs/REPRODUCIBILITY.md`. An earlier
+version of this paragraph called them byte-identical; that was presumably true while retrain #5
+was the deployed checkpoint, before retrain #6. Graphs built with `use_seq=True, use_skip=True,
 use_sem=True, use_edge_attr=False`, matching that checkpoint exactly
 (`scripts/build_external_graphs.py`). Evaluation script:
 `scripts/evaluate_external_dataset.py`. Full output:
