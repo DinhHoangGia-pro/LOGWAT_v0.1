@@ -1007,6 +1007,8 @@ current one to match what RoBERTa is being compared against).
   delimiter/key-value structure, not membership in one of three named
   sub-patterns, and RoBERTa's plain-word failures are the evidence that
   distinction matters.**
+
+  > **Correction note (2026-09-20).** "The numeric-ID/email sub-patterns GATv2's gap was characterized by" above and the three named sub-cases in the quoted correction refer to the earlier, superseded GATv2 checkpoint. For the current checkpoint (`data/external/external_xss_benign_gap_analysis.txt`), 4075/5877 (69.3%) of GATv2's misclassified external Benign rows are pure digit strings (3857 of the 4750 rows predicted XSS) and only 266 (4.5%) contain `@`; the structural finding (100% without `= & : { }`) is unchanged.
 - **The "content too short = no context, basically `<s></s>`" hypothesis is
   a partial, not primary, explanation.** Token-count check (RoBERTa's own
   tokenizer): rows misclassified Benign→XSS have median 6 tokens vs. 7 for

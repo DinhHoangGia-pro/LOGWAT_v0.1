@@ -326,8 +326,9 @@ pure digit strings:            4075 / 5877 (69.3%)
 the RoBERTa Transformer baseline — a text-only architecture with no
 graph-size shortcut, so this isn't a GATv2-specific artifact — hits the
 same 100%-bare-value pattern on this same external dataset, but fails on a
-*wider* set of rows than GATv2's numeric-ID/alphanumeric-token/email
-sub-patterns above: plain alphabetic words with no digits, no `@`, no
+*wider* set of rows than GATv2's sub-patterns above (digit strings, 69.3% of
+GATv2's current external Benign errors, plus address fragments and short
+alphanumeric tokens; email addresses only 4.5%): plain alphabetic words with no digits, no `@`, no
 special characters at all (`"fennell"`, `"genny"`, `"mckenney"`, `"maala8"`
 — see `docs/EXPERIMENT_LOG_semantic_edge_investigation.md`, "RoBERTa on the
 external dataset: same benign-type-4 gap, broader failure"). **The gap
@@ -336,18 +337,24 @@ token, or email address" (three named sub-cases) but "any bare short value
 (numeric, alphanumeric, or plain word) without any structural
 delimiter"** — the defining property is the *absence of delimiter/key-value
 structure*, not membership in one of the three originally-observed
-sub-patterns; those three were what GATv2's specific misclassifications
-happened to look like, not the full extent of the gap.
+sub-patterns. Those three named sub-cases describe what GATv2's
+misclassifications looked like at the earlier, superseded checkpoint
+(where emails were thought to make up much of the XSS-predicted half); at
+the current checkpoint digit strings dominate (69.3%, mostly labelled XSS)
+and emails are a minority (4.5%), which reinforces, not weakens, the point
+that no single sub-pattern defines the gap.
 
 **For the paper's Limitations section:** the three benign-syntax-diversity
 forms added in this repo's training data (query-string, header, JSON) cover
 benign content that has *some* delimiter/key-value structure. This 4th
 form — any bare short value (numeric, alphanumeric, or plain word) with no
 surrounding structure — was never represented in training, and the model
-has no reliable signal to distinguish "digits that are somebody's ID
-number" from "digits that are a SQLi numeric literal," "an email address"
-from "an XSS payload with special characters," or, per the broadened
-finding above, even a plain English-looking word from an attack token. This
+has no reliable signal to distinguish a bare digit string that is
+somebody's ID or card number from an attack token (the dominant case:
+69.3% of its external Benign errors, most of them labelled XSS), an address
+fragment or, less often (4.5%), an email address from an attack payload, or,
+per the broadened finding above, even a plain English-looking word from an
+attack token. This
 is a genuine, previously-undocumented generalization gap, not covered by
 the existing 8/9 held-out matrix (whose `field_query`/`header_field`/
 `json_field` Benign cells are all structured, delimiter-bearing forms), not
