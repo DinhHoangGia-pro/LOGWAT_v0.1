@@ -135,9 +135,9 @@ The two sections describe two different conditions of sufficiency and do not com
 
 \begin{figure}[H]
 \centering
-% TODO: regenerate. Panel (a): BAG of the fragmented payload with the four E_sem edges in red. Panel (b): SQLi margin, LOGWAT vs HGT, E_sem present/deleted, 5 seeds (points) + mean (bar); values in data/case_study_fig6.txt.
-\includegraphics[width=0.9\textwidth]{Fig/Fig.6_new.png}
-\caption{Case study: edge existence versus edge processing. (a) Behavioral attack graph of the fragmented payload \texttt{p=0;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=0;--}: the builder reconstructs \texttt{union}, \texttt{select} and \texttt{from} and adds four semantic edges (red) among 146 edges. (b) SQLi logit margin ($>0$ means SQLi) of LOGWAT and of typed HGT with the semantic edges present and deleted; points are the five seeds, bars their mean. The edge is built in every case, but only the model with a relation-specific message transformation uses it.}\label{fig6}
+% Source: Fig/Fig.6_new.svg (scripts/make_fig6_new.py; values in data/case_study_fig6.txt and data/case_study_fig6_perseed.json). Export it to Fig/Fig.6_new.pdf before compiling.
+\includegraphics[width=0.9\textwidth]{Fig/Fig.6_new.pdf}
+\caption{Case study: edge existence versus edge processing. (a) Behavioral attack graph of the fragmented payload \texttt{p=0;UNI/**/ON ALL SEL/**/ECT * FR/**/OM users WH/**/ERE id=0;--}: the builder reconstructs \texttt{union}, \texttt{select} and \texttt{from} and adds four semantic edges (red) among 146 edges. (b) SQLi logit margin ($>0$ means SQLi) of LOGWAT and of typed HGT with the semantic edges present and deleted, for the fragmented payload and for its intact-keyword counterpart, and of LOGWAT with its sequential edges deleted instead; points are the five seeds, bars their mean. The edge is built in every case, but only the model with a relation-specific message transformation uses it.}\label{fig6}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
